@@ -20,11 +20,11 @@ function ButtonListAuth() {
       <Link
         onClick={handleShowLoading}
         href={process.env.NEXT_PUBLIC_FARMER_ROUTE as string}
-        className="flex justify-center hover:scale-110 transition  ring-super-main-color
-        duration-100 active:ring-2  bg-main-color btn-hoever p-2 py-1 rounded-full items-center gap-2"
+        className="btn-hoever flex items-center justify-center  gap-2
+        rounded-full bg-main-color  p-2 py-1 ring-super-main-color transition duration-100 hover:scale-110 active:ring-2"
       >
         <Farmer />
-        <span className="text-white font-medium">
+        <span className="font-medium text-white">
           ลงทะเบียน สำหรับเกษตรกรใหม่
         </span>
       </Link>
@@ -32,20 +32,20 @@ function ButtonListAuth() {
       <Link
         onClick={handleShowLoading}
         href={process.env.NEXT_PUBLIC_FARMER_ROUTE as string}
-        className="flex justify-center min-h-11 hover:scale-110 transition ring-super-main-color 
-        duration-100 active:ring-2 bg-third-color p-2 py-1 rounded-full items-center gap-2"
+        className="flex min-h-11 items-center justify-center gap-2 rounded-full 
+        bg-third-color p-2 py-1 ring-super-main-color transition duration-100 hover:scale-110 active:ring-2"
       >
-        <span className="text-white font-medium">
+        <span className="font-medium text-white">
           เข้าสู่ระบบ สำหรับเกษตรกร
         </span>
       </Link>
       <Link
         href={process.env.NEXT_PUBLIC_COMMITTEE_ROUTE as string}
         onClick={handleShowLoading}
-        className="flex justify-center relative z-20 min-h-11 hover:scale-110 transition 
-        duration-100 active:ring-2 ring-super-main-color  bg-secondary-color p-2 py-1 rounded-full items-center gap-2"
+        className="relative z-20 flex min-h-11 items-center justify-center gap-2 
+        rounded-full bg-secondary-color p-2  py-1 ring-super-main-color transition duration-100 hover:scale-110 active:ring-2"
       >
-        <span className="text-white font-medium">สำหรับผู้ประเมิน</span>
+        <span className="font-medium text-white">สำหรับผู้ประเมิน</span>
       </Link>
     </>
   );
