@@ -1,10 +1,9 @@
-"use client";
-
 function Backgroud() {
   return (
     <svg
+      className="0 absolute bottom-0 left-0 right-0 z-10 m-auto bg-transparent"
       width="100%"
-      height="100%"
+      height="200"
       viewBox="0 0 360 188"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
