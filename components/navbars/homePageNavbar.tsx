@@ -3,7 +3,7 @@ import { TbArrowBack } from "react-icons/tb";
 
 function HomePageNavbar() {
   return (
-    <nav className="flex h-28 w-full items-center justify-between bg-fourth-color p-5 font-Anuphan">
+    <nav className=" fixed top-0 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan">
       <section className="flex flex-col items-center justify-end gap-1  font-bold text-main-color">
         <div
           className="flex items-center justify-center rounded-2xl bg-main-color p-2 text-3xl text-white ring-white 
