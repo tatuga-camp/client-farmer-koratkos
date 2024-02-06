@@ -7,17 +7,7 @@ import { PrimeReactProvider } from "primereact/api";
 import NextTopLoader from "nextjs-toploader";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 1000 * 6,
-            refetchInterval: 1000 * 6,
-          },
-        },
-      }),
-  );
+  const [queryClient] = useState(() => new QueryClient());
   return (
     <QueryClientProvider client={queryClient}>
       <ReactQueryDevtools initialIsOpen={false} />

@@ -1,6 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { Button } from "react-aria-components";
 import { MdBrowserNotSupported } from "react-icons/md";
+import { GetCheckStatusEvaluationService } from "../../services/evaluation";
 
 export type statusListsType =
   | "ยังไม่สามารถส่งคำร้องขอรับการประเมินได้"
@@ -66,6 +68,9 @@ const NotPassedEvaluation = () => {
         <span>ไม่ผ่านการประเมิน</span>
         <MdBrowserNotSupported />
       </Button>
+      <span className="text-balance text-center text-red-800">
+        *แก้ไขข้อมูลและส่งคำร้องขอรับการประเมินอีกครั้ง
+      </span>
     </div>
   );
 };
@@ -87,6 +92,10 @@ const PenddingEvaluation = () => {
 };
 
 function StatusEvaluation() {
+  const status = useQuery({
+    queryKey: ["status-evluation"],
+    queryFn: () => GetCheckStatusEvaluationService(),
+  });
   return (
     <div
       className="flex h-max w-80 flex-col items-center justify-center gap-1 rounded-3xl
@@ -95,7 +104,25 @@ function StatusEvaluation() {
       <h2 className="text-lg font-bold text-super-main-color">
         สถานะการส่งคำร้อง
       </h2>
-      {PenddingEvaluation()}
+      {status.isLoading ? (
+        <div className="flex h-20 w-10/12 flex-col gap-2 ">
+          <div className="h-10 w-full animate-pulse rounded-lg bg-slate-300"></div>
+          <div className="flex items-center justify-center gap-2">
+            <div className="h-10 w-10 animate-pulse rounded-full bg-slate-300"></div>
+            <div className="h-10 w-10/12 animate-pulse rounded-lg bg-slate-300"></div>
+          </div>
+        </div>
+      ) : status.data === "not-ready" ? (
+        notReadyToEvaluation()
+      ) : status.data === "ready" ? (
+        readyToEvaluation()
+      ) : status.data === "approved" ? (
+        PassedEvaluation()
+      ) : status.data === "rejected" ? (
+        NotPassedEvaluation()
+      ) : (
+        PenddingEvaluation()
+      )}
     </div>
   );
 }

@@ -15,27 +15,33 @@ function DashboardNavbar() {
     queryClient.removeQueries({ queryKey: ["farmer"] });
   };
   return (
-    <nav className="fixed top-0 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan">
-      <section className="flex flex-col items-start  gap-1  ">
+    <nav className="fixed top-0 z-40 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan">
+      <Link href="/" className="flex flex-col items-start  gap-1  ">
         <div className="flex items-end justify-center gap-1">
           <h1 className="text-xl font-bold text-main-color">Korat KOS</h1>
           <div className="relative h-10 w-10">
-            <Image src="/favicon.ico" fill alt="icon" />
+            <Image
+              src="/favicon.ico"
+              fill
+              alt="icon"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
           </div>
         </div>
         <p className=" w-36 text-balance text-left text-[0.50rem] font-medium text-super-main-color">
           ระบบสมัครขอรับการตรวจประเมินมาตรฐาน เกษตรอินทรีย์ขั้นพื้นฐาน
           จังหวัดนครราชสีมา
         </p>
-      </section>
+      </Link>
 
       <section className="flex flex-col items-center justify-center gap-1 text-super-main-color">
-        <div
+        <Link
+          href="/farmer/setting"
           className=" rounded-2xl bg-super-main-color p-2 text-3xl text-white
           transition duration-100  active:scale-105 "
         >
           <TbUserEdit />
-        </div>
+        </Link>
         <span className="text-sm font-bold">แก้ไขข้อมูล</span>
       </section>
       <section className="flex flex-col items-center justify-center gap-1 text-red-700">

@@ -17,7 +17,12 @@ function HomePageNavbar() {
         <div className="flex items-end justify-center gap-1">
           <h1 className="text-xl font-bold text-main-color">Korat KOS</h1>
           <div className="relative h-10 w-10">
-            <Image src="/favicon.ico" fill alt="icon" />
+            <Image
+              src="/favicon.ico"
+              fill
+              alt="icon"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
           </div>
         </div>
         <p className=" w-48 text-balance text-right text-[0.65rem] font-medium text-super-main-color">

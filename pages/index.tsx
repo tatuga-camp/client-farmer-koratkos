@@ -1,6 +1,7 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { parseCookies } from "nookies";
 import {
+  GetAllDocKosService,
   GetFarmerClientSideService,
   GetFarmerServerSideService,
 } from "../services/farmer";
@@ -9,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "../layouts/dashboardLayout";
 import Image from "next/image";
 import StatusEvaluation from "../components/status/statusEvaluation";
+import DocKosLists from "../components/docKos/docKosLists";
 
 function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
   const farmer = useQuery({
@@ -16,15 +18,20 @@ function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
     queryFn: () => GetFarmerClientSideService(),
     initialData: initialFarmer,
   });
+  const docKos = useQuery({
+    queryKey: ["docKos"],
+    queryFn: () => GetAllDocKosService(),
+  });
   return (
     <DashboardLayout>
-      <div>
+      <div className="bg-fourth-color pb-20">
         <header className="flex flex-col items-center justify-center gap-3 pt-40 font-Anuphan">
           <div className="relative h-28 w-28 overflow-hidden rounded-full ring-2 ring-super-main-color ring-offset-2 ">
             <Image
               src={farmer.data.picture}
               alt="profile"
               fill
+              sizes="(max-width: 768px) 100vw, 33vw"
               className=" object-cover"
             />
           </div>
@@ -38,7 +45,9 @@ function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
             <StatusEvaluation />
           </section>
         </header>
-        <main></main>
+        <main>
+          <DocKosLists docKos={docKos} />
+        </main>
       </div>
     </DashboardLayout>
   );

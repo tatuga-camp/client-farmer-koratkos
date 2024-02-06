@@ -25,6 +25,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-react-aria-components")({ prefix: "rac" }),
+    require("tailwindcss-animate"),
+  ],
 };
 export default config;
