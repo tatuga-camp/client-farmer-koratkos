@@ -18,6 +18,7 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { IoMdCloseCircle } from "react-icons/io";
+import { Step } from "../../../../pages/create/kos1";
 
 export type BasicInformation = {
   address: string;
@@ -135,7 +136,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
         );
         router.push({
           pathname: "/create/kos1",
-          query: { step: "farmFieldInformation" },
+          query: { step: "farmFieldInformation" as Step },
         });
       }
     } catch (error: any) {
@@ -208,7 +209,6 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
             <div className="mt-20 flex gap-2">
               <Link
                 href={`/kos01/${docKos1?.data?.id}`}
-                type="button"
                 className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
           text-xl text-white drop-shadow-md"
               >

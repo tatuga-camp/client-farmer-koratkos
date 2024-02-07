@@ -13,12 +13,27 @@ import { Calendar } from "primereact/calendar";
 import { addLocale } from "primereact/api";
 import { GetStaticMapService } from "../../../../services/map";
 import { Step } from "../../../../pages/create/kos1";
+import { UseQueryResult } from "@tanstack/react-query";
+import {
+  ResponseGetAllDocKos1Service,
+  UpdateFarmKos01Service,
+} from "../../../../services/kos1";
+import { IoMdCloseCircle } from "react-icons/io";
+import { FaSave } from "react-icons/fa";
+import Link from "next/link";
 
-function FarmFieldInformation() {
+type FarmFieldInformationProps = {
+  isUpdate?: boolean;
+  docKos1?: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
+};
+function FarmFieldInformation({
+  isUpdate,
+  docKos1,
+}: FarmFieldInformationProps) {
   const router = useRouter();
   const [baicInformation, setBasicInformation] = useState<
     | (BasicInformation & {
-        certRequestDate: string;
+        certRequestDate: Date;
         longitude: string;
         latitude: string;
         mapTerrain: string;
@@ -28,6 +43,30 @@ function FarmFieldInformation() {
   >();
   const [loadingMap, setLoadingMap] = useState(false);
 
+  useEffect(() => {
+    if (docKos1?.isSuccess) {
+      setBasicInformation(() => {
+        return {
+          address: docKos1.data?.farmKos1.address as string,
+          moo: docKos1.data?.farmKos1.villageNumber as string,
+          province: {
+            name_th: docKos1.data?.farmKos1.province as string,
+          },
+          amphure: {
+            name_th: docKos1.data?.farmKos1.district as string,
+          },
+          tambon: {
+            name_th: docKos1.data?.farmKos1.subdistrict as string,
+          },
+          certRequestDate: docKos1.data?.farmKos1.certRequestDate,
+          longitude: docKos1.data?.farmKos1.longitude as string,
+          latitude: docKos1.data?.farmKos1.latitude as string,
+          mapTerrain: docKos1.data?.farmKos1.mapTerrain as string,
+          mapHybrid: docKos1.data?.farmKos1.mapHybrid as string,
+        };
+      });
+    }
+  }, [docKos1?.isSuccess]);
   const handleChangeOnBasicInformation = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -48,7 +87,7 @@ function FarmFieldInformation() {
     }
   }, []);
 
-  const handleSummitFarmFieldInformation = (e: React.FormEvent) => {
+  const handleSummitFarmFieldInformation = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
       console.log(baicInformation);
@@ -57,15 +96,56 @@ function FarmFieldInformation() {
           "กรุณาตรวจสอบพิกัดแปลง (UTM) 47/48 P และกดตรวจสอบแผนที่",
         );
       }
-      localStorage.setItem(
-        "farmFieldInformation",
-        JSON.stringify(baicInformation),
-      );
 
-      router.push({
-        pathname: "/create/kos1",
-        query: { step: "productionInformation" as Step },
-      });
+      if (isUpdate) {
+        Swal.fire({
+          text: "กำลังบันทึกข้อมูล",
+          html: "กรุณารอสักครู่",
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        const update = await UpdateFarmKos01Service({
+          query: {
+            docKos01Id: docKos1?.data?.id as string,
+          },
+          body: {
+            address: baicInformation?.address,
+            villageNumber: baicInformation?.moo,
+            subdistrict: baicInformation?.tambon?.name_th,
+            district: baicInformation?.amphure?.name_th,
+            province: baicInformation?.province?.name_th,
+            latitude: baicInformation?.latitude,
+            longitude: baicInformation?.longitude,
+            certRequestDate: baicInformation?.certRequestDate,
+            mapTerrain: baicInformation?.mapTerrain,
+            mapHybrid: baicInformation?.mapHybrid,
+          },
+        });
+        router.push({
+          pathname: `/kos01/${docKos1?.data?.id}`,
+        });
+        await docKos1?.refetch();
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: "บันทึกข้อมูลสำเร็จ",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      } else {
+        localStorage.setItem(
+          "farmFieldInformation",
+          JSON.stringify(baicInformation),
+        );
+
+        router.push({
+          pathname: "/create/kos1",
+          query: { step: "productionInformation" as Step },
+        });
+      }
     } catch (error: any) {
       Swal.fire({
         icon: "error",
@@ -299,27 +379,48 @@ function FarmFieldInformation() {
             touchUI
           />
         </section>
-        <div className="flex w-full items-center justify-center gap-2">
-          <Button
-            type="button"
-            onPress={handleClickOnBack}
-            className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color 
-            px-5 py-2 text-lg font-semibold text-white drop-shadow-lg 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
-          >
-            <MdOutlineNavigateBefore /> ย้อนกลับ
-          </Button>
-          <Button
-            type="submit"
-            className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10
-             py-2 text-lg  font-semibold text-white drop-shadow-lg 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
-          >
-            ถัดไป <MdOutlineNavigateNext />
-          </Button>
-        </div>
+        {isUpdate ? (
+          <div className="mt-20 flex gap-2">
+            <Link
+              href={`/kos01/${docKos1?.data?.id}`}
+              className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
+          text-xl text-white drop-shadow-md"
+            >
+              <IoMdCloseCircle />
+              ยกเลิก
+            </Link>
+            <Button
+              type="submit"
+              className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-2 
+          text-xl text-white drop-shadow-md"
+            >
+              <FaSave />
+              บันทึก
+            </Button>
+          </div>
+        ) : (
+          <div className="flex w-full items-center justify-center gap-2">
+            <Button
+              type="button"
+              onPress={handleClickOnBack}
+              className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color 
+              px-5 py-2 text-lg font-semibold text-white drop-shadow-lg 
+                transition duration-100 hover:bg-super-main-color 
+                active:scale-110 active:ring-2 active:ring-super-main-color`}
+            >
+              <MdOutlineNavigateBefore /> ย้อนกลับ
+            </Button>
+            <Button
+              type="submit"
+              className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10
+               py-2 text-lg  font-semibold text-white drop-shadow-lg 
+                transition duration-100 hover:bg-super-main-color 
+                active:scale-110 active:ring-2 active:ring-super-main-color`}
+            >
+              ถัดไป <MdOutlineNavigateNext />
+            </Button>
+          </div>
+        )}
       </Form>
     </div>
   );

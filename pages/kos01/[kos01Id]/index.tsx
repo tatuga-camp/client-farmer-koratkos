@@ -63,11 +63,11 @@ function Index({ farmer }: { farmer: Farmer }) {
             {menuKos01({ kos1Id: router.query.kos01Id as string }).map(
               (menu, index) => (
                 <Link
-                  className="flex h-max w-80 justify-between gap-2 rounded-lg bg-third-color p-5 ring-white drop-shadow-md  transition duration-150 hover:scale-105 active:scale-110 active:ring-2"
+                  className="flex h-max w-80 items-center justify-between gap-2 rounded-lg bg-third-color p-5 ring-white drop-shadow-md  transition duration-150 hover:scale-105 active:scale-110 active:ring-2"
                   href={menu.href}
                   key={index}
                 >
-                  <span className="text-xl font-semibold text-super-main-color">
+                  <span className="text-center text-xl font-semibold text-black">
                     {menu.title}
                   </span>
                   <div

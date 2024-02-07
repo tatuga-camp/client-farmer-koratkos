@@ -29,7 +29,7 @@ export type FarmDocKos1 = {
   mapTerrain?: string;
   mapHybrid?: string;
   certRequestDate: Date;
-  productionProcess: string;
+  productionProcess: string[];
   productionMethod: string;
   plotsTotal?: number;
   raiTotal?: number;

@@ -228,3 +228,53 @@ export async function UpdateDocKos1Service(
     throw error?.response?.data;
   }
 }
+
+export type RequestUpdateFarmKos01Service = {
+  query: {
+    docKos01Id: string;
+  };
+  body: {
+    address?: string;
+    villageNumber?: string;
+    subdistrict?: string;
+    district?: string;
+    province?: string;
+    latitude?: string;
+    longitude?: string;
+    productionProcess?: string[];
+    docKos01Id?: string;
+    certRequestDate?: Date;
+    productionMethod?: string;
+    mapTerrain?: string;
+    mapHybrid?: string;
+    plotsTotal?: number;
+    raiTotal?: number;
+    nganTotal?: number;
+    certicatedPlotTotal?: number;
+    certicatedRaiTotal?: number;
+    certicatedNganTotal?: number;
+  };
+};
+export async function UpdateFarmKos01Service(
+  input: RequestUpdateFarmKos01Service,
+): Promise<FarmDocKos1> {
+  try {
+    const cookies = parseCookies();
+    const access_token = cookies.access_token;
+    const farm = await axios({
+      method: "PATCH",
+      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos1/update-farmKOS1`,
+      data: {
+        ...input,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return farm.data;
+  } catch (error: any) {
+    console.error(error.response.data);
+    throw error?.response?.data;
+  }
+}

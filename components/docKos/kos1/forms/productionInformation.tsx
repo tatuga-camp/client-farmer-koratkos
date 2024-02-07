@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -10,7 +10,11 @@ import {
   RadioGroup,
   TextField,
 } from "react-aria-components";
-import { IoIosCheckbox, IoIosCheckboxOutline } from "react-icons/io";
+import {
+  IoIosCheckbox,
+  IoIosCheckboxOutline,
+  IoMdCloseCircle,
+} from "react-icons/io";
 import {
   MdCheckBoxOutlineBlank,
   MdOutlineNavigateBefore,
@@ -23,12 +27,25 @@ import { BasicInformation } from "./basicInformation";
 import {
   CreateDocKos1Service,
   CreateFarmDocKos1Service,
+  ResponseGetAllDocKos1Service,
+  UpdateFarmKos01Service,
 } from "../../../../services/kos1";
 import { Farmer } from "../../../../model";
 import { useRouter } from "next/router";
 import { Step } from "../../../../pages/create/kos1";
-
-function ProductionInformation({ farmer }: { farmer: Farmer }) {
+import { UseQueryResult } from "@tanstack/react-query";
+import Link from "next/link";
+import { FaSave } from "react-icons/fa";
+type ProductionInformationProps = {
+  farmer: Farmer;
+  isUpdate?: boolean;
+  docKos1?: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
+};
+function ProductionInformation({
+  farmer,
+  isUpdate,
+  docKos1,
+}: ProductionInformationProps) {
   const router = useRouter();
   const [productionInformation, setProductionInformation] = useState<{
     productionProcess: string[];
@@ -54,75 +71,150 @@ function ProductionInformation({ farmer }: { farmer: Farmer }) {
       };
     });
   };
+  useEffect(() => {
+    if (docKos1?.isSuccess) {
+      setProductionInformation(() => {
+        let productionMethod = "อื่นๆ";
+        if (
+          docKos1?.data?.farmKos1.productionMethod ===
+            "ชนิดพืชที่ผลิตแตกต่างกัน" ||
+          docKos1?.data?.farmKos1.productionMethod === "เวลาการผลิตแตกต่างกัน"
+        ) {
+          productionMethod = docKos1?.data?.farmKos1.productionMethod;
+        }
+        return {
+          productionProcess: docKos1?.data?.farmKos1.productionProcess,
+          productionMethod: {
+            value: docKos1?.data?.farmKos1.productionMethod || "",
+            select: productionMethod,
+          },
+          plotsTotal: docKos1?.data?.farmKos1.plotsTotal || 0,
+          raiTotal: docKos1?.data?.farmKos1.raiTotal || 0,
+          nganTotal: docKos1?.data?.farmKos1.nganTotal || 0,
+          certicatedPlotTotal: docKos1?.data?.farmKos1.certicatedPlotTotal || 0,
+          certicatedRaiTotal: docKos1?.data?.farmKos1.certicatedRaiTotal || 0,
+          certicatedNganTotal: docKos1?.data?.farmKos1.certicatedNganTotal || 0,
+        };
+      });
+    }
+  }, [docKos1?.isSuccess]);
 
   const handleSummitProductionInformation = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      Swal.fire({
-        icon: "info",
-        title: "กำลังสร้างเอกสาร KOS 1",
-        text: "กรุณารอสักครู่",
-        allowOutsideClick: false,
-        allowEnterKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
 
-      const basicInformation = localStorage.getItem("basicInformation");
-      const parseBasicInformation: BasicInformation = JSON.parse(
-        basicInformation as string,
-      );
-      const farmInformation = localStorage.getItem("farmFieldInformation");
-      const parseFarmInformation: BasicInformation & {
-        certRequestDate: string;
-        longitude: string;
-        latitude: string;
-        mapTerrain: string;
-        mapHybrid: string;
-      } = JSON.parse(farmInformation as string);
-      const docKos1 = await CreateDocKos1Service({
-        address: parseBasicInformation.address,
-        villageNumber: parseBasicInformation.moo,
-        subdistrict: parseBasicInformation.tambon?.name_th as string,
-        district: parseBasicInformation.amphure?.name_th as string,
-        province: parseBasicInformation.province?.name_th as string,
-        phoneNumber: farmer.phoneNumber,
-      });
-      const farmDocKos1 = await CreateFarmDocKos1Service({
-        address: parseFarmInformation.address,
-        villageNumber: parseFarmInformation.moo,
-        subdistrict: parseFarmInformation.tambon?.name_th as string,
-        district: parseFarmInformation.amphure?.name_th as string,
-        province: parseFarmInformation.province?.name_th as string,
-        latitude: parseFarmInformation.latitude,
-        longitude: parseFarmInformation.longitude,
-        productionProcess: productionInformation?.productionProcess as string[],
-        docKos01Id: docKos1.id,
-        certRequestDate: parseFarmInformation.certRequestDate,
-        productionMethod: productionInformation?.productionMethod
-          .value as string,
-        mapTerrain: parseFarmInformation.mapTerrain,
-        mapHybrid: parseFarmInformation.mapHybrid,
-        plotsTotal: productionInformation?.plotsTotal as number,
-        raiTotal: productionInformation?.raiTotal as number,
-        nganTotal: productionInformation?.nganTotal as number,
-        certicatedPlotTotal:
-          productionInformation?.certicatedPlotTotal as number,
-        certicatedRaiTotal: productionInformation?.certicatedRaiTotal as number,
-        certicatedNganTotal:
-          productionInformation?.certicatedNganTotal as number,
-      });
+      if (isUpdate) {
+        Swal.fire({
+          icon: "info",
+          title: "กำลังอัพเดทข้อมูล",
+          text: "กรุณารอสักครู่",
+          allowOutsideClick: false,
+          allowEnterKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        const update = await UpdateFarmKos01Service({
+          query: {
+            docKos01Id: docKos1?.data?.id as string,
+          },
+          body: {
+            productionProcess:
+              productionInformation?.productionProcess as string[],
+            docKos01Id: docKos1?.data?.id as string,
+            productionMethod: productionInformation?.productionMethod
+              .value as string,
+            plotsTotal: productionInformation?.plotsTotal as number,
+            raiTotal: productionInformation?.raiTotal as number,
+            nganTotal: productionInformation?.nganTotal as number,
+            certicatedPlotTotal:
+              productionInformation?.certicatedPlotTotal as number,
+            certicatedRaiTotal:
+              productionInformation?.certicatedRaiTotal as number,
+            certicatedNganTotal:
+              productionInformation?.certicatedNganTotal as number,
+          },
+        });
+        router.push({
+          pathname: `/kos01/${docKos1?.data?.id}`,
+        });
+        await docKos1?.refetch();
+        Swal.fire({
+          icon: "success",
+          title: "บันทึกสำเร็จ",
+          text: "บันทึกข้อมูลสำเร็จ",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "info",
+          title: "กำลังสร้างเอกสาร KOS 1",
+          text: "กรุณารอสักครู่",
+          allowOutsideClick: false,
+          allowEnterKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-      localStorage.removeItem("basicInformation");
-      localStorage.removeItem("farmFieldInformation");
-      router.push({
-        pathname: `/kos01/${farmDocKos1.docKos01Id}/plantKos1`,
-      });
-      Swal.fire({
-        icon: "success",
-        title: "สร้างเอกสาร KOS 1 สำเร็จ",
-      });
+        const basicInformation = localStorage.getItem("basicInformation");
+        const parseBasicInformation: BasicInformation = JSON.parse(
+          basicInformation as string,
+        );
+        const farmInformation = localStorage.getItem("farmFieldInformation");
+        const parseFarmInformation: BasicInformation & {
+          certRequestDate: string;
+          longitude: string;
+          latitude: string;
+          mapTerrain: string;
+          mapHybrid: string;
+        } = JSON.parse(farmInformation as string);
+        const docKos1 = await CreateDocKos1Service({
+          address: parseBasicInformation.address,
+          villageNumber: parseBasicInformation.moo,
+          subdistrict: parseBasicInformation.tambon?.name_th as string,
+          district: parseBasicInformation.amphure?.name_th as string,
+          province: parseBasicInformation.province?.name_th as string,
+          phoneNumber: farmer.phoneNumber,
+        });
+        const farmDocKos1 = await CreateFarmDocKos1Service({
+          address: parseFarmInformation.address,
+          villageNumber: parseFarmInformation.moo,
+          subdistrict: parseFarmInformation.tambon?.name_th as string,
+          district: parseFarmInformation.amphure?.name_th as string,
+          province: parseFarmInformation.province?.name_th as string,
+          latitude: parseFarmInformation.latitude,
+          longitude: parseFarmInformation.longitude,
+          productionProcess:
+            productionInformation?.productionProcess as string[],
+          docKos01Id: docKos1.id,
+          certRequestDate: parseFarmInformation.certRequestDate,
+          productionMethod: productionInformation?.productionMethod
+            .value as string,
+          mapTerrain: parseFarmInformation.mapTerrain,
+          mapHybrid: parseFarmInformation.mapHybrid,
+          plotsTotal: productionInformation?.plotsTotal as number,
+          raiTotal: productionInformation?.raiTotal as number,
+          nganTotal: productionInformation?.nganTotal as number,
+          certicatedPlotTotal:
+            productionInformation?.certicatedPlotTotal as number,
+          certicatedRaiTotal:
+            productionInformation?.certicatedRaiTotal as number,
+          certicatedNganTotal:
+            productionInformation?.certicatedNganTotal as number,
+        });
+
+        localStorage.removeItem("basicInformation");
+        localStorage.removeItem("farmFieldInformation");
+        router.push({
+          pathname: `/kos01/${farmDocKos1.docKos01Id}/plantKos1`,
+        });
+        Swal.fire({
+          icon: "success",
+          title: "สร้างเอกสาร KOS 1 สำเร็จ",
+        });
+      }
     } catch (error: any) {
       console.log(error.message);
       Swal.fire({
@@ -274,6 +366,11 @@ function ProductionInformation({ farmer }: { farmer: Farmer }) {
               </Radio>
               <TextField aria-label="ตัวเลือกอื่นๆ" className="relative  ">
                 <Input
+                  value={
+                    productionInformation?.productionMethod.select === "อื่นๆ"
+                      ? productionInformation?.productionMethod.value
+                      : ""
+                  }
                   onChange={(e) =>
                     setProductionInformation((prev: any) => {
                       return {
@@ -407,27 +504,48 @@ function ProductionInformation({ farmer }: { farmer: Farmer }) {
               </TextField>
             </div>
           </div>
-          <div className="flex w-full items-center justify-center gap-2">
-            <Button
-              onPress={handleClickOnBack}
-              type="button"
-              className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color 
+          {isUpdate ? (
+            <div className="mt-20 flex gap-2">
+              <Link
+                href={`/kos01/${docKos1?.data?.id}`}
+                className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
+          text-xl text-white drop-shadow-md"
+              >
+                <IoMdCloseCircle />
+                ยกเลิก
+              </Link>
+              <Button
+                type="submit"
+                className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-2 
+          text-xl text-white drop-shadow-md"
+              >
+                <FaSave />
+                บันทึก
+              </Button>
+            </div>
+          ) : (
+            <div className="flex w-full items-center justify-center gap-2">
+              <Button
+                onPress={handleClickOnBack}
+                type="button"
+                className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color 
             px-5 py-2 text-lg font-semibold text-white drop-shadow-lg 
               transition duration-100 hover:bg-super-main-color 
               active:scale-110 active:ring-2 active:ring-super-main-color`}
-            >
-              <MdOutlineNavigateBefore /> ย้อนกลับ
-            </Button>
-            <Button
-              type="submit"
-              className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10
+              >
+                <MdOutlineNavigateBefore /> ย้อนกลับ
+              </Button>
+              <Button
+                type="submit"
+                className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10
              py-2 text-lg  font-semibold text-white drop-shadow-lg 
               transition duration-100 hover:bg-super-main-color 
               active:scale-110 active:ring-2 active:ring-super-main-color`}
-            >
-              ถัดไป <MdOutlineNavigateNext />
-            </Button>
-          </div>
+              >
+                ถัดไป <MdOutlineNavigateNext />
+              </Button>
+            </div>
+          )}
         </Form>
       </div>
     </div>
