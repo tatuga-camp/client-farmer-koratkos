@@ -1,43 +1,24 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import Head from "next/head";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { parseCookies } from "nookies";
-import { GetFarmerServerSideService } from "../../services/farmer";
-import { Farmer } from "../../model";
+import React from "react";
+import { GetFarmerServerSideService } from "../../../services/farmer";
+import DashboardLayout from "../../../layouts/dashboardLayout";
+import { Farmer } from "../../../model";
+import Head from "next/head";
 import Image from "next/image";
-import BasicInformation from "../../components/docKos/kos1/forms/basicInformation";
-import { useRouter } from "next/router";
-import FarmFieldInformation from "../../components/docKos/kos1/forms/farmFieldInformation";
-import ProductionInformation from "../../components/docKos/kos1/forms/productionInformation";
-import PlantKos1 from "../../components/docKos/kos1/forms/plantKos1";
-export type Step =
-  | "basicInformation"
-  | "farmFieldInformation"
-  | "productionInformation"
-  | "plantKos1"
-  | undefined;
-function Kos1({ farmer }: { farmer: Farmer }) {
-  const router = useRouter();
-  const [step, setStep] = useState<Step>("basicInformation");
-  useEffect(() => {
-    if (router.isReady) {
-      if (router.query.step === undefined) {
-        router.push({
-          pathname: "/create/kos1",
-          query: { step: "basicInformation" },
-        });
-      }
-      if (router.query.step) {
-        setStep(() => router.query.step as Step);
-      }
-    }
-  }, [router.isReady, router.query.step]);
+import { useQuery } from "@tanstack/react-query";
+import { GetDocKos1Service } from "../../../services/kos1";
+import BasicInformation from "../../../components/docKos/kos1/forms/basicInformation";
 
+function Index({ farmer }: { farmer: Farmer }) {
+  const docKos1 = useQuery({
+    queryKey: ["docKos1"],
+    queryFn: () => GetDocKos1Service(),
+  });
   return (
     <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-1</title>
+        <title>กรอกข้อมูลพื้นฐาน KOS-1</title>
       </Head>
       <div className="min-h-screen bg-fourth-color pb-10 pt-40 font-Anuphan">
         <header className="flex flex-col items-center justify-center gap-5">
@@ -53,7 +34,7 @@ function Kos1({ farmer }: { farmer: Farmer }) {
             </div>
             <div
               className="relative h-20 w-20 overflow-hidden rounded-full 
-            ring-2 ring-super-main-color ring-offset-2"
+        ring-2 ring-super-main-color ring-offset-2"
             >
               <Image
                 src={farmer.picture}
@@ -70,19 +51,15 @@ function Kos1({ farmer }: { farmer: Farmer }) {
             </h2>
           </section>
         </header>
-        <main className="mt-5">
-          {step === "basicInformation" && <BasicInformation />}
-          {step === "farmFieldInformation" && <FarmFieldInformation />}
-          {step === "productionInformation" && (
-            <ProductionInformation farmer={farmer} />
-          )}
+        <main className="mt-10">
+          <BasicInformation isUpdate={true} docKos1={docKos1} />
         </main>
       </div>
     </DashboardLayout>
   );
 }
 
-export default Kos1;
+export default Index;
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext,
 ) => {

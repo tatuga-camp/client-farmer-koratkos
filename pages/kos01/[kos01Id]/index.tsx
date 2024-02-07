@@ -1,39 +1,26 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import Head from "next/head";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { parseCookies } from "nookies";
-import { GetFarmerServerSideService } from "../../services/farmer";
-import { Farmer } from "../../model";
+import React, { useEffect, useState } from "react";
+import { GetFarmerServerSideService } from "../../../services/farmer";
+import { Farmer } from "../../../model";
+import DashboardLayout from "../../../layouts/dashboardLayout";
+import Head from "next/head";
 import Image from "next/image";
-import BasicInformation from "../../components/docKos/kos1/forms/basicInformation";
+import PlantKos1 from "../../../components/docKos/kos1/forms/plantKos1";
 import { useRouter } from "next/router";
-import FarmFieldInformation from "../../components/docKos/kos1/forms/farmFieldInformation";
-import ProductionInformation from "../../components/docKos/kos1/forms/productionInformation";
-import PlantKos1 from "../../components/docKos/kos1/forms/plantKos1";
-export type Step =
-  | "basicInformation"
-  | "farmFieldInformation"
-  | "productionInformation"
-  | "plantKos1"
-  | undefined;
-function Kos1({ farmer }: { farmer: Farmer }) {
-  const router = useRouter();
-  const [step, setStep] = useState<Step>("basicInformation");
-  useEffect(() => {
-    if (router.isReady) {
-      if (router.query.step === undefined) {
-        router.push({
-          pathname: "/create/kos1",
-          query: { step: "basicInformation" },
-        });
-      }
-      if (router.query.step) {
-        setStep(() => router.query.step as Step);
-      }
-    }
-  }, [router.isReady, router.query.step]);
+import { Step } from "../../create/kos1";
+import { menuKos01 } from "../../../data/menus";
+import Link from "next/link";
+import { AiFillEdit } from "react-icons/ai";
+import { useQuery } from "@tanstack/react-query";
+import { GetDocKos1Service } from "../../../services/kos1";
 
+function Index({ farmer }: { farmer: Farmer }) {
+  const router = useRouter();
+  const docKos1 = useQuery({
+    queryKey: ["docKos1"],
+    queryFn: () => GetDocKos1Service(),
+  });
   return (
     <DashboardLayout>
       <Head>
@@ -53,7 +40,7 @@ function Kos1({ farmer }: { farmer: Farmer }) {
             </div>
             <div
               className="relative h-20 w-20 overflow-hidden rounded-full 
-            ring-2 ring-super-main-color ring-offset-2"
+        ring-2 ring-super-main-color ring-offset-2"
             >
               <Image
                 src={farmer.picture}
@@ -70,19 +57,36 @@ function Kos1({ farmer }: { farmer: Farmer }) {
             </h2>
           </section>
         </header>
+
         <main className="mt-5">
-          {step === "basicInformation" && <BasicInformation />}
-          {step === "farmFieldInformation" && <FarmFieldInformation />}
-          {step === "productionInformation" && (
-            <ProductionInformation farmer={farmer} />
-          )}
+          <ul className="flex flex-col items-center justify-center gap-5">
+            {menuKos01({ kos1Id: router.query.kos01Id as string }).map(
+              (menu, index) => (
+                <Link
+                  className="flex h-max w-80 justify-between gap-2 rounded-lg bg-third-color p-5 ring-white drop-shadow-md  transition duration-150 hover:scale-105 active:scale-110 active:ring-2"
+                  href={menu.href}
+                  key={index}
+                >
+                  <span className="text-xl font-semibold text-super-main-color">
+                    {menu.title}
+                  </span>
+                  <div
+                    className="flex h-10 w-10 items-center justify-center rounded-lg
+                 bg-super-main-color text-2xl text-white"
+                  >
+                    <AiFillEdit />
+                  </div>
+                </Link>
+              ),
+            )}
+          </ul>
         </main>
       </div>
     </DashboardLayout>
   );
 }
 
-export default Kos1;
+export default Index;
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext,
 ) => {

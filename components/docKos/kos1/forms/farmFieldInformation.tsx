@@ -1,30 +1,33 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { BasicInformation } from "./basicInformation";
+import { BasicInformation, TypeSetBasicInformation } from "./basicInformation";
 import { Button, Form, Input, Label, TextField } from "react-aria-components";
-import ProviceComBox from "./combox/proviceComBox";
-import AmphureComBox from "./combox/amphureComBox";
-import TambonComBox from "./combox/tambonComBox";
+import ProviceComBox from "../combox/proviceComBox";
+import AmphureComBox from "../combox/amphureComBox";
+import TambonComBox from "../combox/tambonComBox";
 import { MdOutlineNavigateBefore, MdOutlineNavigateNext } from "react-icons/md";
-import { GetStaticMapService } from "../../../services/map";
 import Image from "next/image";
-import { backgroundImageBase64 } from "../../../data/base64Images";
+import { backgroundImageBase64 } from "../../../../data/base64Images";
 import { useRouter } from "next/router";
+import { Calendar } from "primereact/calendar";
+import { addLocale } from "primereact/api";
+import { GetStaticMapService } from "../../../../services/map";
+import { Step } from "../../../../pages/create/kos1";
 
 function FarmFieldInformation() {
   const router = useRouter();
   const [baicInformation, setBasicInformation] = useState<
-    BasicInformation | undefined
+    | (BasicInformation & {
+        certRequestDate: string;
+        longitude: string;
+        latitude: string;
+        mapTerrain: string;
+        mapHybrid: string;
+      })
+    | undefined
   >();
   const [loadingMap, setLoadingMap] = useState(false);
-  const [position, setPosition] = useState({
-    longitude: "",
-    latitude: "",
-  });
-  const [map, setMap] = useState({
-    mapTerrain: "",
-    mapHybrid: "",
-  });
+
   const handleChangeOnBasicInformation = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -38,9 +41,9 @@ function FarmFieldInformation() {
 
   useEffect(() => {
     const farmFieldInformation = localStorage.getItem("farmFieldInformation");
+
     if (farmFieldInformation) {
-      const parseFarmFieldInformation: BasicInformation =
-        JSON.parse(farmFieldInformation);
+      const parseFarmFieldInformation = JSON.parse(farmFieldInformation);
       setBasicInformation(() => parseFarmFieldInformation);
     }
   }, []);
@@ -48,13 +51,20 @@ function FarmFieldInformation() {
   const handleSummitFarmFieldInformation = (e: React.FormEvent) => {
     try {
       e.preventDefault();
+      console.log(baicInformation);
+      if (!baicInformation?.mapHybrid || !baicInformation?.mapTerrain) {
+        throw new Error(
+          "กรุณาตรวจสอบพิกัดแปลง (UTM) 47/48 P และกดตรวจสอบแผนที่",
+        );
+      }
       localStorage.setItem(
         "farmFieldInformation",
         JSON.stringify(baicInformation),
       );
+
       router.push({
         pathname: "/create/kos1",
-        query: { step: "farmFieldInformation" },
+        query: { step: "productionInformation" as Step },
       });
     } catch (error: any) {
       Swal.fire({
@@ -71,22 +81,26 @@ function FarmFieldInformation() {
       const [hybrid, terrain] = await Promise.all([
         GetStaticMapService({
           maptype: "hybrid",
-          lat: position.latitude,
-          lng: position.longitude,
+          lat: baicInformation?.latitude as string,
+          lng: baicInformation?.longitude as string,
         }),
         GetStaticMapService({
           maptype: "terrain",
-          lat: position.latitude,
-          lng: position.longitude,
+          lat: baicInformation?.latitude as string,
+          lng: baicInformation?.longitude as string,
         }),
       ]);
-      setMap(() => {
+
+      setBasicInformation((prev: any) => {
         return {
+          ...prev,
           mapHybrid: hybrid.imageURL,
           mapTerrain: terrain.imageURL,
         };
       });
-      setLoadingMap(() => false);
+      setTimeout(() => {
+        setLoadingMap(() => false);
+      }, 2000);
     } catch (error: any) {
       setLoadingMap(() => false);
       Swal.fire({
@@ -100,9 +114,10 @@ function FarmFieldInformation() {
   const handleClickOnBack = () => {
     router.push({
       pathname: "/create/kos1",
-      query: { step: "basicInformation" },
+      query: { step: "basicInformation" as Step },
     });
   };
+
   return (
     <div className="flex flex-col items-center justify-center">
       <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
@@ -145,19 +160,19 @@ function FarmFieldInformation() {
 
         <ProviceComBox
           baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation}
+          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
         />
 
         <AmphureComBox
           selectProvinceId={baicInformation?.province?.originalId as number}
           baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation}
+          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
         />
 
         <TambonComBox
           selectAmphureId={baicInformation?.amphure?.originalId as number}
           baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation}
+          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
         />
 
         <section className="mt-10 flex w-full flex-col items-center justify-center gap-2">
@@ -175,9 +190,12 @@ function FarmFieldInformation() {
             </Label>
             <Input
               onChange={(e) =>
-                setPosition((prev) => ({ ...prev, latitude: e.target.value }))
+                setBasicInformation((prev: any) => ({
+                  ...prev,
+                  latitude: e.target.value,
+                }))
               }
-              value={position.latitude}
+              value={baicInformation?.latitude}
               className="h-10 w-40 bg-slate-200 p-2 text-xl"
             />
           </TextField>
@@ -192,18 +210,22 @@ function FarmFieldInformation() {
             </Label>
             <Input
               onChange={(e) =>
-                setPosition((prev) => ({ ...prev, longitude: e.target.value }))
+                setBasicInformation((prev: any) => ({
+                  ...prev,
+                  longitude: e.target.value,
+                }))
               }
-              value={position.longitude}
+              value={baicInformation?.longitude}
               className="h-10 w-40 bg-slate-200 p-2 text-xl"
             />
           </TextField>
 
-          {position.latitude && position.longitude && (
+          {baicInformation?.latitude && baicInformation?.longitude && (
             <Button
+              isDisabled={loadingMap}
               onPress={handleGetStaticMap}
-              className=" rounded-lg bg-super-main-color px-2 py-2 text-white transition
-             duration-100 hover:scale-105 active:scale-110"
+              className={`${(!baicInformation.mapHybrid || !baicInformation.mapTerrain) && "animate-pulse "}rounded-lg bg-super-main-color px-2 py-2 text-white drop-shadow-md transition duration-1000
+            hover:scale-105 active:scale-110`}
               type="button"
             >
               ตรวจสอบแผนที่
@@ -215,13 +237,13 @@ function FarmFieldInformation() {
               <div className="h-full w-full animate-pulse bg-slate-500"></div>
             </div>
           ) : (
-            map.mapHybrid &&
-            map.mapTerrain && (
-              <div className="grid h-40 w-full grid-cols-2 gap-2 ">
+            baicInformation?.mapHybrid &&
+            baicInformation?.mapTerrain && (
+              <div className="grid h-[35rem] w-full grid-cols-1 gap-2 ">
                 <div className="relative h-full w-full ">
                   <Image
-                    src={`${map.mapHybrid}`}
-                    alt="map"
+                    src={`${baicInformation?.mapHybrid}`}
+                    alt="baicInformation"
                     fill
                     quality={50}
                     priority
@@ -233,9 +255,12 @@ function FarmFieldInformation() {
                 </div>
                 <div className="relative h-full w-full ">
                   <Image
-                    src={map.mapTerrain}
-                    alt="map"
+                    src={baicInformation?.mapTerrain}
+                    alt="baicInformation"
                     fill
+                    quality={50}
+                    placeholder="blur"
+                    blurDataURL={backgroundImageBase64}
                     priority
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
@@ -244,6 +269,35 @@ function FarmFieldInformation() {
               </div>
             )
           )}
+        </section>
+        <h2 className="mt-10 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+          วันที่ยื่นขอการรับรอง
+        </h2>
+        <section className="flex w-full items-center justify-center gap-2">
+          <Label className="text-lg font-medium text-super-main-color">
+            วัน/เดือน/ปี
+          </Label>
+          <Calendar
+            required
+            locale="th"
+            className=" h-10 w-40 text-center outline-none    "
+            placeholder="วันที่ยื่นขอการรับรอง"
+            value={
+              baicInformation?.certRequestDate
+                ? new Date(baicInformation.certRequestDate)
+                : undefined
+            }
+            onChange={(e) =>
+              setBasicInformation((prev: any) => {
+                return {
+                  ...prev,
+                  certRequestDate: e.value,
+                };
+              })
+            }
+            dateFormat="dd/mm/yy"
+            touchUI
+          />
         </section>
         <div className="flex w-full items-center justify-center gap-2">
           <Button

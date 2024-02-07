@@ -36,15 +36,16 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
     const file = files?.[0];
     setLoadingUploadPicture(() => true);
     const farmer = await UploadProfileService({ file: file as File });
-    setLoadingUploadPicture(() => false);
+    setTimeout(() => {
+      setLoadingUploadPicture(() => false);
+    }, 2000);
     const reader = new FileReader();
     reader.onload = function (e: ProgressEvent<FileReader>) {
       const result = e.target?.result;
-      document.body.style.overflow = "hidden";
       setUserSettingData((prev) => {
         return {
           ...prev,
-          picture: result as string,
+          picture: farmer.picture,
         };
       });
     };

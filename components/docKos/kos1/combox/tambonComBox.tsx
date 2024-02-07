@@ -6,7 +6,10 @@ import { FaCheck } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { GetAllTambonByAmphureService } from "../../../../services/thai-data";
 import { Tambon } from "../../../../model";
-import { BasicInformation, TypeSetBasicInformation } from "../basicInformation";
+import {
+  BasicInformation,
+  TypeSetBasicInformation,
+} from "../forms/basicInformation";
 
 type TambonComBoxProps = {
   selectAmphureId: number | null;
@@ -52,7 +55,19 @@ function TambonComBox({
         <Label className="w-40 text-xl font-bold text-super-main-color">
           ตำบล :
         </Label>
-        <Input className="h-10 w-full bg-slate-200 p-2 text-xl" />
+        <Input
+          onChange={(e) =>
+            setBasicInformation((prev: any) => {
+              return {
+                ...prev,
+                tambon: {
+                  name_th: e.target.value,
+                },
+              };
+            })
+          }
+          className="h-10 w-full bg-slate-200 p-2 text-xl"
+        />
       </TextField>
     );
 
@@ -84,6 +99,7 @@ function TambonComBox({
         focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
         >
           <Combobox.Input
+            required
             className="h-10 w-full rounded-md bg-slate-200 p-2 text-lg outline-none"
             displayValue={(tambon: Tambon) => tambon.name_th}
             onChange={(event) => setQuery(event.target.value)}

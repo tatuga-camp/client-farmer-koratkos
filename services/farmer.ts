@@ -101,7 +101,11 @@ export async function UpdateFarmerService(
   }
 }
 
-export async function UploadProfileService({ file }: { file: File }) {
+export async function UploadProfileService({
+  file,
+}: {
+  file: File;
+}): Promise<Farmer> {
   try {
     const cookies = parseCookies();
     const access_token = cookies.access_token;

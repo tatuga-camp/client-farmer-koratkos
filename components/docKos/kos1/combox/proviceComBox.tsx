@@ -6,7 +6,10 @@ import { FaCheck } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
 import { GetAllProvinceService } from "../../../../services/thai-data";
 import { Province } from "../../../../model";
-import { BasicInformation, TypeSetBasicInformation } from "../basicInformation";
+import {
+  BasicInformation,
+  TypeSetBasicInformation,
+} from "../forms/basicInformation";
 type ProviceComBoxProps = {
   setBasicInformation: TypeSetBasicInformation;
   baicInformation: BasicInformation;
@@ -37,7 +40,19 @@ function ProviceComBox({
         <Label className="w-40 text-xl font-bold text-super-main-color">
           จังหวัด :
         </Label>
-        <Input className="h-10 w-full bg-slate-200 p-2 text-xl" />
+        <Input
+          onChange={(e) =>
+            setBasicInformation((prev: any) => {
+              return {
+                ...prev,
+                province: {
+                  name_th: e.target.value,
+                },
+              };
+            })
+          }
+          className="h-10 w-full bg-slate-200 p-2 text-xl"
+        />
       </TextField>
     );
 
@@ -68,6 +83,7 @@ function ProviceComBox({
         focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
         >
           <Combobox.Input
+            required
             className="h-10 w-full rounded-md bg-slate-200 p-2 text-lg outline-none"
             displayValue={(province: Province) => province.name_th}
             onChange={(event) => setQuery(event.target.value)}

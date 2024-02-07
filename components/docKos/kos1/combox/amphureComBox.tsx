@@ -9,7 +9,10 @@ import {
   GetAllProvinceService,
 } from "../../../../services/thai-data";
 import { Amphure } from "../../../../model";
-import { BasicInformation, TypeSetBasicInformation } from "../basicInformation";
+import {
+  BasicInformation,
+  TypeSetBasicInformation,
+} from "../forms/basicInformation";
 
 type AmphureComBoxProps = {
   selectProvinceId: number | null;
@@ -54,7 +57,19 @@ function AmphureComBox({
         <Label className="w-40 text-xl font-bold text-super-main-color">
           อำเภอ :
         </Label>
-        <Input className="h-10 w-full bg-slate-200 p-2 text-xl" />
+        <Input
+          onChange={(e) =>
+            setBasicInformation((prev: any) => {
+              return {
+                ...prev,
+                amphure: {
+                  name_th: e.target.value,
+                },
+              };
+            })
+          }
+          className="h-10 w-full bg-slate-200 p-2 text-xl"
+        />
       </TextField>
     );
 
@@ -86,6 +101,7 @@ function AmphureComBox({
         focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
         >
           <Combobox.Input
+            required
             className="h-10 w-full rounded-md bg-slate-200 p-2 text-lg outline-none"
             displayValue={(amphure: Amphure) => amphure.name_th}
             onChange={(event) => setQuery(event.target.value)}

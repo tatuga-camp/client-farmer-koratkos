@@ -41,7 +41,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         </h5>
         {docKos.data?.kos1 ? (
           <Link
-            href={`/doc-kos/kos01/${docKos.data?.kos1.id}`}
+            href={`/kos01/${docKos.data?.kos1.id}`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
