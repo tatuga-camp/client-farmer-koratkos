@@ -98,8 +98,8 @@ function StatusEvaluation() {
   });
   return (
     <div
-      className="flex h-max w-80 flex-col items-center justify-center gap-1 rounded-3xl
-     bg-slate-200 p-2 font-Anuphan drop-shadow-lg"
+      className="flex h-max w-80 flex-col items-center justify-center gap-1 rounded-3xl bg-slate-200
+     p-2 font-Anuphan drop-shadow-lg lg:w-96"
     >
       <h2 className="text-lg font-bold text-super-main-color">
         สถานะการส่งคำร้อง

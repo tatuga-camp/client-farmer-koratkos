@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
 import { PlantData } from "./createPlantKos1";
+import { useDeviceType } from "../../../../utils";
 type BasicInformationProps = {
   docKos1: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
   setSelectUpdatePlant: React.Dispatch<
@@ -28,7 +29,7 @@ function UpdatePlantKos1({
   setSelectUpdatePlant,
 }: BasicInformationProps) {
   const router = useRouter();
-
+  const deviceType = useDeviceType();
   const [createPlant, setCreatePlant] = useState<PlantData>(
     () => selectUpdatePlant,
   );
@@ -91,7 +92,7 @@ function UpdatePlantKos1({
     }
   };
   return (
-    <div className="flex w-full flex-col items-center justify-start font-Anuphan ">
+    <div className="flex w-full flex-col items-center justify-start font-Anuphan lg:w-96 ">
       <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
         แก้ไขเชนิดพืช : {selectUpdatePlant.plant}
       </h2>
@@ -155,7 +156,7 @@ function UpdatePlantKos1({
             locale="th"
             className=" h-12 w-full overflow-hidden rounded-lg ring-1 ring-slate-400"
             selectionMode="range"
-            touchUI
+            touchUI={deviceType === "mobile" ? true : false}
             placeholder="เลือกช่วงเดือน"
             view="month"
             dateFormat="MM"
@@ -176,7 +177,7 @@ function UpdatePlantKos1({
             }
             locale="th"
             className=" h-12 w-full overflow-hidden rounded-lg ring-1 ring-slate-400"
-            touchUI
+            touchUI={deviceType === "mobile" ? true : false}
             placeholder="เลือกวันเดือนปี"
             dateFormat="dd/MM/yy"
           />

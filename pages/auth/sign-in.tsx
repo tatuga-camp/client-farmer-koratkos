@@ -16,6 +16,7 @@ import Swal from "sweetalert2";
 import Link from "next/link";
 import { setCookie } from "nookies";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 function SignIn() {
   const router = useRouter();
@@ -77,9 +78,10 @@ function SignIn() {
       <Head>
         <title>เข้าสู่ระบบ</title>
       </Head>
-      <div className="min-h-screen bg-fourth-color pt-40">
+
+      <div className="w-full pt-40">
         <header className=" flex w-full flex-col items-center justify-center gap-4 font-Anuphan">
-          <section className="flex w-40 flex-col items-center justify-center rounded-md bg-third-color px-5 py-2 text-base font-semibold text-white">
+          <section className="flex w-40 flex-col items-center justify-center rounded-lg bg-third-color px-5 py-2 text-base font-semibold text-white">
             <h1>เข้าสู่ระบบ</h1>
             <h2>สำหรับเกษตรกร</h2>
           </section>
@@ -87,10 +89,10 @@ function SignIn() {
             <Farmer />
           </div>
         </header>
-        <main className="mt-5 font-Anuphan">
+        <main className="mt-5 flex items-center justify-center font-Anuphan">
           <Form
             onSubmit={handleSummitOnSignIn}
-            className="flex flex-col items-center justify-center gap-5"
+            className="flex flex-col items-center justify-center gap-5 lg:w-8/12"
           >
             <TextField
               type="text"
@@ -102,6 +104,7 @@ function SignIn() {
                 เลขบัตรประจำตัวประชาชน :
               </Label>
               <InputMask
+                required
                 onChange={handleOnChangeFarmerData}
                 mask="9-9999-99999-99-9"
                 placeholder="9-9999-99999-99-9"
@@ -117,6 +120,7 @@ function SignIn() {
               </Label>
 
               <InputMask
+                required
                 name="phone"
                 className="h-10 w-full bg-slate-200 pl-5 text-xl"
                 mask="999-999-9999"

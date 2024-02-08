@@ -7,3 +7,19 @@ export type DocKos2 = {
   marketingDetail?: string;
   farmerId: string;
 };
+
+export type OrgCropProdCalForKos2 = {
+  id: string;
+  createAt: Date;
+  updateAt: Date;
+  plotNumber: string;
+  landArea: number;
+  plantType: string;
+  rangeDate: string[];
+  yearPlan: string;
+  yieldPerRai: number;
+  seed: string;
+  source: string;
+  docKos02Id: string;
+  farmerId: string;
+};

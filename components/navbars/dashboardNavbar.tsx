@@ -6,6 +6,7 @@ import { destroyCookie } from "nookies";
 import React from "react";
 import { TbUserEdit } from "react-icons/tb";
 import { VscSignOut } from "react-icons/vsc";
+import { Farmer } from "../../model";
 
 function DashboardNavbar() {
   const router = useRouter();
@@ -15,7 +16,7 @@ function DashboardNavbar() {
     queryClient.removeQueries({ queryKey: ["farmer"] });
   };
   return (
-    <nav className="fixed top-0 z-40 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan">
+    <nav className="fixed top-0 z-40 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan lg:hidden ">
       <Link href="/" className="flex flex-col items-start  gap-1  ">
         <div className="flex items-end justify-center gap-1">
           <h1 className="text-xl font-bold text-main-color">Korat KOS</h1>

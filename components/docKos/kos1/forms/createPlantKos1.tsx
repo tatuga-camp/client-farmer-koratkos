@@ -11,6 +11,7 @@ import {
 } from "../../../../services/kos1";
 import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
+import { useDeviceType } from "../../../../utils";
 type BasicInformationProps = {
   setTriggerCreatePlant: React.Dispatch<React.SetStateAction<boolean>>;
   farmKOS1Id: string;
@@ -32,7 +33,7 @@ function CreatePlantKos1({
   docKos1,
 }: BasicInformationProps) {
   const router = useRouter();
-
+  const deviceType = useDeviceType();
   const [createPlant, setCreatePlant] = useState<PlantData>();
 
   const handleChangeCreatePlant = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,7 +88,7 @@ function CreatePlantKos1({
     }
   };
   return (
-    <div className="flex w-full flex-col items-center justify-start font-Anuphan ">
+    <div className="flex w-full flex-col items-center justify-start font-Anuphan lg:w-96 ">
       <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
         เพิ่มชนิดพืช
       </h2>
@@ -151,7 +152,7 @@ function CreatePlantKos1({
             locale="th"
             className=" h-12 w-full overflow-hidden rounded-lg ring-1 ring-slate-400"
             selectionMode="range"
-            touchUI
+            touchUI={deviceType === "mobile" ? true : false}
             placeholder="เลือกช่วงเดือน"
             view="month"
             dateFormat="MM"
@@ -172,7 +173,7 @@ function CreatePlantKos1({
             }
             locale="th"
             className=" h-12 w-full overflow-hidden rounded-lg ring-1 ring-slate-400"
-            touchUI
+            touchUI={deviceType === "mobile" ? true : false}
             placeholder="เลือกวันเดือนปี"
             dateFormat="dd/MM/yy"
           />

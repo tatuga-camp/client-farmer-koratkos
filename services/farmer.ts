@@ -1,5 +1,13 @@
 import axios from "axios";
-import { DocKos1, DocKos2, DocKos3, DocKos4, DocKos5, Farmer } from "../model";
+import {
+  DocKos1,
+  DocKos2,
+  DocKos3,
+  DocKos4,
+  DocKos5,
+  Farmer,
+  OrgCropProdCalForKos2,
+} from "../model";
 import { parseCookies } from "nookies";
 
 export async function GetFarmerServerSideService({

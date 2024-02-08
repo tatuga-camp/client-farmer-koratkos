@@ -25,7 +25,7 @@ const NotDataSaved = () => {
 };
 function DocKosLists({ docKos }: DocKosListsProps) {
   return (
-    <ul className="mt-5 flex flex-col items-center justify-between gap-7 font-Anuphan">
+    <ul className="mt-5 flex flex-col items-center justify-between gap-7 font-Anuphan lg:grid lg:w-10/12 lg:grid-cols-3">
       <li className="flex h-60 w-11/12 flex-col items-center gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">
@@ -51,7 +51,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         ) : (
           <Link
-            href={`create/kos1`}
+            href={`/create/kos01`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -77,7 +77,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         </h5>
         {docKos.data?.kos2 ? (
           <Link
-            href={`/doc-kos/kos02/${docKos.data?.kos2.id}`}
+            href={`/kos02/${docKos.data?.kos2.id}`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -87,7 +87,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         ) : (
           <Link
-            href={`create/kos2`}
+            href={`/create/kos02`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -112,7 +112,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         </h5>
         {docKos.data?.kos3 ? (
           <Link
-            href={`/doc-kos/kos03/${docKos.data?.kos3.id}`}
+            href={`/kos03/${docKos.data?.kos3.id}`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -122,7 +122,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         ) : (
           <Link
-            href={`create/kos3`}
+            href={`/create/kos03`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -147,7 +147,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         </h5>
         {docKos.data?.kos4 ? (
           <Link
-            href={`/doc-kos/kos04/${docKos.data?.kos4.id}`}
+            href={`/kos04/${docKos.data?.kos4.id}`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -157,7 +157,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         ) : (
           <Link
-            href={`create/kos4`}
+            href={`/create/kos04`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -182,7 +182,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         </h5>
         {docKos.data?.kos5 ? (
           <Link
-            href={`/doc-kos/kos05/${docKos.data?.kos5.id}`}
+            href={`/kos05/${docKos.data?.kos5.id}`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"
@@ -192,7 +192,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         ) : (
           <Link
-            href={`create/kos5`}
+            href={`/create/kos05`}
             className="flex items-center justify-center gap-2  rounded-xl bg-third-color px-4
             py-1 text-xl font-medium text-white ring-super-main-color
              transition duration-100 active:scale-105 active:ring-2"

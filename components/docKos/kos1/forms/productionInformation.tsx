@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   CheckboxGroup,
+  FieldError,
   Form,
   Input,
   Label,
@@ -32,7 +33,7 @@ import {
 } from "../../../../services/kos1";
 import { Farmer } from "../../../../model";
 import { useRouter } from "next/router";
-import { Step } from "../../../../pages/create/kos1";
+import { Step } from "../../../../pages/create/kos01";
 import { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { FaSave } from "react-icons/fa";
@@ -233,122 +234,100 @@ function ProductionInformation({
 
   return (
     <div className="flex w-full flex-col items-center justify-center font-Anuphan">
-      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
-        กระบวนการผลิต
-      </h2>
       <div className="flex w-full  items-center justify-center">
         <Form
           onSubmit={handleSummitProductionInformation}
           aria-label="เลือกกระบวนการผลิต"
-          className="mt-5 flex w-full flex-col items-center justify-start gap-5"
+          className="mt-5 flex w-full flex-col items-center justify-start gap-5 lg:mt-2 lg:grid lg:grid-cols-2 lg:place-items-center lg:gap-3 lg:p-5"
         >
-          <CheckboxGroup
-            aria-label="เลือกกระบวนการผลิต"
-            isRequired
-            value={productionInformation?.productionProcess}
-            onChange={(e) => {
-              setProductionInformation((prev: any) => {
-                return {
-                  ...prev,
-                  productionProcess: e as string[],
-                };
-              });
-            }}
-            className="flex flex-col gap-2"
+          <section
+            className="mt-4 flex h-full w-full flex-col items-center 
+        justify-start gap-2 lg:mt-0 lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color  "
           >
-            <Checkbox
-              className={({ isPressed, isSelected }) => (isSelected ? "" : "")}
-              value="มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น"
+            <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+              กระบวนการผลิต
+            </h2>
+            <CheckboxGroup
+              aria-label="เลือกกระบวนการผลิต"
+              isRequired
+              value={productionInformation?.productionProcess}
+              onChange={(e) => {
+                setProductionInformation((prev: any) => {
+                  return {
+                    ...prev,
+                    productionProcess: e as string[],
+                  };
+                });
+              }}
+              className="flex flex-col gap-2"
             >
-              {({ isSelected }) => (
-                <div className="flex items-center justify-start gap-2 ">
-                  <div className="text-3xl text-super-main-color">
-                    {isSelected ? (
-                      <IoIosCheckbox />
-                    ) : (
-                      <MdCheckBoxOutlineBlank />
-                    )}
+              <Checkbox
+                className={({ isPressed, isSelected }) =>
+                  isSelected ? "" : ""
+                }
+                value="มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น"
+              >
+                {({ isSelected }) => (
+                  <div className="flex items-center justify-start gap-2 ">
+                    <div className="text-3xl text-super-main-color">
+                      {isSelected ? (
+                        <IoIosCheckbox />
+                      ) : (
+                        <MdCheckBoxOutlineBlank />
+                      )}
+                    </div>
+                    <span className="text-lg font-bold text-super-main-color">
+                      มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-super-main-color">
-                    มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น
-                  </span>
-                </div>
-              )}
-            </Checkbox>
-            <Checkbox
-              className={({ isPressed, isSelected }) => (isSelected ? "" : "")}
-              value="มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป"
-            >
-              {({ isSelected }) => (
-                <div className="flex items-center justify-start gap-2 ">
-                  <div className="text-3xl text-super-main-color">
-                    {isSelected ? (
-                      <IoIosCheckbox />
-                    ) : (
-                      <MdCheckBoxOutlineBlank />
-                    )}
+                )}
+              </Checkbox>
+              <Checkbox
+                className={({ isPressed, isSelected }) =>
+                  isSelected ? "" : ""
+                }
+                value="มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป"
+              >
+                {({ isSelected }) => (
+                  <div className="flex items-center justify-start gap-2 ">
+                    <div className="text-3xl text-super-main-color">
+                      {isSelected ? (
+                        <IoIosCheckbox />
+                      ) : (
+                        <MdCheckBoxOutlineBlank />
+                      )}
+                    </div>
+                    <span className="text-lg font-bold text-super-main-color">
+                      มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป
+                    </span>
                   </div>
-                  <span className="text-lg font-bold text-super-main-color">
-                    มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป
-                  </span>
-                </div>
-              )}
-            </Checkbox>
-          </CheckboxGroup>
+                )}
+              </Checkbox>
+              <FieldError className=" text-red-700 duration-200">
+                ***กรุณาใส่ข้อมูล***
+              </FieldError>
+            </CheckboxGroup>
 
-          <RadioGroup
-            isRequired
-            value={productionInformation?.productionMethod?.select}
-            onChange={(e) =>
-              setProductionInformation((prev: any) => {
-                return {
-                  ...prev,
-                  productionMethod: {
-                    select: e,
-                    value: e,
-                  },
-                };
-              })
-            }
-            className="mt-4 flex  flex-col gap-2"
-          >
-            <Label className="text-xl font-bold text-super-main-color">
-              วิธีการผลิต
-            </Label>
-            <Radio value="ชนิดพืชที่ผลิตแตกต่างกัน">
-              {({ isSelected }) => (
-                <div className=" flex items-center justify-start gap-2">
-                  <div className="text-2xl text-super-main-color">
-                    {isSelected ? (
-                      <MdOutlineRadioButtonChecked />
-                    ) : (
-                      <MdOutlineRadioButtonUnchecked />
-                    )}
-                  </div>
-                  <span className="text-lg font-semibold">
-                    ชนิดพืชที่ผลิตแตกต่างกัน
-                  </span>
-                </div>
-              )}
-            </Radio>
-            <Radio value="เวลาการผลิตแตกต่างกัน">
-              {({ isSelected }) => (
-                <div className=" flex items-center justify-start gap-2">
-                  <div className="text-2xl text-super-main-color">
-                    {isSelected ? (
-                      <MdOutlineRadioButtonChecked />
-                    ) : (
-                      <MdOutlineRadioButtonUnchecked />
-                    )}
-                  </div>
-                  <span className="text-lg font-semibold">
-                    เวลาการผลิตแตกต่างกัน
-                  </span>
-                </div>
-              )}
-            </Radio>
-            <div className="flex  items-center justify-start gap-2">
-              <Radio value="อื่นๆ">
+            <RadioGroup
+              isRequired
+              value={productionInformation?.productionMethod?.select}
+              onChange={(e) =>
+                setProductionInformation((prev: any) => {
+                  return {
+                    ...prev,
+                    productionMethod: {
+                      select: e,
+                      value: e,
+                    },
+                  };
+                })
+              }
+              className="mt-4 flex  flex-col gap-2"
+            >
+              <Label className="text-xl font-bold text-super-main-color">
+                วิธีการผลิต
+              </Label>
+              <Radio value="ชนิดพืชที่ผลิตแตกต่างกัน">
                 {({ isSelected }) => (
                   <div className=" flex items-center justify-start gap-2">
                     <div className="text-2xl text-super-main-color">
@@ -358,154 +337,196 @@ function ProductionInformation({
                         <MdOutlineRadioButtonUnchecked />
                       )}
                     </div>
-                    <div>
-                      <span className="text-lg font-semibold">อื่น ๆ</span>
-                    </div>
+                    <span className="text-lg font-semibold">
+                      ชนิดพืชที่ผลิตแตกต่างกัน
+                    </span>
                   </div>
                 )}
               </Radio>
-              <TextField aria-label="ตัวเลือกอื่นๆ" className="relative  ">
+              <Radio value="เวลาการผลิตแตกต่างกัน">
+                {({ isSelected }) => (
+                  <div className=" flex items-center justify-start gap-2">
+                    <div className="text-2xl text-super-main-color">
+                      {isSelected ? (
+                        <MdOutlineRadioButtonChecked />
+                      ) : (
+                        <MdOutlineRadioButtonUnchecked />
+                      )}
+                    </div>
+                    <span className="text-lg font-semibold">
+                      เวลาการผลิตแตกต่างกัน
+                    </span>
+                  </div>
+                )}
+              </Radio>
+              <div className="flex  items-center justify-start gap-2">
+                <Radio value="อื่นๆ">
+                  {({ isSelected }) => (
+                    <div className=" flex items-center justify-start gap-2">
+                      <div className="text-2xl text-super-main-color">
+                        {isSelected ? (
+                          <MdOutlineRadioButtonChecked />
+                        ) : (
+                          <MdOutlineRadioButtonUnchecked />
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-lg font-semibold">อื่น ๆ</span>
+                      </div>
+                    </div>
+                  )}
+                </Radio>
+                <TextField aria-label="ตัวเลือกอื่นๆ" className="relative  ">
+                  <Input
+                    value={
+                      productionInformation?.productionMethod?.select ===
+                      "อื่นๆ"
+                        ? productionInformation?.productionMethod?.value
+                        : ""
+                    }
+                    onChange={(e) =>
+                      setProductionInformation((prev: any) => {
+                        return {
+                          ...prev,
+                          productionMethod: {
+                            select: "อื่นๆ",
+                            value: e.target.value,
+                          },
+                        };
+                      })
+                    }
+                    className="bg-slate-200 p-2"
+                  />
+                </TextField>
+              </div>
+              <FieldError className=" text-red-700 duration-200">
+                ***กรุณาใส่ข้อมูล***
+              </FieldError>
+            </RadioGroup>
+          </section>
+          <section
+            className="mt-4 flex h-full w-full flex-col items-center 
+        justify-start gap-2 lg:mt-0 lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color  "
+          >
+            <h2 className="mt-5 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+              ชนิดพืชที่ขอการรับรอง
+            </h2>
+            <div className="flex w-10/12 flex-col items-start gap-2">
+              <TextField
+                isRequired
+                className="relative flex  flex-col items-start  "
+              >
+                <Label className="text-lg font-semibold text-super-main-color">
+                  จำนวนแปลงทั้งหมด :{" "}
+                </Label>
                 <Input
-                  value={
-                    productionInformation?.productionMethod.select === "อื่นๆ"
-                      ? productionInformation?.productionMethod.value
-                      : ""
-                  }
-                  onChange={(e) =>
-                    setProductionInformation((prev: any) => {
-                      return {
-                        ...prev,
-                        productionMethod: {
-                          select: "อื่นๆ",
-                          value: e.target.value,
-                        },
-                      };
-                    })
-                  }
+                  name="plotsTotal"
+                  onChange={handleChangeProductionInformation}
+                  value={productionInformation?.plotsTotal}
+                  required
+                  type="number"
+                  inputMode="numeric"
                   className="bg-slate-200 p-2"
                 />
               </TextField>
+              <div className="flex w-full items-center justify-center gap-2">
+                <TextField
+                  isRequired
+                  className="relative flex w-max items-center  justify-center gap-2 "
+                >
+                  <Label className="text-lg font-semibold text-super-main-color">
+                    พื้นที่ :{" "}
+                  </Label>
+                  <Input
+                    name="raiTotal"
+                    onChange={handleChangeProductionInformation}
+                    value={productionInformation?.raiTotal}
+                    type="number"
+                    inputMode="numeric"
+                    className="w-20 bg-slate-200 p-2"
+                  />
+                  <span className="text-lg font-semibold text-super-main-color">
+                    ไร่
+                  </span>
+                </TextField>
+                <TextField
+                  isRequired
+                  aria-label="งาน"
+                  className="relative flex w-max items-center  justify-center gap-2 "
+                >
+                  <Input
+                    name="nganTotal"
+                    onChange={handleChangeProductionInformation}
+                    value={productionInformation?.nganTotal}
+                    type="number"
+                    inputMode="numeric"
+                    className="w-20 bg-slate-200 p-2"
+                  />
+                  <span className="text-lg font-semibold text-super-main-color">
+                    งาน
+                  </span>
+                </TextField>
+              </div>
             </div>
-          </RadioGroup>
-
-          <h2 className="mt-5 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
-            ชนิดพืชที่ขอการรับรอง
-          </h2>
-          <div className="flex w-10/12 flex-col items-start gap-2">
-            <TextField
-              isRequired
-              className="relative flex  flex-col items-start  "
-            >
-              <Label className="text-lg font-semibold text-super-main-color">
-                จำนวนแปลงทั้งหมด :{" "}
-              </Label>
-              <Input
-                name="plotsTotal"
-                onChange={handleChangeProductionInformation}
-                value={productionInformation?.plotsTotal}
-                required
-                type="number"
-                inputMode="numeric"
-                className="bg-slate-200 p-2"
-              />
-            </TextField>
-            <div className="flex w-full items-center justify-center gap-2">
+            <div className="mt-5 flex w-10/12 flex-col items-start gap-2">
               <TextField
                 isRequired
-                className="relative flex w-max items-center  justify-center gap-2 "
+                className="relative flex  flex-col items-start  "
               >
                 <Label className="text-lg font-semibold text-super-main-color">
-                  พื้นที่ :{" "}
+                  จำนวนแปลงที่ขอรับรอง KOS :{" "}
                 </Label>
                 <Input
-                  name="raiTotal"
+                  name="certicatedPlotTotal"
                   onChange={handleChangeProductionInformation}
-                  value={productionInformation?.raiTotal}
+                  value={productionInformation?.certicatedPlotTotal}
                   type="number"
                   inputMode="numeric"
-                  className="w-20 bg-slate-200 p-2"
+                  className="bg-slate-200 p-2"
                 />
-                <span className="text-lg font-semibold text-super-main-color">
-                  ไร่
-                </span>
               </TextField>
-              <TextField
-                isRequired
-                aria-label="งาน"
-                className="relative flex w-max items-center  justify-center gap-2 "
-              >
-                <Input
-                  name="nganTotal"
-                  onChange={handleChangeProductionInformation}
-                  value={productionInformation?.nganTotal}
-                  type="number"
-                  inputMode="numeric"
-                  className="w-20 bg-slate-200 p-2"
-                />
-                <span className="text-lg font-semibold text-super-main-color">
-                  งาน
-                </span>
-              </TextField>
+              <div className="flex w-full items-center justify-center gap-2">
+                <TextField
+                  isRequired
+                  className="relative flex w-max items-center  justify-center gap-2 "
+                >
+                  <Label className="text-lg font-semibold text-super-main-color">
+                    พื้นที่ :{" "}
+                  </Label>
+                  <Input
+                    name="certicatedRaiTotal"
+                    onChange={handleChangeProductionInformation}
+                    value={productionInformation?.certicatedRaiTotal}
+                    type="number"
+                    inputMode="numeric"
+                    className="w-20 bg-slate-200 p-2"
+                  />
+                  <span className="text-lg font-semibold text-super-main-color">
+                    ไร่
+                  </span>
+                </TextField>
+                <TextField
+                  isRequired
+                  aria-label="งาน"
+                  className="relative flex w-max items-center  justify-center gap-2 "
+                >
+                  <Input
+                    name="certicatedNganTotal"
+                    onChange={handleChangeProductionInformation}
+                    value={productionInformation?.certicatedNganTotal}
+                    type="number"
+                    inputMode="numeric"
+                    className="w-20 bg-slate-200 p-2"
+                  />
+                  <span className="text-lg font-semibold text-super-main-color">
+                    งาน
+                  </span>
+                </TextField>
+              </div>
             </div>
-          </div>
-          <div className="mt-5 flex w-10/12 flex-col items-start gap-2">
-            <TextField
-              isRequired
-              className="relative flex  flex-col items-start  "
-            >
-              <Label className="text-lg font-semibold text-super-main-color">
-                จำนวนแปลงที่ขอรับรอง KOS :{" "}
-              </Label>
-              <Input
-                name="certicatedPlotTotal"
-                onChange={handleChangeProductionInformation}
-                value={productionInformation?.certicatedPlotTotal}
-                type="number"
-                inputMode="numeric"
-                className="bg-slate-200 p-2"
-              />
-            </TextField>
-            <div className="flex w-full items-center justify-center gap-2">
-              <TextField
-                isRequired
-                className="relative flex w-max items-center  justify-center gap-2 "
-              >
-                <Label className="text-lg font-semibold text-super-main-color">
-                  พื้นที่ :{" "}
-                </Label>
-                <Input
-                  name="certicatedRaiTotal"
-                  onChange={handleChangeProductionInformation}
-                  value={productionInformation?.certicatedRaiTotal}
-                  type="number"
-                  inputMode="numeric"
-                  className="w-20 bg-slate-200 p-2"
-                />
-                <span className="text-lg font-semibold text-super-main-color">
-                  ไร่
-                </span>
-              </TextField>
-              <TextField
-                isRequired
-                aria-label="งาน"
-                className="relative flex w-max items-center  justify-center gap-2 "
-              >
-                <Input
-                  name="certicatedNganTotal"
-                  onChange={handleChangeProductionInformation}
-                  value={productionInformation?.certicatedNganTotal}
-                  type="number"
-                  inputMode="numeric"
-                  className="w-20 bg-slate-200 p-2"
-                />
-                <span className="text-lg font-semibold text-super-main-color">
-                  งาน
-                </span>
-              </TextField>
-            </div>
-          </div>
+          </section>
           {isUpdate ? (
-            <div className="mt-20 flex gap-2">
+            <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2">
               <Link
                 href={`/kos01/${docKos1?.data?.id}`}
                 className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
@@ -524,7 +545,7 @@ function ProductionInformation({
               </Button>
             </div>
           ) : (
-            <div className="flex w-full items-center justify-center gap-2">
+            <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2">
               <Button
                 onPress={handleClickOnBack}
                 type="button"

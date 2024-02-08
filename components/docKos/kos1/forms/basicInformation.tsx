@@ -18,7 +18,7 @@ import {
 import { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { IoMdCloseCircle } from "react-icons/io";
-import { Step } from "../../../../pages/create/kos1";
+import { Step } from "../../../../pages/create/kos01";
 
 export type BasicInformation = {
   address: string;
@@ -135,7 +135,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
           JSON.stringify(baicInformation),
         );
         router.push({
-          pathname: "/create/kos1",
+          pathname: "/create/kos01",
           query: { step: "farmFieldInformation" as Step },
         });
       }
@@ -149,13 +149,13 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
   };
   return (
     <div className="flex flex-col items-center justify-center">
-      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
         ข้อมูลพื้นฐาน
       </h2>
       <div className="flex justify-center">
         <Form
           onSubmit={handleSummitBasicInformation}
-          className="mt-5 flex w-11/12 flex-col items-center justify-start gap-2"
+          className="mt-5 flex w-11/12 flex-col items-center justify-start gap-2 lg:w-96"
         >
           <TextField
             className="flex w-full items-center justify-center  gap-2"
@@ -206,7 +206,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
           />
 
           {isUpdate ? (
-            <div className="mt-20 flex gap-2">
+            <div className="mt-20 flex justify-center gap-2">
               <Link
                 href={`/kos01/${docKos1?.data?.id}`}
                 className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 

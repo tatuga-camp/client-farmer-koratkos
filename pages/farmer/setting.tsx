@@ -95,12 +95,12 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
     });
   };
   return (
-    <DashboardLayout>
+    <DashboardLayout isSetting={true} farmer={farmer.data}>
       <Head>
         <title>แก้ไขบัญชี</title>
       </Head>
       <div className="min-h-screen bg-fourth-color pb-10 font-Anuphan">
-        <header className="flex flex-col items-center  justify-center gap-3 pt-40">
+        <header className="flex flex-col items-center  justify-center gap-3 pt-40 lg:pt-10">
           <div className="relative h-28 w-28 overflow-hidden rounded-full ring-2 ring-super-main-color ring-offset-2">
             {loadingUploadPicture ? (
               <div className="h-full w-full animate-pulse bg-gray-400"></div>
@@ -127,7 +127,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
         <main className="mt-5 flex w-full justify-center">
           <Form
             onSubmit={handleSummitOnSetting}
-            className="flex w-10/12 flex-col items-center justify-start gap-10"
+            className="flex w-10/12 flex-col items-center justify-start gap-10 lg:w-6/12"
           >
             <section className="w-full">
               <TextField

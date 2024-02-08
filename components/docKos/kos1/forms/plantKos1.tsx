@@ -26,7 +26,7 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
   >();
   if (triggerCreatePlant) {
     return (
-      <div className="w-full">
+      <div className="flex w-full justify-center">
         <CreatePlantKos1
           docKos1={docKos1}
           farmKOS1Id={farmKOS1Id}
@@ -37,7 +37,7 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
   }
   if (triggerUpdatePlant && selectUpdatePlant) {
     return (
-      <div className="w-full">
+      <div className="flex w-full justify-center">
         <UpdatePlantKos1
           setTriggerUpdatePlant={setTriggerUpdatePlant}
           docKos1={docKos1}
@@ -97,7 +97,7 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
   return (
     <div className="flex w-full flex-col items-center justify-center font-Anuphan">
       <div className="flex w-full flex-col items-center justify-start">
-        <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+        <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
           กระบวนการผลิต
         </h2>
         <button
@@ -110,7 +110,7 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
           <IoMdAddCircleOutline />
           เพิ่มชนิดพืช
         </button>
-        <ul className="mt-10 flex w-full flex-col items-center justify-center gap-7">
+        <ul className="mt-10 flex w-full flex-col  items-center justify-center gap-7 lg:grid lg:grid-cols-3 lg:p-10">
           {docKos1.data?.plantKOS1s.map((plant, index) => {
             const seasonProd = plant.seasonProd.map((time) => {
               const date = new Date(time);

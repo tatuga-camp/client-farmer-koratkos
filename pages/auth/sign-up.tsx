@@ -110,7 +110,7 @@ function SignUp() {
       <Head>
         <title>ลงทะเบียนสำหรับเกษตรกรใหม่</title>
       </Head>
-      <div className="min-h-screen bg-fourth-color pt-40 font-Anuphan">
+      <div className="w-full pt-40">
         <header className="flex justify-center">
           <section className="flex w-60  items-center justify-center gap-2 rounded-lg bg-super-main-color py-2 font-bold text-white">
             <div className="h-12 w-12">
@@ -125,7 +125,7 @@ function SignUp() {
         <main className="mt-10 flex justify-center pb-10">
           <Form
             onSubmit={handleSummitOnSignUp}
-            className="flex w-10/12 flex-col items-center justify-start gap-10"
+            className="flex w-10/12 flex-col items-center justify-start gap-10 lg:w-8/12"
           >
             <section className="w-full">
               <TextField

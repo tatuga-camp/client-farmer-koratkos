@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 import { Calendar } from "primereact/calendar";
 import { addLocale } from "primereact/api";
 import { GetStaticMapService } from "../../../../services/map";
-import { Step } from "../../../../pages/create/kos1";
+import { Step } from "../../../../pages/create/kos01";
 import { UseQueryResult } from "@tanstack/react-query";
 import {
   ResponseGetAllDocKos1Service,
@@ -21,6 +21,7 @@ import {
 import { IoMdCloseCircle } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import Link from "next/link";
+import { useDeviceType } from "../../../../utils";
 
 type FarmFieldInformationProps = {
   isUpdate?: boolean;
@@ -31,6 +32,7 @@ function FarmFieldInformation({
   docKos1,
 }: FarmFieldInformationProps) {
   const router = useRouter();
+  const deviceType = useDeviceType();
   const [baicInformation, setBasicInformation] = useState<
     | (BasicInformation & {
         certRequestDate: Date;
@@ -142,7 +144,7 @@ function FarmFieldInformation({
         );
 
         router.push({
-          pathname: "/create/kos1",
+          pathname: "/create/kos01",
           query: { step: "productionInformation" as Step },
         });
       }
@@ -193,74 +195,77 @@ function FarmFieldInformation({
 
   const handleClickOnBack = () => {
     router.push({
-      pathname: "/create/kos1",
+      pathname: "/create/kos01",
       query: { step: "basicInformation" as Step },
     });
   };
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
         ที่ตั้งสถานที่ผลิตพืชอินทรีย์
       </h2>
       <Form
         onSubmit={handleSummitFarmFieldInformation}
-        className="mt-5 flex w-11/12 flex-col items-center justify-start gap-2"
+        className="mt-5 flex w-11/12 flex-col items-center justify-start gap-5  lg:grid 
+         lg:grid-cols-2 lg:place-items-start lg:gap-12 "
       >
-        <TextField
-          className="flex w-full items-center justify-center  gap-2"
-          name="address"
-          type="text"
-          isRequired
-        >
-          <Label className="w-40 text-xl font-bold text-super-main-color">
-            ที่อยู่เลขที่ :
-          </Label>
-          <Input
-            onChange={handleChangeOnBasicInformation}
-            value={baicInformation?.address}
-            className="h-10 w-full bg-slate-200 p-2 text-xl"
+        <section className="flex h-full flex-col gap-4 lg:w-full lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color">
+          <TextField
+            className="flex w-full items-center justify-center  gap-2"
+            name="address"
+            type="text"
+            isRequired
+          >
+            <Label className="w-40 text-xl font-bold text-super-main-color">
+              ที่อยู่เลขที่ :
+            </Label>
+            <Input
+              onChange={handleChangeOnBasicInformation}
+              value={baicInformation?.address}
+              className="h-10 w-full bg-slate-200 p-2 text-xl"
+            />
+          </TextField>
+          <TextField
+            className="flex w-full items-center justify-center  gap-2"
+            name="moo"
+            type="text"
+            isRequired
+          >
+            <Label className="w-40 text-xl font-bold text-super-main-color">
+              หมู่ที่ :
+            </Label>
+            <Input
+              onChange={handleChangeOnBasicInformation}
+              value={baicInformation?.moo}
+              className="h-10 w-full bg-slate-200 p-2 text-xl"
+            />
+          </TextField>
+
+          <ProviceComBox
+            baicInformation={baicInformation as BasicInformation}
+            setBasicInformation={setBasicInformation as TypeSetBasicInformation}
           />
-        </TextField>
-        <TextField
-          className="flex w-full items-center justify-center  gap-2"
-          name="moo"
-          type="text"
-          isRequired
-        >
-          <Label className="w-40 text-xl font-bold text-super-main-color">
-            หมู่ที่ :
-          </Label>
-          <Input
-            onChange={handleChangeOnBasicInformation}
-            value={baicInformation?.moo}
-            className="h-10 w-full bg-slate-200 p-2 text-xl"
+
+          <AmphureComBox
+            selectProvinceId={baicInformation?.province?.originalId as number}
+            baicInformation={baicInformation as BasicInformation}
+            setBasicInformation={setBasicInformation as TypeSetBasicInformation}
           />
-        </TextField>
 
-        <ProviceComBox
-          baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
-        />
+          <TambonComBox
+            selectAmphureId={baicInformation?.amphure?.originalId as number}
+            baicInformation={baicInformation as BasicInformation}
+            setBasicInformation={setBasicInformation as TypeSetBasicInformation}
+          />
+        </section>
 
-        <AmphureComBox
-          selectProvinceId={baicInformation?.province?.originalId as number}
-          baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
-        />
-
-        <TambonComBox
-          selectAmphureId={baicInformation?.amphure?.originalId as number}
-          baicInformation={baicInformation as BasicInformation}
-          setBasicInformation={setBasicInformation as TypeSetBasicInformation}
-        />
-
-        <section className="mt-10 flex w-full flex-col items-center justify-center gap-2">
+        <section className="mt-5 flex h-full flex-col gap-4 lg:mt-0 lg:w-full lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color">
           <Label className="text-xl font-semibold text-super-main-color ">
             พิกัดแปลง (UTM) 47/48 P :
           </Label>
           <TextField
-            className="flex w-full items-center justify-center  gap-2"
+            className="flex w-full items-center justify-center gap-2  "
             name="latitude "
             type="text"
             isRequired
@@ -280,7 +285,7 @@ function FarmFieldInformation({
             />
           </TextField>
           <TextField
-            className="flex w-full items-center justify-center  gap-2"
+            className="flex w-full items-center justify-center gap-2  "
             name="longitude "
             type="text"
             isRequired
@@ -312,14 +317,14 @@ function FarmFieldInformation({
             </Button>
           )}
           {loadingMap === true ? (
-            <div className="grid h-40 w-full grid-cols-2 gap-2 ">
+            <div className="grid h-60 w-full grid-cols-2 gap-2 ">
               <div className="h-full w-full animate-pulse bg-slate-500"></div>
               <div className="h-full w-full animate-pulse bg-slate-500"></div>
             </div>
           ) : (
             baicInformation?.mapHybrid &&
             baicInformation?.mapTerrain && (
-              <div className="grid h-[35rem] w-full grid-cols-1 gap-2 ">
+              <div className="grid h-[35rem] w-full grid-cols-1 gap-2 lg:h-60 lg:grid-cols-2 ">
                 <div className="relative h-full w-full ">
                   <Image
                     src={`${baicInformation?.mapHybrid}`}
@@ -350,37 +355,42 @@ function FarmFieldInformation({
             )
           )}
         </section>
-        <h2 className="mt-10 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
-          วันที่ยื่นขอการรับรอง
-        </h2>
-        <section className="flex w-full items-center justify-center gap-2">
-          <Label className="text-lg font-medium text-super-main-color">
-            วัน/เดือน/ปี
-          </Label>
-          <Calendar
-            required
-            locale="th"
-            className=" h-10 w-40 text-center outline-none    "
-            placeholder="วันที่ยื่นขอการรับรอง"
-            value={
-              baicInformation?.certRequestDate
-                ? new Date(baicInformation.certRequestDate)
-                : undefined
-            }
-            onChange={(e) =>
-              setBasicInformation((prev: any) => {
-                return {
-                  ...prev,
-                  certRequestDate: e.value,
-                };
-              })
-            }
-            dateFormat="dd/mm/yy"
-            touchUI
-          />
+        <section
+          className="col-span-2 mt-10 flex w-full flex-col items-center 
+        justify-start gap-2 lg:mt-0 lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color  "
+        >
+          <h2 className="mt-10 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
+            วันที่ยื่นขอการรับรอง
+          </h2>
+          <section className="flex w-full items-center justify-center gap-2">
+            <Label className="text-lg font-medium text-super-main-color">
+              วัน/เดือน/ปี
+            </Label>
+            <Calendar
+              required
+              locale="th"
+              className=" h-10 w-40 text-center outline-none    "
+              placeholder="วันที่ยื่นขอการรับรอง"
+              value={
+                baicInformation?.certRequestDate
+                  ? new Date(baicInformation.certRequestDate)
+                  : undefined
+              }
+              onChange={(e) =>
+                setBasicInformation((prev: any) => {
+                  return {
+                    ...prev,
+                    certRequestDate: e.value,
+                  };
+                })
+              }
+              dateFormat="dd/mm/yy"
+              touchUI={deviceType === "mobile" ? true : false}
+            />
+          </section>
         </section>
         {isUpdate ? (
-          <div className="mt-20 flex gap-2">
+          <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2 lg:mt-0">
             <Link
               href={`/kos01/${docKos1?.data?.id}`}
               className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
@@ -399,7 +409,7 @@ function FarmFieldInformation({
             </Button>
           </div>
         ) : (
-          <div className="flex w-full items-center justify-center gap-2">
+          <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2 lg:mt-0">
             <Button
               type="button"
               onPress={handleClickOnBack}
