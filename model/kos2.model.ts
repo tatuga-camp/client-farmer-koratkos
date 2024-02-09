@@ -12,7 +12,7 @@ export type OrgCropProdCalForKos2 = {
   id: string;
   createAt: Date;
   updateAt: Date;
-  plotNumber: string;
+  plotNumber: number;
   landArea: number;
   plantType: string;
   rangeDate: string[];
