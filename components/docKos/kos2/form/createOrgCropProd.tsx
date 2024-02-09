@@ -1,15 +1,16 @@
 import { UseQueryResult } from "@tanstack/react-query";
 import React, { useState } from "react";
+
+import { Button, Form, Input, Label, TextField } from "react-aria-components";
+import { Calendar } from "primereact/calendar";
+import { FaSave } from "react-icons/fa";
+import { IoMdCloseCircle } from "react-icons/io";
+import Swal from "sweetalert2";
 import {
   CreateOrgProdKos2Service,
   ResponseGetDocKos02Service,
 } from "../../../../services/kos2";
-import { Button, Form, Input, Label, TextField } from "react-aria-components";
-import { Calendar } from "primereact/calendar";
 import { useDeviceType } from "../../../../utils";
-import { FaSave } from "react-icons/fa";
-import { IoMdCloseCircle } from "react-icons/io";
-import Swal from "sweetalert2";
 
 type OrgCropProdProps = {
   dockos02: UseQueryResult<ResponseGetDocKos02Service, Error>;
@@ -27,7 +28,7 @@ type OrgCropProdCalForKos2Data = {
   seed?: string;
   source?: string;
 };
-function OrgCropProd({
+function CreateOrgCropProd({
   dockos02,
   setTriggerCreateOrgCropProdCalForKos2,
 }: OrgCropProdProps) {
@@ -63,6 +64,7 @@ function OrgCropProd({
         docKos02Id: dockos02.data?.id as string,
         seed: orgCropProdCalForKos2s?.seed as string,
         source: orgCropProdCalForKos2s?.source as string,
+        plotNumber: orgCropProdCalForKos2s?.plotNumber as number,
       });
       await dockos02.refetch();
       setTriggerCreateOrgCropProdCalForKos2(() => false);
@@ -89,7 +91,22 @@ function OrgCropProd({
         onSubmit={handleSummitOrgCropProdCalForKos2}
         className="mt-5 flex w-11/12 flex-col items-center gap-4 lg:grid lg:grid-cols-2"
       >
-        <section className="flex w-full flex-col gap-2 rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color">
+        <section className="flex w-full flex-col gap-5 rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color">
+          <TextField className="flex w-80 items-center justify-start">
+            <Label className="w-28 text-base font-semibold text-super-main-color">
+              แปลงที่ :
+            </Label>
+            <Input
+              required
+              name="plotNumber"
+              onChange={handleCheckOrgCropProdCalForKos2}
+              value={orgCropProdCalForKos2s?.plotNumber}
+              type="number"
+              inputMode="numeric"
+              className="w-10/12 rounded-lg p-3 ring-1 ring-gray-300"
+              placeholder="ลำดับแปลง"
+            />
+          </TextField>
           <TextField
             isRequired
             className="flex w-80 flex-col  items-start gap-2"
@@ -117,6 +134,7 @@ function OrgCropProd({
               touchUI={deviceType === "mobile" ? true : false}
             />
           </TextField>
+
           <TextField className="flex w-80  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
               พื้นที่ :
@@ -249,4 +267,4 @@ function OrgCropProd({
   );
 }
 
-export default OrgCropProd;
+export default CreateOrgCropProd;

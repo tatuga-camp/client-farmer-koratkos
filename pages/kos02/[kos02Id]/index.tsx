@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import DashboardLayout from "../../../layouts/dashboardLayout";
-import { Farmer } from "../../../model";
+import { Farmer, OrgCropProdCalForKos2 } from "../../../model";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { parseCookies } from "nookies";
 import {
@@ -12,16 +12,28 @@ import Kos2Form from "../../../components/docKos/kos2/form/kos2Form";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { GetDocKos02Service } from "../../../services/kos2";
-import OrgCropProd from "../../../components/docKos/kos2/form/orgCropProd";
+import {
+  DeleteOrgCropProdCalForKos2Service,
+  GetDocKos02Service,
+} from "../../../services/kos2";
 import { MdDelete, MdLandslide } from "react-icons/md";
 import { AiFillEdit } from "react-icons/ai";
 import { FaSeedling } from "react-icons/fa";
+import { GiWeight } from "react-icons/gi";
+import UpdateOrgCropProd from "../../../components/docKos/kos2/form/updateOrgCropProd";
+import Swal from "sweetalert2";
+import CreateOrgCropProd from "../../../components/docKos/kos2/form/createOrgCropProd";
 
 function Index({ farmer }: { farmer: Farmer }) {
   const [
     triggerCreateOrgCropProdCalForKos2,
     setTriggerCreateOrgCropProdCalForKos2,
+  ] = useState(false);
+  const [selectOrgCropProd, setSelectOrgCropProd] =
+    useState<OrgCropProdCalForKos2>();
+  const [
+    triggerUpdateOrgCropProdCalForKos2,
+    setTriggerUpdateOrgCropProdCalForKos2,
   ] = useState(false);
   const docKos = useQuery({
     queryKey: ["docKos"],
@@ -32,39 +44,104 @@ function Index({ farmer }: { farmer: Farmer }) {
     queryFn: () => GetDocKos02Service(),
   });
 
+  const handleDeleteOrgCrop = async ({
+    orgCropProdCalForKos2Id,
+  }: {
+    orgCropProdCalForKos2Id: string;
+  }) => {
+    let content = document.createElement("div");
+    content.innerHTML =
+      "<div>กรุณาพิมพ์ข้อความนี้</div> <strong>" +
+      "ยืนยันการลบ" +
+      "</strong> <div>เพื่อลบข้อมูล</div>";
+    const { value } = await Swal.fire<{ value: string }>({
+      title: "ยืนยันการลบข้อมูล",
+      input: "text",
+      html: content,
+      footer: "<strong>หากลบแล้วคุณจะไม่สามารถกู้คืนข้อมูลได้</strong>",
+      showCancelButton: true,
+      inputValidator: (value) => {
+        if (value !== "ยืนยันการลบ") {
+          return "กรุณาพิมพ์ข้อความยืนยันให้ถูกต้อง";
+        }
+      },
+    });
+    if (value) {
+      try {
+        Swal.fire({
+          title: "กำลังลบข้อมูล",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        const deletePlant = await DeleteOrgCropProdCalForKos2Service({
+          orgCropProdCalForKos2Id: orgCropProdCalForKos2Id,
+        });
+        await dockos02.refetch();
+        Swal.fire({
+          icon: "success",
+          title: "ลบสำเร็จ",
+          text: "ลบข้อมูลสำเร็จ",
+        });
+      } catch (error: any) {
+        console.log(error);
+        Swal.fire({
+          icon: "error",
+          title: "เกิดข้อผิดพลาด",
+          text: error.message,
+        });
+      }
+    }
+  };
   return (
     <DashboardLayout farmer={farmer}>
       <Head>
         <title>กรอกข้อมูล KOS-1</title>
       </Head>
       <div className="flex min-h-screen w-full flex-col items-center bg-fourth-color pb-10  pt-10 font-Anuphan">
-        <header className="flex flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5">
-            <h1 className="text-xl font-semibold text-white">(KOS-01) </h1>
+        <header className="flex w-full flex-col items-center justify-center gap-5">
+          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5 lg:h-20 lg:flex-row">
+            <h1 className="text-xl font-semibold text-white">(KOS-02) </h1>
             <h2 className="text-balance text-center text-base font-normal text-white">
-              ผังแปลง ขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ ์ขั้นพื้นฐาน{" "}
+              ผังแปลง ขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ ขั้นพื้นฐาน{" "}
             </h2>
           </section>
         </header>
         {triggerCreateOrgCropProdCalForKos2 ? (
-          <OrgCropProd
+          <CreateOrgCropProd
             setTriggerCreateOrgCropProdCalForKos2={
               setTriggerCreateOrgCropProdCalForKos2
             }
             dockos02={dockos02}
           />
+        ) : triggerUpdateOrgCropProdCalForKos2 ? (
+          <UpdateOrgCropProd
+            dockos02={dockos02}
+            selectOrgCropProd={selectOrgCropProd}
+            setTriggerUpdateOrgCropProdCalForKos2={
+              setTriggerUpdateOrgCropProdCalForKos2
+            }
+          />
         ) : (
           <div className="flex w-full flex-col items-center">
             <Kos2Form isUpdate={true} docKos={docKos} />
+            <h2 className="mt-10 w-80 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
+              แผนการผลิตพืชอินทรีย์
+            </h2>
             <button
-              onClick={() => setTriggerCreateOrgCropProdCalForKos2(() => true)}
-              className="mt-10 flex  w-40 items-center justify-center gap-2 rounded-lg
-             bg-super-main-color px-5 py-1 font-semibold text-white drop-shadow-md"
+              onClick={() => {
+                setTriggerCreateOrgCropProdCalForKos2(() => true);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="mt-10 
+              flex w-40 items-center justify-center gap-2  rounded-lg bg-super-main-color px-5 py-1 font-semibold
+             text-white drop-shadow-md transition duration-150 hover:scale-105 active:scale-110"
             >
               <IoIosAddCircleOutline />
               เพิ่มแปลงปลูก
             </button>
-            <ul className="mt-10 flex w-full flex-col items-center gap-5">
+            <ul className="mt-10 flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-3 lg:place-items-center lg:p-10">
               {dockos02?.data?.orgCropProdCalForKos2s?.length === 0 ? (
                 <li className="flex h-60 w-10/12 items-center justify-center rounded-lg bg-third-color text-xl font-medium">
                   ไม่มีข้อมูลแปลงปลูก
@@ -96,7 +173,16 @@ function Index({ farmer }: { farmer: Farmer }) {
                             แปลงที่ {orgCropProd.plotNumber}
                           </h2>
                           <div className="flex justify-center gap-2">
-                            <button className="flex flex-col items-center justify-center gap-1">
+                            <button
+                              onClick={() => {
+                                setTriggerUpdateOrgCropProdCalForKos2(
+                                  () => true,
+                                );
+                                setSelectOrgCropProd(() => orgCropProd);
+                              }}
+                              className="flex flex-col 
+                            items-center justify-center gap-1 transition duration-100 hover:scale-105 active:scale-110"
+                            >
                               <div className="rounded-lg bg-[#597E52] p-2 text-white">
                                 <AiFillEdit />
                               </div>
@@ -104,7 +190,15 @@ function Index({ farmer }: { farmer: Farmer }) {
                                 แก้ไข
                               </span>
                             </button>
-                            <button className="flex flex-col items-center justify-center gap-1">
+                            <button
+                              onClick={() =>
+                                handleDeleteOrgCrop({
+                                  orgCropProdCalForKos2Id: orgCropProd.id,
+                                })
+                              }
+                              className="flex flex-col 
+                            items-center justify-center gap-1 transition duration-100 hover:scale-105 active:scale-110"
+                            >
                               <div className="rounded-lg bg-red-700 p-2 text-white">
                                 <MdDelete />
                               </div>
@@ -131,12 +225,15 @@ function Index({ farmer }: { farmer: Farmer }) {
                           </div>
                           <div className="flex w-full items-center justify-center gap-2">
                             <div className="rounded-full bg-super-main-color p-2 text-lg text-white">
-                              <MdLandslide />
+                              <GiWeight />
                             </div>
-                            <span className="text-xs font-semibold">
-                              ผลผลิต {orgCropProd.landArea}{" "}
-                              <span className="text-xs">กก./ไร่</span>
-                            </span>
+                            <div className="text-xs font-semibold">
+                              <span className="text-sm">
+                                ผลผลิต{" "}
+                                {orgCropProd.yieldPerRai.toLocaleString()}{" "}
+                              </span>
+                              <div className="text-xs">กก./ไร่</div>
+                            </div>
                           </div>
                         </section>
                         <section className="mt-5 flex flex-col items-center justify-center gap-2 border-b-2 border-[#502D16]">

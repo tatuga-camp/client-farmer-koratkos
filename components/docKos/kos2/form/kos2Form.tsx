@@ -7,6 +7,7 @@ import {
   Form,
   Input,
   Label,
+  TextArea,
   TextField,
 } from "react-aria-components";
 import { CiImageOn } from "react-icons/ci";
@@ -28,6 +29,7 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
     file?: File;
     numberOfPlotForKosCertificated?: string;
     image?: string;
+    marketingDetail?: string;
   }>();
   const router = useRouter();
 
@@ -39,6 +41,7 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
             numberOfPlotForKosCertificated:
               docKos.data?.kos2?.numberOfPlotForKosCertificated,
             image: docKos.data.kos2.map,
+            marketingDetail: docKos.data.kos2.marketingDetail,
           };
         });
       }, 500);
@@ -59,6 +62,7 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
           file: docKos2Data?.file as File,
           numberOfPlotForKosCertificated:
             docKos2Data?.numberOfPlotForKosCertificated as string,
+          marketingDetail: docKos2Data?.marketingDetail as string,
         });
       } else {
         if (!docKos2Data?.file) {
@@ -68,6 +72,7 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
           file: docKos2Data?.file as File,
           numberOfPlotForKosCertificated:
             docKos2Data?.numberOfPlotForKosCertificated as string,
+          marketingDetail: docKos2Data?.marketingDetail as string,
         });
 
         router.push({
@@ -92,18 +97,18 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
   };
 
   return (
-    <div className="mt-10 flex flex-col items-center justify-center">
-      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
+    <div className="mt-10 flex w-full flex-col items-center justify-center">
+      <h2 className="w-80 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
         แผนผังแปลง
       </h2>
       <Form
         onSubmit={handleSumitDocKos2}
-        className="mt-10 flex w-full flex-col items-center justify-start gap-3 lg:w-96"
+        className="lg: mt-10 flex w-full  flex-col items-center justify-start gap-3 border-b-2 border-b-super-main-color pb-10 lg:w-8/12 lg:rounded-lg lg:border-b-0 lg:p-5 lg:ring-2 lg:ring-third-color"
       >
-        <Label className="w-80 text-balance text-center text-lg font-semibold text-super-main-color">
-          แปลงที่ขอรับ KOS ระบุให้ สอดคล้องกับแผนผังฟาร์ม{" "}
-        </Label>
-        <TextField className="flex  w-11/12 flex-col items-center gap-2">
+        <TextField className="flex  w-11/12 flex-col items-center gap-2 lg:w-full lg:flex-row">
+          <Label className="w-80 text-balance text-center text-lg font-semibold text-super-main-color lg:w-max">
+            แปลงที่ขอรับ KOS ระบุให้ สอดคล้องกับแผนผังฟาร์ม{" "}
+          </Label>
           <Label className="text-lg font-semibold text-super-main-color">
             ได้แก่แปลงที่ :{" "}
           </Label>
@@ -122,14 +127,6 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
           />
 
           <FieldError className="text-red-700">กรุณาใส่ข้อมูล</FieldError>
-          <Button
-            type="submit"
-            className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-1 
-          text-base text-white drop-shadow-md"
-          >
-            <FaSave />
-            บันทึก
-          </Button>
         </TextField>
         <FileTrigger
           onSelect={(e) => {
@@ -156,12 +153,18 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
             });
           }}
         >
-          <Button className=" flex items-center justify-center gap-2 rounded-lg bg-third-color px-4 py-1 font-semibold text-white">
+          <Button
+            className=" flex items-center justify-center gap-2 rounded-lg bg-third-color px-4 py-1 
+          font-semibold text-white"
+          >
             <CiImageOn />
             อัพโหลดรูปภาพแปลง
           </Button>
         </FileTrigger>
-        <div className="relative mt-5 flex h-60 w-11/12 flex-col items-center justify-center overflow-hidden rounded-lg bg-slate-300 p-2 text-7xl text-white drop-shadow-md">
+        <div
+          className="relative mt-5 flex h-60 w-11/12 flex-col items-center
+         justify-center overflow-hidden rounded-lg bg-slate-300 p-2 text-7xl text-white drop-shadow-md lg:h-96 lg:w-96"
+        >
           {docKos2Data?.image ? (
             <Image
               onClick={() => {
@@ -176,6 +179,32 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
             <CiImageOn />
           )}
         </div>
+        <TextField className="mt-2 flex flex-col items-start gap-2 lg:w-full">
+          <Label className="w-max text-balance text-center text-lg font-semibold text-super-main-color">
+            การจัดการหลังการเก็บเกี่ยว และการตลาด :{" "}
+          </Label>
+          <TextArea
+            onChange={(e) => {
+              setDocKos2Data((prev) => {
+                return {
+                  ...prev,
+                  marketingDetail: e.target.value,
+                };
+              });
+            }}
+            value={docKos2Data?.marketingDetail}
+            placeholder="...อธิบายการตลาด"
+            className="h-40 w-full rounded-lg p-3 ring-1 ring-blue-200 "
+          />
+        </TextField>
+        <Button
+          type="submit"
+          className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-1 
+          text-base text-white drop-shadow-md"
+        >
+          <FaSave />
+          บันทึก
+        </Button>
       </Form>
     </div>
   );
