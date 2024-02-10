@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useState } from "react";
+import React, { ChangeEventHandler, useEffect, useState } from "react";
 import {
   Button,
   FileTrigger,
@@ -12,32 +12,37 @@ import { Calendar } from "primereact/calendar";
 import { FaSave } from "react-icons/fa";
 import { CiImageOn } from "react-icons/ci";
 import Image from "next/image";
-import {
-  CreateActivityKos3Service,
-  CreateDocKos3Service,
-  CreateFileOnActivityKos3Service,
-  ResponseGetActivityKos3ByPageService,
-} from "../../../services/kos3";
 import Swal from "sweetalert2";
+import { useRouter } from "next/router";
+import { ActivityKos3, FileActivityKos3 } from "../../../model";
+import {
+  CreateFileOnActivityKos3Service,
+  DeleteFileOnActivityKos3Service,
+  ResponseGetActivityKos3ByPageService,
+  UpdateActivityKos3Service,
+} from "../../../services/kos3";
 import {
   GetSignURLService,
   UploadSignURLService,
 } from "../../../services/google-storage";
-import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
-import { DocKos3 } from "../../../model";
-import { ResponseGetAllDocKosService } from "../../../services/farmer";
+import { MdDelete } from "react-icons/md";
 import { useDeviceType } from "../../../utils";
-type CreateActivityProps = {
-  docKos?: UseQueryResult<ResponseGetAllDocKosService, Error>;
-  activities?: UseQueryResult<ResponseGetActivityKos3ByPageService, Error>;
-  setTriggerCreateActivity?: React.Dispatch<React.SetStateAction<boolean>>;
+
+type UpdateActivityProps = {
+  setTriggerUpdateActivity: React.Dispatch<React.SetStateAction<boolean>>;
+  selectActivity:
+    | (ActivityKos3 & {
+        fileOnActivities: FileActivityKos3[];
+      })
+    | undefined;
+  activities: UseQueryResult<ResponseGetActivityKos3ByPageService, Error>;
 };
-function CreateActivity({
-  docKos,
+function UpdateActivity({
+  setTriggerUpdateActivity,
   activities,
-  setTriggerCreateActivity,
-}: CreateActivityProps) {
+  selectActivity,
+}: UpdateActivityProps) {
   const deviceType = useDeviceType();
   const router = useRouter();
   const [activity, setActivity] = useState<{
@@ -54,6 +59,22 @@ function CreateActivity({
       activitiesKos3Id?: string;
     }[]
   >();
+
+  useEffect(() => {
+    if (!selectActivity) return;
+    setActivity(() => {
+      return {
+        plotNumber: selectActivity?.plotNumber,
+        activityDate: selectActivity?.activityDate,
+        note: selectActivity?.note,
+      };
+    });
+    setFiles(() => {
+      return selectActivity?.fileOnActivities.map((file) => {
+        return { id: file.id, url: file.url, type: file.type };
+      });
+    });
+  }, []);
 
   const handleChangeActivcity = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -72,19 +93,16 @@ function CreateActivity({
         },
       });
       const newFiles = files?.filter((file) => file.id === undefined);
-      let docKos03Id: string | undefined;
-      if (setTriggerCreateActivity && docKos) {
-        docKos03Id = docKos.data?.kos3.id;
-      } else {
-        const docKos03 = await CreateDocKos3Service();
-        docKos03Id = docKos03.id;
-      }
-
-      const activitiesKos3 = await CreateActivityKos3Service({
-        plotNumber: activity?.plotNumber as number,
-        activityDate: activity?.activityDate as string,
-        note: activity?.note as string,
-        docKos03Id: docKos03Id as string,
+      const update = await UpdateActivityKos3Service({
+        query: {
+          docKos03Id: selectActivity?.docKos03Id as string,
+          activitiesKos3Id: selectActivity?.id as string,
+        },
+        body: {
+          plotNumber: activity?.plotNumber,
+          activityDate: activity?.activityDate,
+          note: activity?.note,
+        },
       });
       if (newFiles && newFiles?.length > 0) {
         for (const newFile of newFiles) {
@@ -101,23 +119,57 @@ function CreateActivity({
           const createFile = await CreateFileOnActivityKos3Service({
             url: signURL.originalURL,
             type: signURL.contentType,
-            activitiesKos3Id: activitiesKos3.id,
+            activitiesKos3Id: update.id,
           });
         }
       }
-      await activities?.refetch();
-      if (setTriggerCreateActivity) {
-        setTriggerCreateActivity(() => false);
-      } else {
-        router.push({
-          pathname: `/kos03/${docKos03Id}`,
-        });
-      }
-
+      await activities.refetch();
+      setTriggerUpdateActivity(() => false);
       Swal.fire({
         icon: "success",
         title: "บันทึกสำเร็จ",
         showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+    } catch (error: any) {
+      console.log(error.message);
+      Swal.fire({
+        icon: "error",
+        title: "เกิดข้อผิดพลาด",
+        text: error.message,
+      });
+    }
+  };
+
+  const handleDeleteFile = async ({
+    fileId,
+    url,
+  }: {
+    fileId: string;
+    url?: string;
+  }) => {
+    try {
+      if (url && !fileId) {
+        const unDeleteFiles = files?.filter((file) => file.url !== url);
+        setFiles(() => unDeleteFiles);
+      } else if (fileId) {
+        Swal.fire({
+          icon: "info",
+          title: "กำลังลบข้อมูล",
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        });
+        await DeleteFileOnActivityKos3Service({ fileOnActivityId: fileId });
+        const unDeleteFiles = files?.filter((file) => file.id !== fileId);
+        setFiles(() => unDeleteFiles);
+        await activities.refetch();
+      }
+      Swal.fire({
+        icon: "success",
+        title: "ลบสำเร็จ",
         timer: 1500,
         timerProgressBar: true,
       });
@@ -149,7 +201,7 @@ function CreateActivity({
             name="plotNumber"
             onChange={handleChangeActivcity}
             value={activity?.plotNumber}
-            type="number"
+            type="text"
             inputMode="numeric"
             className="w-10/12 rounded-lg p-3 ring-1 ring-gray-300"
             placeholder="ลำดับแปลง"
@@ -243,6 +295,21 @@ function CreateActivity({
                 key={index}
                 className="relative h-40 w-full cursor-pointer overflow-hidden bg-gray-300"
               >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteFile({
+                      fileId: file.id as string,
+                      url: file.url,
+                    });
+                  }}
+                  type="button"
+                  className="absolute right-2 top-2 z-40 m-auto flex
+                  items-center justify-center gap-1 rounded-lg bg-red-500 px-4 text-sm text-white drop-shadow-lg"
+                >
+                  <MdDelete />
+                  ลบรูปภาพ
+                </button>
                 <Image
                   src={file.url as string}
                   fill
@@ -254,17 +321,16 @@ function CreateActivity({
           })}
         </section>
         <section className="flex w-full justify-center gap-2">
-          {setTriggerCreateActivity && (
-            <Button
-              type="button"
-              onPress={() => setTriggerCreateActivity(() => false)}
-              className="flex items-center justify-center gap-3 rounded-lg bg-red-700 px-10 py-1 
+          <Button
+            onPress={() => setTriggerUpdateActivity(() => false)}
+            type="button"
+            className="flex items-center justify-center gap-3 rounded-lg bg-red-700 px-10 py-1 
           text-base text-white drop-shadow-md"
-            >
-              <FaSave />
-              ยกเลิก
-            </Button>
-          )}
+          >
+            <FaSave />
+            ยกเลิก
+          </Button>
+
           <Button
             type="submit"
             className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-1 
@@ -279,4 +345,4 @@ function CreateActivity({
   );
 }
 
-export default CreateActivity;
+export default UpdateActivity;

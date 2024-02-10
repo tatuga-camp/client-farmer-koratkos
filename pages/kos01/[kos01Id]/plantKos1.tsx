@@ -6,11 +6,11 @@ import DashboardLayout from "../../../layouts/dashboardLayout";
 import { Farmer } from "../../../model";
 import Head from "next/head";
 import Image from "next/image";
-import PlantKos1 from "../../../components/docKos/kos1/forms/plantKos1";
+import CardPlantKos1 from "../../../components/docKos/kos1/forms/cardPlantKos1";
 import { useQuery } from "@tanstack/react-query";
 import { GetDocKos1Service } from "../../../services/kos1";
 
-function plantKos1({ farmer }: { farmer: Farmer }) {
+function PlantKos1({ farmer }: { farmer: Farmer }) {
   const docKos1 = useQuery({
     queryKey: ["docKos1"],
     queryFn: () => GetDocKos1Service(),
@@ -30,7 +30,7 @@ function plantKos1({ farmer }: { farmer: Farmer }) {
           </section>
         </header>
         <main className="mt-10 flex justify-center  ">
-          <PlantKos1
+          <CardPlantKos1
             docKos1={docKos1}
             farmKOS1Id={docKos1.data?.farmKos1.id as string}
           />
@@ -40,7 +40,7 @@ function plantKos1({ farmer }: { farmer: Farmer }) {
   );
 }
 
-export default plantKos1;
+export default PlantKos1;
 export const getServerSideProps: GetServerSideProps = async (
   ctx: GetServerSidePropsContext,
 ) => {

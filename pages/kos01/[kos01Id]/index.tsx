@@ -6,7 +6,7 @@ import { Farmer } from "../../../model";
 import DashboardLayout from "../../../layouts/dashboardLayout";
 import Head from "next/head";
 import Image from "next/image";
-import PlantKos1 from "../../../components/docKos/kos1/forms/plantKos1";
+import PlantKos1 from "../../../components/docKos/kos1/forms/cardPlantKos1";
 import { useRouter } from "next/router";
 import { Step } from "../../create/kos01";
 import { menuKos01 } from "../../../data/menus";

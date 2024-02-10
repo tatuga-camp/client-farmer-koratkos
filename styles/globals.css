@@ -9,3 +9,6 @@
   @tailwind components;
   @tailwind utilities;
 }
+.swal2-popup {
+  font-family: "Anuphan", "sans-serif";
+}

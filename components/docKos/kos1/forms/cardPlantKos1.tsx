@@ -18,7 +18,7 @@ type PlantKos1Type = {
   farmKOS1Id: string;
   docKos1: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
 };
-function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
+function CardPlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
   const [triggerCreatePlant, setTriggerCreatePlant] = useState(false);
   const [triggerUpdatePlant, setTriggerUpdatePlant] = useState(false);
   const [selectUpdatePlant, setSelectUpdatePlant] = useState<
@@ -126,7 +126,10 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
               year: "numeric",
             });
             return (
-              <li className="flex h-60 w-10/12 flex-col items-center gap-1 rounded-lg bg-[#F1E4C3] p-2 drop-shadow-md">
+              <li
+                key={index}
+                className="flex h-60 w-10/12 flex-col items-center gap-1 rounded-lg bg-[#F1E4C3] p-2 drop-shadow-md"
+              >
                 <section className="flex w-full justify-between">
                   <h1
                     className="flex h-10 items-center justify-center
@@ -214,4 +217,4 @@ function PlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
   );
 }
 
-export default PlantKos1;
+export default CardPlantKos1;

@@ -8,7 +8,7 @@ export type DocKos3 = {
 export type ActivityKos3 = {
   id: string;
   updateAt: Date;
-  plotNumber: string;
+  plotNumber: number;
   activityDate: string;
   note: string;
   docKos03Id: string;
