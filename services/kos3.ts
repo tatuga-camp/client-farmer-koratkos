@@ -148,3 +148,57 @@ export async function CreateFileOnActivityKos3Service(
     throw error?.response?.data;
   }
 }
+
+type RequestDeleteFileOnActivityKos3Service = {
+  fileOnActivityId: string;
+};
+
+export async function DeleteFileOnActivityKos3Service(
+  input: RequestDeleteFileOnActivityKos3Service,
+): Promise<ActivityKos3> {
+  try {
+    const cookies = parseCookies();
+    const access_token = cookies.access_token;
+
+    const kos3 = await axios({
+      method: "DELETE",
+      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos3/delete-file`,
+      params: { ...input },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return kos3.data;
+  } catch (error: any) {
+    console.error(error.response.data);
+    throw error?.response?.data;
+  }
+}
+
+type RequestDeleteActivityKos3Service = {
+  activitiesKos3Id: string;
+};
+
+export async function DeleteActivityKos3Service(
+  input: RequestDeleteActivityKos3Service,
+): Promise<ActivityKos3> {
+  try {
+    const cookies = parseCookies();
+    const access_token = cookies.access_token;
+
+    const kos3 = await axios({
+      method: "DELETE",
+      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos3/delete-activities`,
+      params: { ...input },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return kos3.data;
+  } catch (error: any) {
+    console.error(error.response.data);
+    throw error?.response?.data;
+  }
+}

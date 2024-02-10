@@ -2,21 +2,17 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { menuKos, menuKos01 } from "../../data/menus";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { GetAllDocKosService } from "../../services/farmer";
 import { RiShutDownLine } from "react-icons/ri";
-import { destroyCookie } from "nookies";
+import { useSignOut } from "../../utils";
 
 function DashboardSidebar() {
-  const queryClient = useQueryClient();
   const docKos = useQuery({
     queryKey: ["docKos"],
     queryFn: () => GetAllDocKosService(),
   });
-  const handleSignOut = () => {
-    destroyCookie(null, "access_token", { path: "/" });
-    queryClient.removeQueries({ queryKey: ["farmer"] });
-  };
+
   return (
     <div
       className="sticky top-0  hidden h-screen w-96 flex-col items-center
@@ -60,7 +56,7 @@ function DashboardSidebar() {
         })}
       </ul>
       <Link
-        onClick={handleSignOut}
+        onClick={useSignOut}
         className="flex flex-col items-center justify-center "
         href="/auth/sign-in"
       >

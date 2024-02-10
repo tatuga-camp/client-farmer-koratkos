@@ -10,7 +10,7 @@ import BasicInformation from "../../components/docKos/kos1/forms/basicInformatio
 import { useRouter } from "next/router";
 import FarmFieldInformation from "../../components/docKos/kos1/forms/farmFieldInformation";
 import ProductionInformation from "../../components/docKos/kos1/forms/productionInformation";
-import PlantKos1 from "../../components/docKos/kos1/forms/plantKos1";
+import PlantKos1 from "../../components/docKos/kos1/forms/cardPlantKos1";
 export type Step =
   | "basicInformation"
   | "farmFieldInformation"

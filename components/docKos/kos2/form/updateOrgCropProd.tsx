@@ -10,8 +10,8 @@ import {
   ResponseGetDocKos02Service,
   UpdateOrgProdKos2Service,
 } from "../../../../services/kos2";
-import { useDeviceType } from "../../../../utils";
 import { OrgCropProdCalForKos2 } from "../../../../model";
+import { useDeviceType } from "../../../../utils";
 
 type OrgCropProdProps = {
   dockos02: UseQueryResult<ResponseGetDocKos02Service, Error>;
