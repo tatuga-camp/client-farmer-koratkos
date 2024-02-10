@@ -1,7 +1,6 @@
 import React from "react";
 import { ActivityKos3, FileActivityKos3 } from "../../../model";
 import moment from "moment";
-import "moment/locale/th";
 import { AiFillEdit } from "react-icons/ai";
 import { MdDelete } from "react-icons/md";
 import Image from "next/image";
