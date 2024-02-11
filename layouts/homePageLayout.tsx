@@ -11,7 +11,7 @@ function HomePageLayout({ children }: LayoutProps) {
   return (
     <section>
       <HomePageNavbar />
-      <div className="flex min-h-screen w-full bg-fourth-color">
+      <div className="flex min-h-screen w-full bg-fourth-color font-Anuphan">
         <div className="sticky top-0 z-10 hidden h-screen w-8/12 items-center justify-center bg-[#F1E4C3] lg:flex">
           <header className="flex flex-col items-center justify-center">
             <section className="flex items-end justify-center gap-2">

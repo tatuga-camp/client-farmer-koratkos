@@ -19,12 +19,12 @@ type BasicInformationProps = {
 };
 
 export type PlantData = {
-  plant: string;
-  raiTotal: number;
-  annualProdCycles: string;
-  seasonProd: Date[];
-  expHarvestDate: Date;
-  expYieldAmt: number;
+  plant?: string;
+  raiTotal?: number;
+  annualProdCycles?: string;
+  seasonProd?: Date[] | null[];
+  expHarvestDate?: Date;
+  expYieldAmt?: number;
 };
 
 function CreatePlantKos1({
@@ -59,9 +59,14 @@ function CreatePlantKos1({
         throw new Error("กรุณากรอกข้อมูลให้ครบ");
       }
 
-      const seasonProds = createPlant?.seasonProd.map((value) =>
-        value.toISOString(),
-      );
+      const seasonProds = createPlant?.seasonProd.map((value) => {
+        if (value === null) {
+          throw new Error(
+            "กรุณาเลือก ช่วงเวลาการผลิต (เดือน) อย่างน้อย 2 เดือน",
+          );
+        }
+        return value.toISOString();
+      });
       const create = await CreatePlantKos1Service({
         plant: createPlant?.plant,
         raiTotal: createPlant?.raiTotal,
@@ -146,9 +151,18 @@ function CreatePlantKos1({
           <Calendar
             required
             value={createPlant?.seasonProd}
-            onChange={(e) =>
-              setCreatePlant((prev: any) => ({ ...prev, seasonProd: e.value }))
-            }
+            onChange={(e) => {
+              if (e.value === null) {
+                setCreatePlant((prev) => ({
+                  ...prev,
+                  seasonProd: [null, null],
+                }));
+              }
+              setCreatePlant((prev) => ({
+                ...prev,
+                seasonProd: e.value as Date[],
+              }));
+            }}
             locale="th"
             className=" h-12 w-full overflow-hidden rounded-lg ring-1 ring-slate-400"
             selectionMode="range"
@@ -160,7 +174,7 @@ function CreatePlantKos1({
         </div>
         <section className="flex w-10/12 flex-col items-start justify-center gap-2">
           <Label className="text-xl font-semibold text-super-main-color">
-            จำนวนรอบการผลิต/ปี :
+            วันที่คาดว่าจะเก็บเกี่ยว :
           </Label>
           <Calendar
             required
