@@ -91,7 +91,7 @@ function CardActivity({
   };
   return (
     <section
-      className="flex h-max  w-full flex-col gap-4 bg-[#F1E4C3] p-4 py-5 font-Anuphan lg:rounded-lg lg:drop-shadow-md"
+      className="flex  h-max w-full flex-col gap-4 bg-[#F1E4C3] p-4 py-5 font-Anuphan lg:rounded-lg lg:drop-shadow-md"
       key={activity.id}
     >
       <div className="flex w-full flex-row-reverse justify-between">

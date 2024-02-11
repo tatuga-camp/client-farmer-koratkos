@@ -56,10 +56,14 @@ function UpdatePlantKos1({
       ) {
         throw new Error("กรุณากรอกข้อมูลให้ครบ");
       }
-
-      const seasonProds = createPlant?.seasonProd.map((value) =>
-        value.toISOString(),
-      );
+      const seasonProds = createPlant?.seasonProd.map((value) => {
+        if (value === null) {
+          throw new Error(
+            "กรุณาเลือก ช่วงเวลาการผลิต (เดือน) อย่างน้อย 2 เดือน",
+          );
+        }
+        return value.toISOString();
+      });
 
       const update = await UpdatePlantKos1Service({
         query: {
@@ -69,7 +73,7 @@ function UpdatePlantKos1({
           plant: createPlant?.plant,
           raiTotal: createPlant?.raiTotal,
           annualProdCycles: createPlant?.annualProdCycles,
-          seasonProd: seasonProds,
+          seasonProd: seasonProds as string[],
           expHarvestDate: createPlant?.expHarvestDate,
           expYieldAmt: createPlant?.expYieldAmt,
         },
@@ -164,7 +168,7 @@ function UpdatePlantKos1({
         </div>
         <section className="flex w-10/12 flex-col items-start justify-center gap-2">
           <Label className="text-xl font-semibold text-super-main-color">
-            จำนวนรอบการผลิต/ปี :
+            วันที่คาดว่าจะเก็บเกี่ยว :
           </Label>
           <Calendar
             required

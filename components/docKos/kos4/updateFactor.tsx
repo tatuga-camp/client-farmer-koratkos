@@ -103,13 +103,13 @@ function UpdateFactor({
     <div className="flex w-full flex-col items-center pb-5 ">
       <Form
         onSubmit={handleSummitFator}
-        className="flex w-full flex-col items-center justify-start gap-5 lg:w-96 lg:rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color"
+        className="mt-5 flex w-80 flex-col items-center justify-start gap-5 lg:w-96 lg:rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color"
       >
         <Label className="mt-10 w-80 rounded-lg bg-third-color  py-2 text-center text-lg font-bold text-white">
           แก้ไขปัจจัยการผลิต - {factor.prodFactorTypes}
         </Label>
 
-        <TextField className="flex w-full flex-col  items-start justify-start gap-2 ">
+        <TextField className="flex w-80 flex-col  items-start justify-start gap-2 ">
           <Label className="w-max text-xl font-semibold text-super-main-color">
             วันที่(ที่ซื้อ/ได้มา) :
           </Label>

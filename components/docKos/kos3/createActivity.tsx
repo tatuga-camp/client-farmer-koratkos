@@ -134,7 +134,7 @@ function CreateActivity({
     <div className="flex w-full flex-col items-center pb-5 ">
       <Form
         onSubmit={handleSummitActivity}
-        className="flex w-full flex-col items-center justify-start gap-5 lg:w-96 lg:rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color"
+        className="mt-5 flex w-full flex-col items-center justify-start gap-5 lg:w-96 lg:rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color"
       >
         <Label className="mt-10 w-80 rounded-lg bg-third-color  py-2 text-center text-lg font-bold text-white">
           เพิ่มกิจกรรม
@@ -156,7 +156,7 @@ function CreateActivity({
         </TextField>
         <TextField className="flex w-80  items-center justify-start gap-2 ">
           <Label className="w-20 text-xl font-semibold text-super-main-color">
-            เดือน :
+            วันที่ :
           </Label>
           <Calendar
             required
