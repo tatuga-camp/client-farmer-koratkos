@@ -6,3 +6,5 @@ export * from "./kos4.model";
 export * from "./kos5.model";
 export * from "./that-data.model";
 export * from "./pagination.model";
+export * from "./evaluation.model";
+export * from "./user.model";
