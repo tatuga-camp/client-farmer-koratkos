@@ -11,8 +11,13 @@ import DashboardLayout from "../layouts/dashboardLayout";
 import Image from "next/image";
 import StatusEvaluation from "../components/status/statusEvaluation";
 import DocKosLists from "../components/docKos/docKosLists";
+import { use, useEffect, useState } from "react";
+import EvaluationReport from "../components/status/evaluationReport";
+import { GetFormEvaluatonsService } from "../services/evaluation";
 
 function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
+  const [triggerViewEvaluationReport, setTriggerViewEvaluationReport] =
+    useState(false);
   const farmer = useQuery({
     queryKey: ["farmer"],
     queryFn: () => GetFarmerClientSideService(),
@@ -22,10 +27,24 @@ function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
     queryKey: ["docKos"],
     queryFn: () => GetAllDocKosService(),
   });
+
+  if (triggerViewEvaluationReport) {
+    return (
+      <DashboardLayout farmer={farmer.data}>
+        <section className="mt-5 flex w-full justify-center">
+          <EvaluationReport
+            setTriggerViewEvaluationReport={setTriggerViewEvaluationReport}
+          />
+        </section>
+      </DashboardLayout>
+    );
+  }
   return (
     <DashboardLayout farmer={farmer.data}>
       <section className="mt-5 flex w-full justify-center">
-        <StatusEvaluation />
+        <StatusEvaluation
+          setTriggerViewEvaluationReport={setTriggerViewEvaluationReport}
+        />
       </section>
 
       <main className="flex w-full justify-center py-5">
