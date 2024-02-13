@@ -162,8 +162,8 @@ function Kos2Form({ docKos, isUpdate }: Kos2FormProps) {
           </Button>
         </FileTrigger>
         <div
-          className="relative mt-5 flex h-60 w-11/12 flex-col items-center
-         justify-center overflow-hidden rounded-lg bg-slate-300 p-2 text-7xl text-white drop-shadow-md lg:h-96 lg:w-96"
+          className={`relative mt-5 flex h-60 w-11/12 flex-col items-center
+         justify-center overflow-hidden rounded-lg ${docKos2Data?.image ? "bg-transparent" : "bg-slate-300"}  p-2 text-7xl text-white drop-shadow-md lg:h-96 lg:w-96`}
         >
           {docKos2Data?.image ? (
             <Image

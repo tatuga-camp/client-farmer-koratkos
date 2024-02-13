@@ -3,7 +3,7 @@ export type RegisterFormEvaluation = {
   createAt: Date;
   updateAt: Date;
   isReadyToEvaluated: boolean;
-  isSuccessEvaluated: boolean;
+  status: "pending" | "evaluating" | "approved" | "rejected";
   summitEvaluationDate?: Date;
   farmerId: string;
 };
