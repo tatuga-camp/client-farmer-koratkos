@@ -109,6 +109,7 @@ function SignIn() {
                 mask="9-9999-99999-99-9"
                 placeholder="9-9999-99999-99-9"
                 name="idCard"
+                type="text"
                 value={farmerData.idCard}
                 inputMode="numeric"
                 className="h-10 w-full bg-slate-200 pl-5 text-xl"
@@ -122,6 +123,8 @@ function SignIn() {
               <InputMask
                 required
                 name="phone"
+                type="text"
+                inputMode="numeric"
                 className="h-10 w-full bg-slate-200 pl-5 text-xl"
                 mask="999-999-9999"
                 placeholder="999-999-9999"

@@ -7,30 +7,24 @@ import React from "react";
 import { TbUserEdit } from "react-icons/tb";
 import { VscSignOut } from "react-icons/vsc";
 import { Farmer } from "../../model";
-import { useSignOut } from "../../utils";
+import { IoHome } from "react-icons/io5";
 
 function DashboardNavbar() {
   const router = useRouter();
   const queryClient = useQueryClient();
-
+  const useSignOut = () => {
+    destroyCookie(null, "access_token", { path: "/" });
+    queryClient.removeQueries();
+  };
   return (
     <nav className="fixed top-0 z-50 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan lg:hidden ">
-      <Link href="/" className="flex flex-col items-start  gap-1  ">
-        <div className="flex items-end justify-center gap-1">
-          <h1 className="text-xl font-bold text-main-color">Korat KOS</h1>
-          <div className="relative h-10 w-10">
-            <Image
-              src="/favicon.ico"
-              fill
-              alt="icon"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
-          </div>
-        </div>
-        <p className=" w-36 text-balance text-left text-[0.50rem] font-medium text-super-main-color">
-          ระบบสมัครขอรับการตรวจประเมินมาตรฐาน เกษตรอินทรีย์ขั้นพื้นฐาน
-          จังหวัดนครราชสีมา
-        </p>
+      <Link
+        href="/"
+        className=" flex items-center justify-center gap-1 rounded-2xl bg-super-main-color p-2 text-3xl text-white
+          transition duration-100  active:scale-105 "
+      >
+        <IoHome />
+        <span className="text-sm font-bold">หน้าหลัก</span>
       </Link>
 
       <section className="flex flex-col items-center justify-center gap-1 text-super-main-color">

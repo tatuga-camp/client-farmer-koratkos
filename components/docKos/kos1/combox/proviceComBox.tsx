@@ -41,6 +41,7 @@ function ProviceComBox({
           จังหวัด :
         </Label>
         <Input
+          required
           onChange={(e) =>
             setBasicInformation((prev: any) => {
               return {

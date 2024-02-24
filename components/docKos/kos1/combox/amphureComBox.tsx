@@ -58,6 +58,7 @@ function AmphureComBox({
           อำเภอ :
         </Label>
         <Input
+          required
           onChange={(e) =>
             setBasicInformation((prev: any) => {
               return {

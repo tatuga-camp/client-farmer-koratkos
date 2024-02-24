@@ -56,6 +56,7 @@ function TambonComBox({
           ตำบล :
         </Label>
         <Input
+          required
           onChange={(e) =>
             setBasicInformation((prev: any) => {
               return {

@@ -41,6 +41,23 @@ function DashboardLayout({ children, farmer, isSetting }: LayoutProps) {
           </header>
         )}
         {children}
+        <footer className="flex h-40 w-full flex-col items-center justify-center gap-2 md:hidden">
+          <div className="flex items-end justify-center gap-1">
+            <h1 className="text-xl font-bold text-main-color">Korat KOS</h1>
+            <div className="relative h-10 w-10">
+              <Image
+                src="/favicon.ico"
+                fill
+                alt="icon"
+                sizes="(max-width: 768px) 100vw, 33vw"
+              />
+            </div>
+          </div>
+          <p className=" w-11/12 text-balance text-center text-sm font-medium text-super-main-color">
+            ระบบสมัครขอรับการตรวจประเมินมาตรฐาน เกษตรอินทรีย์ขั้นพื้นฐาน
+            จังหวัดนครราชสีมา
+          </p>
+        </footer>
       </div>
     </section>
   );

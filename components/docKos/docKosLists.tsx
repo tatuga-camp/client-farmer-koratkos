@@ -25,7 +25,7 @@ const NotDataSaved = () => {
 };
 function DocKosLists({ docKos }: DocKosListsProps) {
   return (
-    <ul className="mt-5 flex flex-col items-center justify-between gap-7 font-Anuphan lg:grid lg:w-10/12 lg:grid-cols-3">
+    <ul className="mt-5 flex flex-col items-center justify-between gap-7 font-Anuphan lg:grid lg:w-10/12 lg:grid-cols-2 2xl:grid-cols-3">
       <li className="flex h-60 w-11/12 flex-col items-center gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">

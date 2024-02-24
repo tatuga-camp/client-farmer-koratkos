@@ -92,7 +92,7 @@ function SignUp() {
         title: "ลงทะเบียนสำเร็จ",
         html: "โปรดเข้าสู่ระบบอีกครั้งด้วย เลขบัตรประจำตัวประชาชน และ เบอร์มือถือ",
         icon: "success",
-        timer: 2000,
+        timer: 5000,
         showConfirmButton: false,
       });
     } catch (error: any) {
@@ -190,6 +190,8 @@ function SignUp() {
                   onChange={handleOnChangeSignUpForm}
                   className="h-10 w-full bg-slate-200 p-2 text-xl"
                   maxLength={13}
+                  inputMode="numeric"
+                  type="text"
                   mask="9-9999-99999-99-9"
                   placeholder="9-9999-99999-99-9"
                 />
@@ -208,6 +210,8 @@ function SignUp() {
                   className="h-10 w-full bg-slate-200 p-2 text-xl"
                   maxLength={13}
                   name="confirmIdCard"
+                  inputMode="numeric"
+                  type="text"
                   mask="9-9999-99999-99-9"
                   placeholder="9-9999-99999-99-9"
                 />
@@ -229,6 +233,8 @@ function SignUp() {
                   mask="999-999-9999"
                   placeholder="999-999-9999"
                   value={signUpForm.phone}
+                  inputMode="numeric"
+                  type="text"
                   onChange={handleOnChangeSignUpForm}
                   className="h-10 w-full bg-slate-200 p-2 text-xl"
                 />
@@ -245,6 +251,8 @@ function SignUp() {
                   name="confirmPhone"
                   maxLength={10}
                   mask="999-999-9999"
+                  inputMode="numeric"
+                  type="text"
                   placeholder="999-999-9999"
                   value={signUpForm.confirmPhone}
                   onChange={handleOnChangeSignUpForm}

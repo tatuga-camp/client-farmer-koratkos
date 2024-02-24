@@ -2,16 +2,23 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { menuKos, menuKos01 } from "../../data/menus";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GetAllDocKosService } from "../../services/farmer";
 import { RiShutDownLine } from "react-icons/ri";
-import { useSignOut } from "../../utils";
+import { destroyCookie } from "nookies";
 
 function DashboardSidebar() {
+  const queryClient = useQueryClient();
+
   const docKos = useQuery({
     queryKey: ["docKos"],
     queryFn: () => GetAllDocKosService(),
   });
+
+  const useSignOut = () => {
+    destroyCookie(null, "access_token", { path: "/" });
+    queryClient.removeQueries();
+  };
 
   return (
     <div
