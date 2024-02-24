@@ -1,4 +1,3 @@
-import { ResponseGetAllDocKos } from "./../../server-koratkos/src/farmer/models/response-farmer.model";
 import axios from "axios";
 import { parseCookies } from "nookies";
 import { DocKos1, FarmDocKos1, PlantKos1 } from "../model";
