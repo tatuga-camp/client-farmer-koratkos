@@ -395,7 +395,7 @@ function ProductionInformation({
                         };
                       })
                     }
-                    className="bg-slate-200 p-2"
+                    className=" p-2"
                   />
                 </TextField>
               </div>
@@ -426,7 +426,7 @@ function ProductionInformation({
                   required
                   type="number"
                   inputMode="numeric"
-                  className="bg-slate-200 p-2"
+                  className=" p-2"
                 />
               </TextField>
               <div className="flex w-full items-center justify-center gap-2">
@@ -443,7 +443,7 @@ function ProductionInformation({
                     value={productionInformation?.raiTotal}
                     type="number"
                     inputMode="numeric"
-                    className="w-20 bg-slate-200 p-2"
+                    className="w-20  p-2"
                   />
                   <span className="text-lg font-semibold text-super-main-color">
                     ไร่
@@ -460,7 +460,7 @@ function ProductionInformation({
                     value={productionInformation?.nganTotal}
                     type="number"
                     inputMode="numeric"
-                    className="w-20 bg-slate-200 p-2"
+                    className="w-20  p-2"
                   />
                   <span className="text-lg font-semibold text-super-main-color">
                     งาน
@@ -482,7 +482,7 @@ function ProductionInformation({
                   value={productionInformation?.certicatedPlotTotal}
                   type="number"
                   inputMode="numeric"
-                  className="bg-slate-200 p-2"
+                  className=" p-2"
                 />
               </TextField>
               <div className="flex w-full items-center justify-center gap-2">
@@ -499,7 +499,7 @@ function ProductionInformation({
                     value={productionInformation?.certicatedRaiTotal}
                     type="number"
                     inputMode="numeric"
-                    className="w-20 bg-slate-200 p-2"
+                    className="w-20  p-2"
                   />
                   <span className="text-lg font-semibold text-super-main-color">
                     ไร่
@@ -516,7 +516,7 @@ function ProductionInformation({
                     value={productionInformation?.certicatedNganTotal}
                     type="number"
                     inputMode="numeric"
-                    className="w-20 bg-slate-200 p-2"
+                    className="w-20  p-2"
                   />
                   <span className="text-lg font-semibold text-super-main-color">
                     งาน

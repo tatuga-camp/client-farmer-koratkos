@@ -46,6 +46,7 @@ function SignIn() {
           Swal.showLoading();
         },
       });
+      console.log(farmerData.idCard);
       const signIn = await SignInService({
         identityCardId: farmerData.idCard.replace(/-/g, ""),
         phoneNumber: farmerData.phone.replace(/-/g, ""),
@@ -64,7 +65,7 @@ function SignIn() {
     } catch (error: any) {
       console.log(error);
       Swal.fire({
-        title: "เข้าสู่ระบบไม่สำเร็จ",
+        title: "เข้าสู่ระบบไม่สำเร็จ!",
         html: error.message.toString(),
         icon: "error",
         timer: 2000,
@@ -79,9 +80,9 @@ function SignIn() {
         <title>เข้าสู่ระบบ</title>
       </Head>
 
-      <div className="w-full pt-40">
+      <div className="w-full pt-40 lg:py-20">
         <header className=" flex w-full flex-col items-center justify-center gap-4 font-Anuphan">
-          <section className="flex w-40 flex-col items-center justify-center rounded-lg bg-third-color px-5 py-2 text-base font-semibold text-white">
+          <section className="flex w-40 flex-col items-center justify-center rounded-lg bg-third-color px-5 py-2 text-base font-semibold text-white lg:w-60">
             <h1>เข้าสู่ระบบ</h1>
             <h2>สำหรับเกษตรกร</h2>
           </section>

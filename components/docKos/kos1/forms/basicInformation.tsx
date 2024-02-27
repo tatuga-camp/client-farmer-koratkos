@@ -158,7 +158,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
           className="mt-5 flex w-11/12 flex-col items-center justify-start gap-2 lg:w-96"
         >
           <TextField
-            className="flex w-full items-center justify-center  gap-2"
+            className="flex w-full items-center justify-center   gap-2"
             name="address"
             type="text"
             isRequired
@@ -169,7 +169,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
             <Input
               onChange={handleChangeOnBasicInformation}
               value={baicInformation?.address}
-              className="h-10 w-full bg-slate-200 p-2 text-xl"
+              className="h-10 w-full   p-2 text-xl  ring-1 ring-black"
             />
           </TextField>
           <TextField
@@ -184,7 +184,7 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
             <Input
               onChange={handleChangeOnBasicInformation}
               value={baicInformation?.moo}
-              className="h-10 w-full bg-slate-200 p-2 text-xl"
+              className="h-10 w-full  p-2 text-xl"
             />
           </TextField>
 

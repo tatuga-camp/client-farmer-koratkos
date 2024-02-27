@@ -26,7 +26,7 @@ const NotDataSaved = () => {
 function DocKosLists({ docKos }: DocKosListsProps) {
   return (
     <ul className="mt-5 flex flex-col items-center justify-between gap-7 font-Anuphan lg:grid lg:w-10/12 lg:grid-cols-2 2xl:grid-cols-3">
-      <li className="flex h-60 w-11/12 flex-col items-center gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
+      <li className="flex h-full w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">
             สถานะ
@@ -36,7 +36,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-01
         </h2>
-        <h5 className="w-full text-left text-sm text-super-main-color">
+        <h5 className="w-full text-left text-base text-super-main-color">
           ใบสมัครขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ขั้นพื้นฐาน
         </h5>
         {docKos.data?.kos1 ? (
@@ -61,7 +61,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         )}
       </li>
-      <li className="flex h-60 w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
+      <li className="flex h-full w-11/12 flex-col items-center  justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">
             สถานะ
@@ -71,9 +71,9 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-02
         </h2>
-        <h5 className="w-full text-left text-sm text-super-main-color">
+        <h5 className="w-full text-left text-base text-super-main-color">
           ผังแปลงขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ขั้นพื้นฐาน
-          จัวหวัดนครราชสีมา
+          จังหวัดนครราชสีมา
         </h5>
         {docKos.data?.kos2 ? (
           <Link
@@ -97,7 +97,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         )}
       </li>
-      <li className="flex h-60 w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
+      <li className="flex h-full w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">
             สถานะ
@@ -107,7 +107,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-03
         </h2>
-        <h5 className="w-full text-left text-sm text-super-main-color">
+        <h5 className="w-full text-left text-base text-super-main-color">
           แบบบันทึกกิจกรรมในแปลงผลิต พืชอินทรีย์
         </h5>
         {docKos.data?.kos3 ? (
@@ -132,7 +132,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         )}
       </li>
-      <li className="flex h-60 w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
+      <li className="flex h-full w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between ">
           <span className="text-xl font-bold text-super-main-color ">
             สถานะ
@@ -142,7 +142,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-04
         </h2>
-        <h5 className="w-full text-left text-sm text-super-main-color">
+        <h5 className="w-full text-left text-base text-super-main-color">
           แบบบันทึกปัจจัยการผลิตในแปลง ผลิตพืชอินทรีย์{" "}
         </h5>
         {docKos.data?.kos4 ? (
@@ -167,7 +167,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
           </Link>
         )}
       </li>
-      <li className="flex h-60 w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
+      <li className="flex h-full w-11/12 flex-col items-center justify-between gap-3 rounded-xl bg-[#F1E4C3] p-5 drop-shadow-lg">
         <div className="flex w-full items-center justify-between  ">
           <span className="text-xl font-bold text-super-main-color ">
             สถานะ
@@ -177,7 +177,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-05
         </h2>
-        <h5 className="w-full text-left text-sm text-super-main-color">
+        <h5 className="w-full text-left text-base text-super-main-color">
           แบบบันทึกการเก็บเกี่ยวในแปลง ผลิตพืชอินทรีย์
         </h5>
         {docKos.data?.kos5 ? (

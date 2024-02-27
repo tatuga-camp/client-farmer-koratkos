@@ -69,7 +69,7 @@ function AmphureComBox({
               };
             })
           }
-          className="h-10 w-full bg-slate-200 p-2 text-xl"
+          className="h-10 w-full p-2 text-xl"
         />
       </TextField>
     );
@@ -103,7 +103,7 @@ function AmphureComBox({
         >
           <Combobox.Input
             required
-            className="h-10 w-full rounded-md bg-slate-200 p-2 text-lg outline-none"
+            className="h-10 w-full rounded-md p-2 text-lg outline-none"
             displayValue={(amphure: Amphure) => amphure.name_th}
             onChange={(event) => setQuery(event.target.value)}
           />

@@ -26,7 +26,7 @@ function Kos02({ farmer }: { farmer: Farmer }) {
           <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5">
             <h1 className="text-xl font-semibold text-white">(KOS-02) </h1>
             <h2 className="text-balance text-center text-base font-normal text-white">
-              ผังแปลง ขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ ์ขั้นพื้นฐาน
+              ผังแปลง ขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ ขั้นพื้นฐาน
             </h2>
           </section>
         </header>

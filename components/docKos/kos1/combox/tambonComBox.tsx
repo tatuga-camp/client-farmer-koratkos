@@ -67,7 +67,7 @@ function TambonComBox({
               };
             })
           }
-          className="h-10 w-full bg-slate-200 p-2 text-xl"
+          className="h-10 w-full  p-2 text-xl"
         />
       </TextField>
     );
@@ -95,13 +95,13 @@ function TambonComBox({
           ตำบล :
         </Label>
         <div
-          className="relative w-full cursor-default overflow-hidden bg-slate-200
+          className="relative w-full cursor-default overflow-hidden 
        text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75
         focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm"
         >
           <Combobox.Input
             required
-            className="h-10 w-full rounded-md bg-slate-200 p-2 text-lg outline-none"
+            className="h-10 w-full rounded-md  p-2 text-lg outline-none"
             displayValue={(tambon: Tambon) => tambon.name_th}
             onChange={(event) => setQuery(event.target.value)}
           />

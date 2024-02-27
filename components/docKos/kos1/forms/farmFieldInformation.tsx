@@ -223,7 +223,7 @@ function FarmFieldInformation({
             <Input
               onChange={handleChangeOnBasicInformation}
               value={baicInformation?.address}
-              className="h-10 w-full bg-slate-200 p-2 text-xl"
+              className="h-10 w-full  p-2 text-xl"
             />
           </TextField>
           <TextField
@@ -238,7 +238,7 @@ function FarmFieldInformation({
             <Input
               onChange={handleChangeOnBasicInformation}
               value={baicInformation?.moo}
-              className="h-10 w-full bg-slate-200 p-2 text-xl"
+              className="h-10 w-full  p-2 text-xl"
             />
           </TextField>
 
@@ -281,7 +281,7 @@ function FarmFieldInformation({
                 }))
               }
               value={baicInformation?.latitude}
-              className="h-10 w-40 bg-slate-200 p-2 text-xl"
+              className="h-10 w-40  p-2 text-xl"
             />
           </TextField>
           <TextField
@@ -301,7 +301,7 @@ function FarmFieldInformation({
                 }))
               }
               value={baicInformation?.longitude}
-              className="h-10 w-40 bg-slate-200 p-2 text-xl"
+              className="h-10 w-40  p-2 text-xl"
             />
           </TextField>
 

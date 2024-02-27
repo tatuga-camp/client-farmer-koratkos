@@ -22,7 +22,7 @@ function HomePageLayout({ children }: LayoutProps) {
                 <Image src="/favicon.ico" fill alt="icon" />
               </div>
             </section>
-            <section className="flex w-11/12 flex-col items-center justify-center lg:w-max">
+            <section className="l flex w-11/12 flex-col items-center justify-center lg:w-9/12 xl:w-10/12 2xl:w-max">
               <h1 className="text-6xl font-extrabold text-main-color">
                 Korat KOS
               </h1>

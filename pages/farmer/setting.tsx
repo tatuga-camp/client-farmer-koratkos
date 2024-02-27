@@ -142,7 +142,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                 <Input
                   value={userSettingData.title}
                   onChange={handleChangeUserSetting}
-                  className="h-10 w-40 bg-slate-200 p-2 text-xl"
+                  className="h-10 w-40   p-2 text-xl "
                 />
               </TextField>
               <TextField
@@ -157,7 +157,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                 <Input
                   value={userSettingData.firstName}
                   onChange={handleChangeUserSetting}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
               <TextField
@@ -172,7 +172,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                 <Input
                   value={userSettingData.lastName}
                   onChange={handleChangeUserSetting}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
             </section>
@@ -190,7 +190,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                   name="identityCardId"
                   value={userSettingData.identityCardId}
                   onChange={handleChangeUserSetting}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                   maxLength={13}
                   mask="9-9999-99999-99-9"
                   placeholder="9-9999-99999-99-9"
@@ -214,7 +214,7 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                   placeholder="999-999-9999"
                   value={userSettingData.phoneNumber}
                   onChange={handleChangeUserSetting}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
             </section>

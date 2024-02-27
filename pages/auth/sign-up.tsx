@@ -127,7 +127,7 @@ function SignUp() {
             onSubmit={handleSummitOnSignUp}
             className="flex w-10/12 flex-col items-center justify-start gap-10 lg:w-8/12"
           >
-            <section className="w-full">
+            <section className="flex w-full flex-col gap-2">
               <TextField
                 className="flex w-full items-center justify-start  gap-2"
                 name="title"
@@ -140,7 +140,7 @@ function SignUp() {
                 <Input
                   value={signUpForm.title}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-40 bg-slate-200 p-2 text-xl"
+                  className="h-10 w-40  p-2 text-xl"
                 />
               </TextField>
               <TextField
@@ -155,7 +155,7 @@ function SignUp() {
                 <Input
                   value={signUpForm.firstName}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
               <TextField
@@ -170,12 +170,12 @@ function SignUp() {
                 <Input
                   value={signUpForm.lastName}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
             </section>
 
-            <section className="w-full">
+            <section className="flex w-full flex-col gap-2">
               <TextField
                 className=" flex w-full flex-col items-start justify-start  gap-2"
                 type="text"
@@ -188,7 +188,7 @@ function SignUp() {
                   name="idCard"
                   value={signUpForm.idCard}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                   maxLength={13}
                   inputMode="numeric"
                   type="text"
@@ -207,7 +207,7 @@ function SignUp() {
                 <InputMask
                   value={signUpForm.confirmIdCard}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                   maxLength={13}
                   name="confirmIdCard"
                   inputMode="numeric"
@@ -217,7 +217,7 @@ function SignUp() {
                 />
               </TextField>
             </section>
-            <section className="w-full">
+            <section className="flex w-full flex-col gap-2">
               <TextField
                 className=" flex w-full flex-col items-start justify-start  gap-2"
                 type="text"
@@ -236,7 +236,7 @@ function SignUp() {
                   inputMode="numeric"
                   type="text"
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
               <TextField
@@ -256,7 +256,7 @@ function SignUp() {
                   placeholder="999-999-9999"
                   value={signUpForm.confirmPhone}
                   onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full bg-slate-200 p-2 text-xl"
+                  className="h-10 w-full  p-2 text-xl"
                 />
               </TextField>
             </section>

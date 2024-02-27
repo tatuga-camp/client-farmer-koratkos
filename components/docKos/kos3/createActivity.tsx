@@ -232,7 +232,7 @@ function CreateActivity({
             </Button>
           </div>
         </FileTrigger>
-        <section className=" grid h-full w-11/12 grid-cols-2 place-items-center gap-2">
+        <section className=" grid  h-max w-11/12 grid-cols-2 place-items-center gap-2">
           {files?.map((file, index) => {
             return (
               <div
