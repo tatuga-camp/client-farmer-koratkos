@@ -5,20 +5,25 @@ import { Button } from "react-aria-components";
 import Link from "next/link";
 import { FaRegEdit } from "react-icons/fa";
 import { MdNoteAdd } from "react-icons/md";
+import { BiCheckCircle } from "react-icons/bi";
 type DocKosListsProps = {
   docKos: UseQueryResult<ResponseGetAllDocKosService, Error>;
 };
 
 const DataSaved = () => {
   return (
-    <div className="w-max rounded-2xl bg-super-main-color px-4 py-2 text-xl text-white ">
+    <div
+      className="flex w-max items-center justify-center gap-2 rounded-2xl
+     bg-green-600 px-4 py-2 text-base  text-white "
+    >
+      <BiCheckCircle />
       บันทึกข้อมูลแล้ว
     </div>
   );
 };
 const NotDataSaved = () => {
   return (
-    <div className="w-max rounded-2xl bg-red-700 px-4 py-2 text-xl text-white ">
+    <div className="w-max rounded-2xl bg-red-700 px-4 py-2 text-base text-white ">
       ยังไม่บันทึกข้อมูล
     </div>
   );

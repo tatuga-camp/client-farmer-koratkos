@@ -24,8 +24,8 @@ function EvaluationReport({
 
   return (
     <div
-      className="flex h-max min-h-40 w-max max-w-96 flex-col items-center justify-start 
-    rounded-lg bg-[#F1E4C3] p-5 font-Anuphan"
+      className="flex  w-11/12 flex-col items-center justify-start rounded-lg 
+    bg-[#F1E4C3] p-5 font-Anuphan md:w-8/12"
     >
       <h1 className="rounded-lg bg-third-color px-2 py-1 font-semibold text-white">
         รายละเอียดการประเมิน
@@ -45,9 +45,9 @@ function EvaluationReport({
           );
         })}
       </ul>
-      <div className="flex flex-col items-center  gap-3">
+      <div className="flex w-full flex-col  items-center gap-3">
         <div
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-secondary-color
+          className="mt-5 flex w-11/12 max-w-96 items-center justify-center gap-2 rounded-lg bg-secondary-color
          px-4 py-2 text-sm font-semibold text-white"
         >
           <span>ผู้ประเมิน ครั้งที่ {selectFormEvaluation?.number}</span>
@@ -63,11 +63,14 @@ function EvaluationReport({
             ? "ผ่าน"
             : selectFormEvaluation?.status === "rejected" && "ไม่ผ่าน"}
         </div>
-        <div className="h-max w-full px-4">
+        <div className="h-max w-full text-wrap px-4">
           <span className="text-sm font-bold text-super-main-color">
             ความคิดเห็น :
           </span>
-          <article className="text-sm">{selectFormEvaluation?.reason}</article>
+          <div className="w-full  text-balance break-words text-sm ">
+            {selectFormEvaluation?.reason}{" "}
+            aslkdjaslkdjsakldjaskldjkasljdlkasjdklsajdlkasjdklasjadskljdlaskjdlkasjdklasjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+          </div>
         </div>
         <button
           onClick={() => {

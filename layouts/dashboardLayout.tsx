@@ -13,7 +13,7 @@ type LayoutProps = {
 
 function DashboardLayout({ children, farmer, isSetting }: LayoutProps) {
   return (
-    <section className="flex bg-fourth-color font-Anuphan">
+    <section className="flex min-h-screen bg-fourth-color font-Anuphan">
       <DashboardNavbar />
 
       <DashboardSidebar />
