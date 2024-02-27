@@ -139,7 +139,7 @@ function UpdateHarvestLog({
         </TextField>
         <TextField className="flex w-80  flex-col items-center justify-start">
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
-            ชนิดของปัจจัย :
+            ชนิดพืชที่เก็บเกี่ยว :
           </Label>
           <Input
             required
