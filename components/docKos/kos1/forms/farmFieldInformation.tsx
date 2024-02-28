@@ -271,7 +271,7 @@ function FarmFieldInformation({
             isRequired
           >
             <Label className="w-max text-xl font-bold text-super-main-color">
-              Y :
+              X :
             </Label>
             <Input
               onChange={(e) =>
@@ -291,7 +291,7 @@ function FarmFieldInformation({
             isRequired
           >
             <Label className="w-max text-xl font-bold text-super-main-color">
-              X :
+              Y :
             </Label>
             <Input
               onChange={(e) =>
