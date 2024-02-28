@@ -14,7 +14,7 @@ const DataSaved = () => {
   return (
     <div
       className="flex w-max items-center justify-center gap-2 rounded-2xl
-     bg-green-600 px-4 py-2 text-base  text-white "
+     bg-green-600 px-4 py-2 text-lg  text-white "
     >
       <BiCheckCircle />
       บันทึกข้อมูลแล้ว
@@ -23,7 +23,7 @@ const DataSaved = () => {
 };
 const NotDataSaved = () => {
   return (
-    <div className="w-max rounded-2xl bg-red-700 px-4 py-2 text-base text-white ">
+    <div className="w-max rounded-2xl bg-red-700 px-4 py-2 text-lg text-white ">
       ยังไม่บันทึกข้อมูล
     </div>
   );
@@ -41,7 +41,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-01
         </h2>
-        <h5 className="w-full text-left text-base text-super-main-color">
+        <h5 className="w-full text-left text-lg text-super-main-color">
           ใบสมัครขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ขั้นพื้นฐาน
         </h5>
         {docKos.data?.kos1 ? (
@@ -76,7 +76,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-02
         </h2>
-        <h5 className="w-full text-left text-base text-super-main-color">
+        <h5 className="w-full text-left text-lg text-super-main-color">
           ผังแปลงขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ขั้นพื้นฐาน
           จังหวัดนครราชสีมา
         </h5>
@@ -112,7 +112,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-03
         </h2>
-        <h5 className="w-full text-left text-base text-super-main-color">
+        <h5 className="w-full text-left text-lg text-super-main-color">
           แบบบันทึกกิจกรรมในแปลงผลิต พืชอินทรีย์
         </h5>
         {docKos.data?.kos3 ? (
@@ -147,7 +147,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-04
         </h2>
-        <h5 className="w-full text-left text-base text-super-main-color">
+        <h5 className="w-full text-left text-lg text-super-main-color">
           แบบบันทึกปัจจัยการผลิตในแปลง ผลิตพืชอินทรีย์{" "}
         </h5>
         {docKos.data?.kos4 ? (
@@ -182,7 +182,7 @@ function DocKosLists({ docKos }: DocKosListsProps) {
         <h2 className="w-full text-4xl font-bold text-super-main-color">
           KOS-05
         </h2>
-        <h5 className="w-full text-left text-base text-super-main-color">
+        <h5 className="w-full text-left text-lg text-super-main-color">
           แบบบันทึกการเก็บเกี่ยวในแปลง ผลิตพืชอินทรีย์
         </h5>
         {docKos.data?.kos5 ? (

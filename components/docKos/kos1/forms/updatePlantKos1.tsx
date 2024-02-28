@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
 import { PlantData } from "./createPlantKos1";
 import { useDeviceType } from "../../../../utils";
+import PlantCombox from "../combox/plantCombox";
 type BasicInformationProps = {
   docKos1: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
   setSelectUpdatePlant: React.Dispatch<
@@ -104,20 +105,18 @@ function UpdatePlantKos1({
         onSubmit={handleSummitCreatePlant}
         className="mt-5 flex flex-col items-center justify-start gap-4"
       >
-        <TextField isRequired className="flex items-center justify-start gap-2">
-          <Label className="text-xl font-semibold text-super-main-color">
-            ชนิดพืช :
-          </Label>
-          <Input
-            required
-            name="plant"
-            onChange={handleChangeCreatePlant}
-            value={createPlant?.plant}
-            type="text"
-            className="h-10 w-40 rounded-lg bg-white p-2 ring-1 ring-slate-400"
-          />
-        </TextField>
-        <TextField isRequired className="flex items-center justify-start gap-2">
+        <PlantCombox
+          setCreatePlant={
+            setCreatePlant as React.Dispatch<
+              React.SetStateAction<PlantData | undefined>
+            >
+          }
+          createPlant={createPlant}
+        />
+        <TextField
+          isRequired
+          className="flex w-10/12 flex-col items-start justify-center gap-2"
+        >
           <Label className="text-xl font-semibold text-super-main-color">
             พื้นที่ (ไร่) :
           </Label>
@@ -127,7 +126,7 @@ function UpdatePlantKos1({
             value={createPlant?.raiTotal}
             type="number"
             inputMode="numeric"
-            className="h-10 w-40 rounded-lg bg-white p-2 ring-1 ring-slate-400"
+            className="h-10 w-full rounded-lg bg-white p-2 ring-1 ring-slate-400"
           />
         </TextField>
         <TextField

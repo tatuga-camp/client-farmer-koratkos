@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
 import { useDeviceType } from "../../../../utils";
+import PlantCombox from "../combox/plantCombox";
 type BasicInformationProps = {
   setTriggerCreatePlant: React.Dispatch<React.SetStateAction<boolean>>;
   farmKOS1Id: string;
@@ -101,21 +102,15 @@ function CreatePlantKos1({
         onSubmit={handleSummitCreatePlant}
         className="mt-5 flex flex-col items-center justify-start gap-4"
       >
-        <TextField isRequired className="flex items-center justify-start gap-2">
-          <Label className="text-xl font-semibold text-super-main-color">
-            ชนิดพืช :
-          </Label>
-          <Input
-            required
-            name="plant"
-            onChange={handleChangeCreatePlant}
-            value={createPlant?.plant}
-            type="text"
-            className="h-10 w-40 rounded-lg bg-white p-2 ring-1 ring-slate-400"
-          />
-        </TextField>
-        <TextField isRequired className="flex items-center justify-start gap-2">
-          <Label className="text-xl font-semibold text-super-main-color">
+        <PlantCombox
+          setCreatePlant={setCreatePlant}
+          createPlant={createPlant}
+        />
+        <TextField
+          isRequired
+          className="mt-5 flex w-10/12 flex-col items-start justify-center gap-2"
+        >
+          <Label className="w-max text-xl font-semibold text-super-main-color">
             พื้นที่ (ไร่) :
           </Label>
           <Input
@@ -124,7 +119,7 @@ function CreatePlantKos1({
             value={createPlant?.raiTotal}
             type="number"
             inputMode="numeric"
-            className="h-10 w-40 rounded-lg bg-white p-2 ring-1 ring-slate-400"
+            className="h-10 w-full rounded-lg bg-white p-2 ring-1 ring-slate-400"
           />
         </TextField>
         <TextField

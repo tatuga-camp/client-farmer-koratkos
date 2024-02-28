@@ -15,6 +15,7 @@ import Head from "next/head";
 import Swal from "sweetalert2";
 import { SignUpService } from "../../services/auth";
 import { useRouter } from "next/router";
+import Agreement from "../../components/agreement";
 
 function SignUp() {
   const router = useRouter();
@@ -110,6 +111,7 @@ function SignUp() {
       <Head>
         <title>ลงทะเบียนสำหรับเกษตรกรใหม่</title>
       </Head>
+
       <div className="w-full pt-40">
         <header className="flex justify-center">
           <section className="flex w-60  items-center justify-center gap-2 rounded-lg bg-super-main-color py-2 font-bold text-white">
@@ -260,6 +262,7 @@ function SignUp() {
                 />
               </TextField>
             </section>
+            <Agreement />
             <TextField className="flex items-center justify-center gap-2">
               <input
                 type="checkbox"
@@ -275,7 +278,7 @@ function SignUp() {
                 checked={signUpForm.isAccept}
               />
               <Label className="text-xl font-bold text-super-main-color">
-                ฉันยืนยันว่าข้อมูลถูกต้อง
+                ฉันยอมรับข้อตกลงและเงื่อนไข
               </Label>
             </TextField>
 

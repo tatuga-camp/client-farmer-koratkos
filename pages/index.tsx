@@ -14,6 +14,7 @@ import DocKosLists from "../components/docKos/docKosLists";
 import { use, useEffect, useState } from "react";
 import EvaluationReport from "../components/status/evaluationReport";
 import { GetFormEvaluatonsService } from "../services/evaluation";
+import Head from "next/head";
 
 function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
   const [triggerViewEvaluationReport, setTriggerViewEvaluationReport] =
@@ -41,6 +42,9 @@ function HomePage({ initialFarmer }: { initialFarmer: Farmer }) {
   }
   return (
     <DashboardLayout farmer={farmer.data}>
+      <Head>
+        <title>Korat KOS สำหรับเกษตรกร</title>
+      </Head>
       <section className="mt-5 flex w-full justify-center">
         <StatusEvaluation
           setTriggerViewEvaluationReport={setTriggerViewEvaluationReport}
