@@ -10,11 +10,16 @@ import { Farmer } from "../../model";
 import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
 import Kos2Form from "../../components/docKos/kos2/form/kos2Form";
+import { GetDocKos02Service } from "../../services/kos2";
 
 function Kos02({ farmer }: { farmer: Farmer }) {
   const docKos = useQuery({
     queryKey: ["docKos"],
     queryFn: () => GetAllDocKosService(),
+  });
+  const dockos02 = useQuery({
+    queryKey: ["kos02"],
+    queryFn: () => GetDocKos02Service(),
   });
   return (
     <DashboardLayout farmer={farmer}>
@@ -31,7 +36,7 @@ function Kos02({ farmer }: { farmer: Farmer }) {
           </section>
         </header>
         <main>
-          <Kos2Form docKos={docKos} />
+          <Kos2Form dockos02={dockos02} docKos={docKos} />
         </main>
       </div>
     </DashboardLayout>

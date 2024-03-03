@@ -268,7 +268,7 @@ function Kos2Form({ docKos, isUpdate, dockos02 }: Kos2FormProps) {
           <div className="grid w-10/12 grid-cols-2">
             {files?.map((file, index) => {
               return (
-                <div className="relative h-60 w-full">
+                <div key={index} className="relative h-60 w-full">
                   <div
                     onClick={() => {
                       handleDeleteFile({
