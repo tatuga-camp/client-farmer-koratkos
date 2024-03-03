@@ -69,7 +69,6 @@ function EvaluationReport({
           </span>
           <div className="w-full  text-balance break-words text-sm ">
             {selectFormEvaluation?.reason}{" "}
-            aslkdjaslkdjsakldjaskldjkasljdlkasjdklsajdlkasjdklasjadskljdlaskjdlkasjdklasjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
           </div>
         </div>
         <button
