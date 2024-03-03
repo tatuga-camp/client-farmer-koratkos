@@ -11,6 +11,7 @@ import {
   ResponseGetDocKos02Service,
 } from "../../../../services/kos2";
 import { useDeviceType } from "../../../../utils";
+import PlantCombox from "../combox/plantCombox";
 
 type OrgCropProdProps = {
   dockos02: UseQueryResult<ResponseGetDocKos02Service, Error>;
@@ -18,7 +19,7 @@ type OrgCropProdProps = {
     React.SetStateAction<boolean>
   >;
 };
-type OrgCropProdCalForKos2Data = {
+export type OrgCropProdCalForKos2Data = {
   plotNumber?: number;
   landArea?: number;
   plantType?: string;
@@ -153,19 +154,10 @@ function CreateOrgCropProd({
               ไร่
             </span>
           </TextField>
-          <TextField className="flex w-80  items-center justify-start gap-2 ">
-            <Label className="w-20 text-base font-semibold text-super-main-color">
-              ชนิดพืช :
-            </Label>
-            <Input
-              name="plantType"
-              onChange={handleCheckOrgCropProdCalForKos2}
-              value={orgCropProdCalForKos2s?.plantType}
-              required
-              className="w-10/12 rounded-lg p-3 ring-1 ring-gray-300"
-              placeholder="ชนิดพืช"
-            />
-          </TextField>
+          <PlantCombox
+            orgCropProdCalForKos2s={orgCropProdCalForKos2s}
+            setOrgCropProdCalForKos2s={setOrgCropProdCalForKos2s}
+          />
           <TextField className="flex w-80  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
               เดือน :

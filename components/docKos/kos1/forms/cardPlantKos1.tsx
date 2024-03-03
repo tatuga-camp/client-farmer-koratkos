@@ -110,7 +110,7 @@ function CardPlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
           <IoMdAddCircleOutline />
           เพิ่มชนิดพืช
         </button>
-        <ul className="mt-10 flex w-full flex-col  items-center justify-center gap-7 lg:grid lg:grid-cols-3 lg:p-10">
+        <ul className="mt-10 flex w-full flex-col  items-center justify-center gap-7 lg:grid lg:grid-cols-2 lg:p-10 xl:grid-cols-3">
           {docKos1.data?.plantKOS1s.map((plant, index) => {
             const seasonProd = plant.seasonProd.map((time) => {
               const date = new Date(time);

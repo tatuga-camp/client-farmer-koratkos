@@ -4,15 +4,19 @@ import React, { Fragment, useEffect, useState } from "react";
 import { Input, Label, TextField } from "react-aria-components";
 import { FaCheck } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
-import { PlantData } from "../forms/createPlantKos1";
 import { OrgCropProdCalForKos2Data } from "../../kos2/form/createOrgCropProd";
 import { plantLists } from "../../../../data/plants";
 
 type PlantComboxProps = {
-  createPlant: PlantData | undefined;
-  setCreatePlant: React.Dispatch<React.SetStateAction<PlantData | undefined>>;
+  orgCropProdCalForKos2s: OrgCropProdCalForKos2Data | undefined;
+  setOrgCropProdCalForKos2s: React.Dispatch<
+    React.SetStateAction<OrgCropProdCalForKos2Data | undefined>
+  >;
 };
-function PlantCombox({ setCreatePlant, createPlant }: PlantComboxProps) {
+function PlantCombox({
+  setOrgCropProdCalForKos2s,
+  orgCropProdCalForKos2s,
+}: PlantComboxProps) {
   const [query, setQuery] = useState("");
   const [unknownPlant, setUnknownPlant] = useState(false);
   const filterPlants =
@@ -23,24 +27,25 @@ function PlantCombox({ setCreatePlant, createPlant }: PlantComboxProps) {
         });
 
   useEffect(() => {
-    if (createPlant?.plant !== undefined) {
+    if (orgCropProdCalForKos2s?.plantType !== undefined) {
       const isKnowPlat = plantLists?.find(
-        (plant) => plant.title === createPlant?.plant,
+        (plant) => plant.title === orgCropProdCalForKos2s?.plantType,
       );
-
       if (!isKnowPlat) {
         setUnknownPlant(() => true);
+      } else if (isKnowPlat) {
+        setUnknownPlant(() => false);
       }
     }
-  }, [createPlant]);
+  }, [orgCropProdCalForKos2s]);
   return (
     <Combobox
-      value={createPlant?.plant}
+      value={orgCropProdCalForKos2s?.plantType}
       onChange={(value) => {
-        setCreatePlant((prev) => {
+        setOrgCropProdCalForKos2s((prev) => {
           return {
             ...prev,
-            plant: value,
+            plantType: value,
           };
         });
       }}
@@ -85,12 +90,12 @@ function PlantCombox({ setCreatePlant, createPlant }: PlantComboxProps) {
         )}
         {unknownPlant && (
           <Input
-            value={createPlant?.plant}
+            value={orgCropProdCalForKos2s?.plantType}
             onChange={(e) =>
-              setCreatePlant((prev) => {
+              setOrgCropProdCalForKos2s((prev) => {
                 return {
                   ...prev,
-                  plant: e.target.value,
+                  plantType: e.target.value,
                 };
               })
             }

@@ -111,7 +111,7 @@ function CreatePlantKos1({
           className="mt-5 flex w-10/12 flex-col items-start justify-center gap-2"
         >
           <Label className="w-max text-xl font-semibold text-super-main-color">
-            พื้นที่ (ไร่) :
+            พื้นที่ (ไร่):
           </Label>
           <Input
             name="raiTotal"
@@ -127,7 +127,7 @@ function CreatePlantKos1({
           className="mt-5 flex w-10/12 flex-col items-start justify-center gap-2"
         >
           <Label className="text-xl font-semibold text-super-main-color">
-            จำนวนรอบการผลิต/ปี :
+            จำนวนรอบการผลิต/ปี:
           </Label>
           <Input
             name="annualProdCycles"
@@ -140,7 +140,7 @@ function CreatePlantKos1({
         </TextField>
         <div className="flex w-10/12 flex-col items-start justify-center gap-2">
           <Label className="text-xl font-semibold text-super-main-color">
-            ช่วงเวลาการผลิต (เดือน) :
+            ช่วงเวลาการผลิต (เดือน):
           </Label>
 
           <Calendar
@@ -169,7 +169,7 @@ function CreatePlantKos1({
         </div>
         <section className="flex w-10/12 flex-col items-start justify-center gap-2">
           <Label className="text-xl font-semibold text-super-main-color">
-            วันที่คาดว่าจะเก็บเกี่ยว :
+            วันที่คาดว่าจะเก็บเกี่ยว:
           </Label>
           <Calendar
             required

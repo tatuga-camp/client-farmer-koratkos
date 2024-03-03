@@ -265,13 +265,13 @@ function FarmFieldInformation({
             พิกัดแปลง (UTM) 47/48 P :
           </Label>
           <TextField
-            className="flex w-full items-center justify-center gap-2  "
+            className="flex w-full items-center justify-start gap-2  "
             name="latitude "
             type="text"
             isRequired
           >
             <Label className="w-max text-xl font-bold text-super-main-color">
-              Latitude :
+              Latitude:
             </Label>
             <Input
               onChange={(e) =>
@@ -285,13 +285,13 @@ function FarmFieldInformation({
             />
           </TextField>
           <TextField
-            className="flex w-full items-center justify-center gap-2  "
+            className="flex w-full items-center justify-start gap-2  "
             name="longitude "
             type="text"
             isRequired
           >
             <Label className="w-max text-xl font-bold text-super-main-color">
-              Longitude :
+              Longitude:
             </Label>
             <Input
               onChange={(e) =>

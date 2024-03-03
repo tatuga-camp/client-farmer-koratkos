@@ -417,7 +417,7 @@ function ProductionInformation({
                 className="relative flex  flex-col items-start  "
               >
                 <Label className="text-lg font-semibold text-super-main-color">
-                  จำนวนแปลงทั้งหมด :{" "}
+                  จำนวนแปลงทั้งหมด:{" "}
                 </Label>
                 <Input
                   name="plotsTotal"
@@ -435,7 +435,7 @@ function ProductionInformation({
                   className="relative flex w-max items-center  justify-center gap-2 "
                 >
                   <Label className="text-lg font-semibold text-super-main-color">
-                    พื้นที่ :{" "}
+                    พื้นที่:{" "}
                   </Label>
                   <Input
                     name="raiTotal"
@@ -468,13 +468,13 @@ function ProductionInformation({
                 </TextField>
               </div>
             </div>
-            <div className="mt-5 flex w-10/12 flex-col items-start gap-2">
+            <div className="mt-5 flex w-10/12 flex-col  items-start gap-2">
               <TextField
                 isRequired
-                className="relative flex  flex-col items-start  "
+                className="relative flex  w-full flex-col items-start   "
               >
                 <Label className="text-lg font-semibold text-super-main-color">
-                  จำนวนแปลงที่ขอรับรอง KOS :{" "}
+                  จำนวนแปลงที่ขอรับรอง KOS:{" "}
                 </Label>
                 <Input
                   name="certicatedPlotTotal"
@@ -491,7 +491,7 @@ function ProductionInformation({
                   className="relative flex w-max items-center  justify-center gap-2 "
                 >
                   <Label className="text-lg font-semibold text-super-main-color">
-                    พื้นที่ :{" "}
+                    พื้นที่:{" "}
                   </Label>
                   <Input
                     name="certicatedRaiTotal"

@@ -1,9 +1,8 @@
 import { parseCookies } from "nookies";
-import { DocKos2, OrgCropProdCalForKos2 } from "../model";
+import { DocKos2, FileOnDocKos02, OrgCropProdCalForKos2 } from "../model";
 import axios from "axios";
 
 type RequestCreateDocKos2Service = {
-  file: File;
   numberOfPlotForKosCertificated: string;
   marketingDetail: string;
 };
@@ -11,25 +10,15 @@ export async function CreateDocKos2Service(
   input: RequestCreateDocKos2Service,
 ): Promise<DocKos2> {
   try {
-    const formData = new FormData();
     const cookies = parseCookies();
     const access_token = cookies.access_token;
-
-    // Append input data to formData
-    formData.append("file", input.file);
-    if (input.marketingDetail)
-      formData.append("marketingDetail", input.marketingDetail);
-    formData.append(
-      "numberOfPlotForKosCertificated",
-      input.numberOfPlotForKosCertificated,
-    );
 
     const farm = await axios({
       method: "POST",
       url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos2/create-docKos2`,
-      data: formData, // Set formData as the data property
+      data: { ...input }, // Set formData as the data property
+      responseType: "json",
       headers: {
-        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${access_token}`,
       },
     });
@@ -41,7 +30,6 @@ export async function CreateDocKos2Service(
 }
 
 type RequestUpdateDocKos2Service = {
-  file: File;
   numberOfPlotForKosCertificated: string;
   marketingDetail: string;
 };
@@ -49,25 +37,15 @@ export async function UpdateDocKos2Service(
   input: RequestUpdateDocKos2Service,
 ): Promise<DocKos2> {
   try {
-    const formData = new FormData();
     const cookies = parseCookies();
     const access_token = cookies.access_token;
-
-    // Append input data to formData
-    if (input.file) formData.append("file", input.file);
-    if (input.marketingDetail)
-      formData.append("marketingDetail", input.marketingDetail);
-    formData.append(
-      "numberOfPlotForKosCertificated",
-      input.numberOfPlotForKosCertificated,
-    );
 
     const farm = await axios({
       method: "PATCH",
       url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos2/update-docKos2`,
-      data: formData, // Set formData as the data property
+      data: { ...input }, // Set formData as the data property
+      responseType: "json",
       headers: {
-        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${access_token}`,
       },
     });
@@ -79,6 +57,7 @@ export async function UpdateDocKos2Service(
 }
 export type ResponseGetDocKos02Service = DocKos2 & {
   orgCropProdCalForKos2s: OrgCropProdCalForKos2[];
+  files: FileOnDocKos02[];
 };
 
 export async function GetDocKos02Service(): Promise<ResponseGetDocKos02Service> {
@@ -200,6 +179,62 @@ export async function DeleteOrgCropProdCalForKos2Service(
       },
     });
     return orgCrop.data;
+  } catch (error: any) {
+    console.error(error.response.data);
+    throw error?.response?.data;
+  }
+}
+
+type RequestCreateFileOnDocKos02Service = {
+  url: string;
+  type: string;
+  docKos02Id: string;
+};
+export async function CreateFileOnDocKos02Service(
+  input: RequestCreateFileOnDocKos02Service,
+): Promise<FileOnDocKos02> {
+  try {
+    const cookies = parseCookies();
+    const access_token = cookies.access_token;
+    const file = await axios({
+      method: "POST",
+      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos2/create-fileOnDocKos02`,
+      data: {
+        ...input,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return file.data;
+  } catch (error: any) {
+    console.error(error.response.data);
+    throw error?.response?.data;
+  }
+}
+
+type RequestDeleteFileOnDocKos02Service = {
+  fileOnDocKos02Id: string;
+};
+export async function DeleteFileOnDocKos02Service(
+  input: RequestDeleteFileOnDocKos02Service,
+): Promise<{ message: string }> {
+  try {
+    const cookies = parseCookies();
+    const access_token = cookies.access_token;
+    const file = await axios({
+      method: "DELETE",
+      url: `${process.env.NEXT_PUBLIC_SERVER_URL}/farmer/kos2/delete-fileOnDocKos02`,
+      params: {
+        ...input,
+      },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+    return file.data;
   } catch (error: any) {
     console.error(error.response.data);
     throw error?.response?.data;

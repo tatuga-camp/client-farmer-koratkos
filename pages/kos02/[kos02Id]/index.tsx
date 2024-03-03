@@ -125,7 +125,7 @@ function Index({ farmer }: { farmer: Farmer }) {
           />
         ) : (
           <div className="flex w-full flex-col items-center">
-            <Kos2Form isUpdate={true} docKos={docKos} />
+            <Kos2Form isUpdate={true} dockos02={dockos02} docKos={docKos} />
             <h2 className="mt-10 w-80 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
               แผนการผลิตพืชอินทรีย์
             </h2>
@@ -141,7 +141,7 @@ function Index({ farmer }: { farmer: Farmer }) {
               <IoIosAddCircleOutline />
               เพิ่มแปลงปลูก
             </button>
-            <ul className="mt-10 flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-3 lg:place-items-center lg:p-10">
+            <ul className="mt-10 flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-2 lg:place-items-center lg:p-10 xl:grid-cols-3">
               {dockos02?.data?.orgCropProdCalForKos2s?.length === 0 ? (
                 <li className="flex h-60 w-10/12 items-center justify-center rounded-lg bg-third-color text-xl font-medium">
                   ไม่มีข้อมูลแปลงปลูก
@@ -208,6 +208,7 @@ function Index({ farmer }: { farmer: Farmer }) {
                         </section>
                         <section className="mt-2 flex w-full flex-col items-start">
                           <h1 className="text-4xl font-semibold text-super-main-color">
+                            <span className="text-sm">ชนิดพืช</span>{" "}
                             {orgCropProd.plantType}
                           </h1>
                           <span className="text-blue-600">
@@ -241,6 +242,7 @@ function Index({ farmer }: { farmer: Farmer }) {
                             <FaSeedling />
                           </div>
                           <h1 className="text-2xl font-semibold text-[#502D16]">
+                            <span className="text-sm">เมล็ด</span>{" "}
                             {orgCropProd.seed}
                           </h1>
                         </section>

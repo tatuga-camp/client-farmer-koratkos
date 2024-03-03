@@ -3,7 +3,6 @@ export type DocKos2 = {
   createAt: Date;
   updateAt: Date;
   numberOfPlotForKosCertificated: string;
-  map: string;
   marketingDetail?: string;
   farmerId: string;
 };
@@ -20,6 +19,14 @@ export type OrgCropProdCalForKos2 = {
   yieldPerRai: number;
   seed: string;
   source: string;
+  docKos02Id: string;
+  farmerId: string;
+};
+
+export type FileOnDocKos02 = {
+  id: string;
+  url: string;
+  type: string;
   docKos02Id: string;
   farmerId: string;
 };

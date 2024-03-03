@@ -111,7 +111,7 @@ function Index({ farmer }: { farmer: Farmer }) {
             เพิ่มกิจกรรม
           </button>
 
-          <ul className="flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-3 lg:place-items-start lg:p-5">
+          <ul className="flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-2 lg:place-items-start lg:p-5 xl:grid-cols-3">
             {activities.isLoading
               ? [...new Array(10)].map((value, index) => (
                   <div

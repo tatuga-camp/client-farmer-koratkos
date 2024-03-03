@@ -12,6 +12,7 @@ import {
 } from "../../../../services/kos2";
 import { OrgCropProdCalForKos2 } from "../../../../model";
 import { useDeviceType } from "../../../../utils";
+import PlantCombox from "../combox/plantCombox";
 
 type OrgCropProdProps = {
   dockos02: UseQueryResult<ResponseGetDocKos02Service, Error>;
@@ -118,7 +119,7 @@ function UpdateOrgCropProd({
         className="mt-5 flex w-11/12 flex-col items-center gap-4 lg:grid lg:grid-cols-2"
       >
         <section className="flex w-full flex-col gap-5 rounded-lg lg:p-5 lg:ring-2 lg:ring-third-color">
-          <TextField className="flex w-80 items-center justify-start">
+          <TextField className="flex w-full items-center justify-start">
             <Label className="w-28 text-base font-semibold text-super-main-color">
               แปลงที่ :
             </Label>
@@ -135,7 +136,7 @@ function UpdateOrgCropProd({
           </TextField>
           <TextField
             isRequired
-            className="flex w-80 flex-col  items-start gap-2"
+            className="flex w-full flex-col  items-start gap-2"
           >
             <Label className="text-base font-semibold text-super-main-color">
               แผนการผลิตพืชอินทรีย์ ประจำปีการผลิต :
@@ -160,7 +161,7 @@ function UpdateOrgCropProd({
               touchUI={deviceType === "mobile" ? true : false}
             />
           </TextField>
-          <TextField className="flex w-80  items-center justify-start gap-2 ">
+          <TextField className="flex w-full  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
               พื้นที่ :
             </Label>
@@ -178,20 +179,11 @@ function UpdateOrgCropProd({
               ไร่
             </span>
           </TextField>
-          <TextField className="flex w-80  items-center justify-start gap-2 ">
-            <Label className="w-20 text-base font-semibold text-super-main-color">
-              ชนิดพืช :
-            </Label>
-            <Input
-              name="plantType"
-              onChange={handleCheckOrgCropProdCalForKos2}
-              value={orgCropProdCalForKos2s?.plantType}
-              required
-              className="w-10/12 rounded-lg p-3 ring-1 ring-gray-300"
-              placeholder="ชนิดพืช"
-            />
-          </TextField>
-          <TextField className="flex w-80  items-center justify-start gap-2 ">
+          <PlantCombox
+            orgCropProdCalForKos2s={orgCropProdCalForKos2s}
+            setOrgCropProdCalForKos2s={setOrgCropProdCalForKos2s}
+          />
+          <TextField className="flex w-full  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
               เดือน :
             </Label>
@@ -218,7 +210,7 @@ function UpdateOrgCropProd({
               touchUI={deviceType === "mobile" ? true : false}
             />
           </TextField>
-          <TextField className="flex w-80  items-center justify-start gap-2 ">
+          <TextField className="flex w-full  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
               ผลผลิต :
             </Label>
@@ -238,7 +230,7 @@ function UpdateOrgCropProd({
           </TextField>
         </section>
         <section className="flex w-full flex-col gap-2 rounded-lg lg:h-full lg:p-5 lg:ring-2 lg:ring-third-color">
-          <TextField className="flex w-80 flex-col  items-start justify-center gap-2 ">
+          <TextField className="flex w-full flex-col  items-start justify-center gap-2 ">
             <Label className="w-full text-base font-semibold text-super-main-color">
               เมล็ด/ส่วนขยายพันธุ์พืช :
             </Label>
@@ -252,7 +244,7 @@ function UpdateOrgCropProd({
             />
           </TextField>
 
-          <TextField className="flex w-80 flex-col  items-start justify-center gap-2 ">
+          <TextField className="flex w-full flex-col  items-start justify-center gap-2 ">
             <Label className="w-full text-base font-semibold text-super-main-color">
               แหล่งที่มา :
             </Label>

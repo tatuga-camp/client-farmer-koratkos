@@ -89,7 +89,6 @@ function CreateActivity({
       if (newFiles && newFiles?.length > 0) {
         for (const newFile of newFiles) {
           const signURL = await GetSignURLService({
-            firstPath: "kos03",
             fileName: newFile.file?.name as string,
             fileType: newFile.file?.type as string,
           });

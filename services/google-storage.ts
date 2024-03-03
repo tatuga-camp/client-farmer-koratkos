@@ -2,7 +2,6 @@ import { parseCookies } from "nookies";
 import axios from "axios";
 
 type RequestGetSignURLService = {
-  firstPath: string;
   fileName: string;
   fileType: string;
 };
