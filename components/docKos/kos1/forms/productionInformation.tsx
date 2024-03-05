@@ -259,7 +259,7 @@ function ProductionInformation({
                   };
                 });
               }}
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-2 "
             >
               <Checkbox
                 className={({ isPressed, isSelected }) =>
@@ -395,7 +395,7 @@ function ProductionInformation({
                         };
                       })
                     }
-                    className=" p-2"
+                    className="  p-2 "
                   />
                 </TextField>
               </div>

@@ -23,4 +23,5 @@ input:not([role="combobox"]) {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(0 0 0 / var(--tw-ring-opacity));
   border-radius: 0.375rem;
+  appearance: none;
 }

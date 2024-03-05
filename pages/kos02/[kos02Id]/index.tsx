@@ -215,8 +215,8 @@ function Index({ farmer }: { farmer: Farmer }) {
                             แหล่งที่มา: {orgCropProd.source}
                           </span>
                         </section>
-                        <section className="mt-5 flex w-full justify-center gap-2">
-                          <div className="flex w-full items-center justify-center gap-2">
+                        <section className="mt-5 flex w-full flex-col items-start justify-center gap-2">
+                          <div className="flex w-full items-center justify-start gap-2">
                             <div className="rounded-full bg-super-main-color p-2 text-lg text-white">
                               <MdLandslide />
                             </div>
@@ -224,16 +224,16 @@ function Index({ farmer }: { farmer: Farmer }) {
                               พื้นที่ {orgCropProd.landArea} ไร่
                             </span>
                           </div>
-                          <div className="flex w-full items-center justify-center gap-2">
+                          <div className="flex w-full items-center justify-start   gap-2">
                             <div className="rounded-full bg-super-main-color p-2 text-lg text-white">
                               <GiWeight />
                             </div>
                             <div className="text-xs font-semibold">
-                              <span className="text-sm">
+                              <span className="text-base">
                                 ผลผลิต{" "}
                                 {orgCropProd.yieldPerRai.toLocaleString()}{" "}
+                                กก./ไร่
                               </span>
-                              <div className="text-xs">กก./ไร่</div>
                             </div>
                           </div>
                         </section>

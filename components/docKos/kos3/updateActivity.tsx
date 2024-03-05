@@ -206,13 +206,13 @@ function UpdateActivity({
             placeholder="ลำดับแปลง"
           />
         </TextField>
-        <TextField className="flex w-80  items-center justify-start gap-2 ">
-          <Label className="w-20 text-xl font-semibold text-super-main-color">
-            วันที่ :
+        <TextField className="flex w-80  flex-col items-start justify-start gap-2 ">
+          <Label className=" text-xl font-semibold text-super-main-color">
+            วันที่ดำเนินกิจกรรม :
           </Label>
           <Calendar
             required
-            className="w-10/12"
+            className="w-full"
             dateFormat="dd/MM/yy"
             locale="th"
             value={

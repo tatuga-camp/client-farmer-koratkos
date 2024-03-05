@@ -19,6 +19,7 @@ import {
   CreateHarvestLogKos5Service,
 } from "../../../services/kos5";
 import { HarvestLogDocKos5, Pagination } from "../../../model";
+import PlantCombox from "./combox/plantCombox";
 
 type CreateActivityProps = {
   docKos?: UseQueryResult<ResponseGetAllDocKosService, Error>;
@@ -143,19 +144,7 @@ function CreateHarvestLog({
             touchUI={deviceType === "mobile" ? true : false}
           />
         </TextField>
-        <TextField className="flex w-80  flex-col items-center justify-start">
-          <Label className="w-full text-left text-xl font-semibold text-super-main-color">
-            ชนิดพืชที่เก็บเกี่ยว :
-          </Label>
-          <Input
-            required
-            name="plantType"
-            onChange={handleChangeCreateHarvest}
-            value={harvestLog?.plantType}
-            type="text"
-            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
-          />
-        </TextField>
+        <PlantCombox setHarvestLog={setHarvestLog} harvestLog={harvestLog} />
 
         <TextField className="flex w-80  flex-col items-center justify-start">
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
