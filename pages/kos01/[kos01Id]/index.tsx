@@ -14,6 +14,7 @@ import Link from "next/link";
 import { AiFillEdit } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
 import { GetDocKos1Service } from "../../../services/kos1";
+import { emitWarning } from "process";
 
 function Index({ farmer }: { farmer: Farmer }) {
   const router = useRouter();
@@ -41,25 +42,39 @@ function Index({ farmer }: { farmer: Farmer }) {
 
         <main className="mt-5">
           <ul className="flex flex-col items-center justify-center gap-5">
-            {menuKos01({ kos1Id: router.query.kos01Id as string }).map(
-              (menu, index) => (
-                <Link
-                  className="flex h-max w-80 items-center justify-between gap-2 rounded-lg bg-third-color p-5 ring-white drop-shadow-md  transition duration-150 hover:scale-105 active:scale-110 active:ring-2"
-                  href={menu.href}
-                  key={index}
-                >
-                  <span className="text-center text-xl font-semibold text-black">
-                    {menu.title}
-                  </span>
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-lg
+            {docKos1.isLoading
+              ? [...new Array(5)].map((list, index) => {
+                  return (
+                    <div
+                      key={index}
+                      className="h-20 w-80 animate-pulse bg-gray-300"
+                    ></div>
+                  );
+                })
+              : menuKos01({ kos1Id: router.query.kos01Id as string }).map(
+                  (menu, index) => (
+                    <Link
+                      className="flex h-max w-80 items-center justify-between gap-2 rounded-lg bg-third-color p-5 ring-white drop-shadow-md  transition duration-150 hover:scale-105 active:scale-110 active:ring-2"
+                      href={{
+                        pathname: !docKos1.data?.farmKos1
+                          ? "/create/kos01"
+                          : menu.href,
+                        query: { step: "farmFieldInformation" as Step },
+                      }}
+                      key={index}
+                    >
+                      <span className="text-center text-xl font-semibold text-black">
+                        {menu.title}
+                      </span>
+                      <div
+                        className="flex h-10 w-10 items-center justify-center rounded-lg
                  bg-super-main-color text-2xl text-white"
-                  >
-                    <AiFillEdit />
-                  </div>
-                </Link>
-              ),
-            )}
+                      >
+                        <AiFillEdit />
+                      </div>
+                    </Link>
+                  ),
+                )}
           </ul>
         </main>
       </div>

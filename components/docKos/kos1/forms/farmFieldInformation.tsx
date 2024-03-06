@@ -35,11 +35,11 @@ function FarmFieldInformation({
   const deviceType = useDeviceType();
   const [baicInformation, setBasicInformation] = useState<
     | (BasicInformation & {
-        certRequestDate: Date;
-        longitude: string;
-        latitude: string;
-        mapTerrain: string;
-        mapHybrid: string;
+        certRequestDate?: Date;
+        longitude?: string;
+        latitude?: string;
+        mapTerrain?: string;
+        mapHybrid?: string;
       })
     | undefined
   >();
@@ -49,22 +49,22 @@ function FarmFieldInformation({
     if (docKos1?.isSuccess) {
       setBasicInformation(() => {
         return {
-          address: docKos1.data?.farmKos1.address as string,
-          moo: docKos1.data?.farmKos1.villageNumber as string,
+          address: docKos1.data?.farmKos1?.address as string,
+          moo: docKos1.data?.farmKos1?.villageNumber as string,
           province: {
-            name_th: docKos1.data?.farmKos1.province as string,
+            name_th: docKos1.data?.farmKos1?.province as string,
           },
           amphure: {
-            name_th: docKos1.data?.farmKos1.district as string,
+            name_th: docKos1.data?.farmKos1?.district as string,
           },
           tambon: {
-            name_th: docKos1.data?.farmKos1.subdistrict as string,
+            name_th: docKos1.data?.farmKos1?.subdistrict as string,
           },
-          certRequestDate: docKos1.data?.farmKos1.certRequestDate,
-          longitude: docKos1.data?.farmKos1.longitude as string,
-          latitude: docKos1.data?.farmKos1.latitude as string,
-          mapTerrain: docKos1.data?.farmKos1.mapTerrain as string,
-          mapHybrid: docKos1.data?.farmKos1.mapHybrid as string,
+          certRequestDate: docKos1.data?.farmKos1?.certRequestDate,
+          longitude: docKos1.data?.farmKos1?.longitude as string,
+          latitude: docKos1.data?.farmKos1?.latitude as string,
+          mapTerrain: docKos1.data?.farmKos1?.mapTerrain as string,
+          mapHybrid: docKos1.data?.farmKos1?.mapHybrid as string,
         };
       });
     }
@@ -92,7 +92,6 @@ function FarmFieldInformation({
   const handleSummitFarmFieldInformation = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
-      console.log(baicInformation);
       if (!baicInformation?.mapHybrid || !baicInformation?.mapTerrain) {
         throw new Error(
           "กรุณาตรวจสอบพิกัดแปลง (UTM) 47/48 P และกดตรวจสอบแผนที่",
@@ -110,9 +109,6 @@ function FarmFieldInformation({
           },
         });
         const update = await UpdateFarmKos01Service({
-          query: {
-            docKos01Id: docKos1?.data?.id as string,
-          },
           body: {
             address: baicInformation?.address,
             villageNumber: baicInformation?.moo,

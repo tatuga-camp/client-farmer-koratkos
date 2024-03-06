@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../../layouts/dashboardLayout";
 import { Farmer, OrgCropProdCalForKos2 } from "../../../model";
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
@@ -94,6 +94,14 @@ function Index({ farmer }: { farmer: Farmer }) {
       }
     }
   };
+
+  useEffect(() => {
+    if (dockos02?.data?.orgCropProdCalForKos2s?.length === 0) {
+      document.getElementById("เพิ่มแปลงปลูก")?.scrollIntoView({
+        behavior: "smooth",
+      });
+    }
+  }, [dockos02.data]);
   return (
     <DashboardLayout farmer={farmer}>
       <Head>
@@ -135,6 +143,7 @@ function Index({ farmer }: { farmer: Farmer }) {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               className="mt-10 
+              
               flex w-40 items-center justify-center gap-2  rounded-lg bg-super-main-color px-5 py-1 font-semibold
              text-white drop-shadow-md transition duration-150 hover:scale-105 active:scale-110"
             >
@@ -143,7 +152,10 @@ function Index({ farmer }: { farmer: Farmer }) {
             </button>
             <ul className="mt-10 flex w-full flex-col items-center gap-5 lg:grid lg:grid-cols-2 lg:place-items-center lg:p-10 xl:grid-cols-3">
               {dockos02?.data?.orgCropProdCalForKos2s?.length === 0 ? (
-                <li className="flex h-60 w-10/12 items-center justify-center rounded-lg bg-third-color text-xl font-medium">
+                <li
+                  id="เพิ่มแปลงปลูก"
+                  className="flex h-60 w-10/12 items-center justify-center rounded-lg bg-third-color text-xl font-medium"
+                >
                   ไม่มีข้อมูลแปลงปลูก
                 </li>
               ) : (

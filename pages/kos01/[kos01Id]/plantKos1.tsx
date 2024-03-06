@@ -32,7 +32,7 @@ function PlantKos1({ farmer }: { farmer: Farmer }) {
         <main className="mt-10 flex justify-center  ">
           <CardPlantKos1
             docKos1={docKos1}
-            farmKOS1Id={docKos1.data?.farmKos1.id as string}
+            farmKOS1Id={docKos1.data?.farmKos1?.id as string}
           />
         </main>
       </div>

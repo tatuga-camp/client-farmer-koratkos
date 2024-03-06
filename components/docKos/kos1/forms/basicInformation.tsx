@@ -19,6 +19,7 @@ import { UseQueryResult } from "@tanstack/react-query";
 import Link from "next/link";
 import { IoMdCloseCircle } from "react-icons/io";
 import { Step } from "../../../../pages/create/kos01";
+import { ResponseGetAllDocKosService } from "../../../../services/farmer";
 
 export type BasicInformation = {
   address: string;
@@ -38,30 +39,10 @@ type BasicInformationProps = {
 };
 function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
   const router = useRouter();
-  const [baicInformation, setBasicInformation] = useState<
-    BasicInformation | undefined
-  >(() => {
-    if (docKos1 && isUpdate === true) {
-      return {
-        address: docKos1.data?.address as string,
-        moo: docKos1.data?.villageNumber as string,
-        province: {
-          name_th: docKos1.data?.province as string,
-        },
-        amphure: {
-          name_th: docKos1.data?.district as string,
-        },
-        tambon: {
-          name_th: docKos1.data?.subdistrict as string,
-        },
-      };
-    } else {
-      return undefined;
-    }
-  });
+  const [baicInformation, setBasicInformation] = useState<BasicInformation>();
 
   useEffect(() => {
-    if (docKos1?.isSuccess) {
+    if (docKos1?.isSuccess && isUpdate) {
       setBasicInformation({
         address: docKos1.data?.address as string,
         moo: docKos1.data?.villageNumber as string,
@@ -89,15 +70,6 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
     });
   };
 
-  useEffect(() => {
-    const basicInformation = localStorage.getItem("basicInformation");
-    if (basicInformation) {
-      const parseBasicInformation: BasicInformation =
-        JSON.parse(basicInformation);
-      setBasicInformation(() => parseBasicInformation);
-    }
-  }, []);
-
   const handleSummitBasicInformation = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
@@ -113,15 +85,16 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
             Swal.showLoading();
           },
         });
-        await UpdateDocKos1Service({
+        const update = await UpdateDocKos1Service({
           address: baicInformation?.address as string,
           villageNumber: baicInformation?.moo as string,
           province: baicInformation?.province?.name_th as string,
           district: baicInformation?.amphure?.name_th as string,
           subdistrict: baicInformation?.tambon?.name_th as string,
         });
+        await docKos1?.refetch();
         router.push({
-          pathname: `/kos01/${docKos1?.data?.id}`,
+          pathname: `/kos01/${update.id}`,
         });
         Swal.fire({
           icon: "success",
@@ -130,10 +103,13 @@ function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
           timer: 1500,
         });
       } else {
-        localStorage.setItem(
-          "basicInformation",
-          JSON.stringify(baicInformation),
-        );
+        await CreateDocKos1Service({
+          address: baicInformation?.address as string,
+          villageNumber: baicInformation?.moo as string,
+          subdistrict: baicInformation?.tambon?.name_th as string,
+          district: baicInformation?.amphure?.name_th as string,
+          province: baicInformation?.province?.name_th as string,
+        });
         router.push({
           pathname: "/create/kos01",
           query: { step: "farmFieldInformation" as Step },

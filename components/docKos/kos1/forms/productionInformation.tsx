@@ -49,17 +49,17 @@ function ProductionInformation({
 }: ProductionInformationProps) {
   const router = useRouter();
   const [productionInformation, setProductionInformation] = useState<{
-    productionProcess: string[];
-    productionMethod: {
+    productionProcess?: string[];
+    productionMethod?: {
       value: string;
       select: string;
     };
-    plotsTotal: number;
-    raiTotal: number;
-    nganTotal: number;
-    certicatedPlotTotal: number;
-    certicatedRaiTotal: number;
-    certicatedNganTotal: number;
+    plotsTotal?: number;
+    raiTotal?: number;
+    nganTotal?: number;
+    certicatedPlotTotal?: number;
+    certicatedRaiTotal?: number;
+    certicatedNganTotal?: number;
   }>();
 
   const handleChangeProductionInformation = (
@@ -77,24 +77,26 @@ function ProductionInformation({
       setProductionInformation(() => {
         let productionMethod = "อื่นๆ";
         if (
-          docKos1?.data?.farmKos1.productionMethod ===
+          docKos1?.data?.farmKos1?.productionMethod ===
             "ชนิดพืชที่ผลิตแตกต่างกัน" ||
-          docKos1?.data?.farmKos1.productionMethod === "เวลาการผลิตแตกต่างกัน"
+          docKos1?.data?.farmKos1?.productionMethod === "เวลาการผลิตแตกต่างกัน"
         ) {
           productionMethod = docKos1?.data?.farmKos1.productionMethod;
         }
         return {
-          productionProcess: docKos1?.data?.farmKos1.productionProcess,
+          productionProcess: docKos1?.data?.farmKos1?.productionProcess,
           productionMethod: {
-            value: docKos1?.data?.farmKos1.productionMethod || "",
+            value: docKos1?.data?.farmKos1?.productionMethod || "",
             select: productionMethod,
           },
-          plotsTotal: docKos1?.data?.farmKos1.plotsTotal || 0,
-          raiTotal: docKos1?.data?.farmKos1.raiTotal || 0,
-          nganTotal: docKos1?.data?.farmKos1.nganTotal || 0,
-          certicatedPlotTotal: docKos1?.data?.farmKos1.certicatedPlotTotal || 0,
-          certicatedRaiTotal: docKos1?.data?.farmKos1.certicatedRaiTotal || 0,
-          certicatedNganTotal: docKos1?.data?.farmKos1.certicatedNganTotal || 0,
+          plotsTotal: docKos1?.data?.farmKos1?.plotsTotal || 0,
+          raiTotal: docKos1?.data?.farmKos1?.raiTotal || 0,
+          nganTotal: docKos1?.data?.farmKos1?.nganTotal || 0,
+          certicatedPlotTotal:
+            docKos1?.data?.farmKos1?.certicatedPlotTotal || 0,
+          certicatedRaiTotal: docKos1?.data?.farmKos1?.certicatedRaiTotal || 0,
+          certicatedNganTotal:
+            docKos1?.data?.farmKos1?.certicatedNganTotal || 0,
         };
       });
     }
@@ -116,15 +118,12 @@ function ProductionInformation({
           },
         });
         const update = await UpdateFarmKos01Service({
-          query: {
-            docKos01Id: docKos1?.data?.id as string,
-          },
           body: {
             productionProcess:
               productionInformation?.productionProcess as string[],
             docKos01Id: docKos1?.data?.id as string,
             productionMethod: productionInformation?.productionMethod
-              .value as string,
+              ?.value as string,
             plotsTotal: productionInformation?.plotsTotal as number,
             raiTotal: productionInformation?.raiTotal as number,
             nganTotal: productionInformation?.nganTotal as number,
@@ -171,14 +170,7 @@ function ProductionInformation({
           mapTerrain: string;
           mapHybrid: string;
         } = JSON.parse(farmInformation as string);
-        const docKos1 = await CreateDocKos1Service({
-          address: parseBasicInformation.address,
-          villageNumber: parseBasicInformation.moo,
-          subdistrict: parseBasicInformation.tambon?.name_th as string,
-          district: parseBasicInformation.amphure?.name_th as string,
-          province: parseBasicInformation.province?.name_th as string,
-          phoneNumber: farmer.phoneNumber,
-        });
+
         const farmDocKos1 = await CreateFarmDocKos1Service({
           address: parseFarmInformation.address,
           villageNumber: parseFarmInformation.moo,
@@ -189,10 +181,9 @@ function ProductionInformation({
           longitude: parseFarmInformation.longitude,
           productionProcess:
             productionInformation?.productionProcess as string[],
-          docKos01Id: docKos1.id,
           certRequestDate: parseFarmInformation.certRequestDate,
           productionMethod: productionInformation?.productionMethod
-            .value as string,
+            ?.value as string,
           mapTerrain: parseFarmInformation.mapTerrain,
           mapHybrid: parseFarmInformation.mapHybrid,
           plotsTotal: productionInformation?.plotsTotal as number,

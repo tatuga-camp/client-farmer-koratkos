@@ -1,7 +1,10 @@
 import { GetServerSideProps, GetServerSidePropsContext } from "next";
 import { parseCookies } from "nookies";
 import React from "react";
-import { GetFarmerServerSideService } from "../../../services/farmer";
+import {
+  GetAllDocKosService,
+  GetFarmerServerSideService,
+} from "../../../services/farmer";
 import DashboardLayout from "../../../layouts/dashboardLayout";
 import { Farmer } from "../../../model";
 import Head from "next/head";
@@ -14,6 +17,10 @@ function Index({ farmer }: { farmer: Farmer }) {
   const docKos1 = useQuery({
     queryKey: ["docKos1"],
     queryFn: () => GetDocKos1Service(),
+  });
+  const docKos = useQuery({
+    queryKey: ["docKos"],
+    queryFn: () => GetAllDocKosService(),
   });
   return (
     <DashboardLayout farmer={farmer}>

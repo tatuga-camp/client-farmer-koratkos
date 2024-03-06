@@ -7,7 +7,6 @@ type RequestCreateDocKos1Service = {
   subdistrict: string;
   district: string;
   province: string;
-  phoneNumber: string;
 };
 export async function CreateDocKos1Service(
   input: RequestCreateDocKos1Service,
@@ -33,7 +32,7 @@ export async function CreateDocKos1Service(
   }
 }
 export type ResponseGetAllDocKos1Service = DocKos1 & {
-  farmKos1: FarmDocKos1;
+  farmKos1: FarmDocKos1 | null;
   plantKOS1s: PlantKos1[];
 };
 export async function GetDocKos1Service(): Promise<ResponseGetAllDocKos1Service> {
@@ -64,7 +63,6 @@ type RequestCreateFarmDocKos1Service = {
   latitude: string;
   longitude: string;
   productionProcess: string[];
-  docKos01Id: string;
   certRequestDate: string;
   productionMethod: string;
   mapTerrain: string;
@@ -229,9 +227,6 @@ export async function UpdateDocKos1Service(
 }
 
 export type RequestUpdateFarmKos01Service = {
-  query: {
-    docKos01Id: string;
-  };
   body: {
     address?: string;
     villageNumber?: string;
