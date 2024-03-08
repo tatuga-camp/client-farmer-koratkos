@@ -136,6 +136,19 @@ function UpdateFactor({
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
             ชนิดของปัจจัย :
           </Label>
+          <Input
+            required
+            name="prodFactorTypes"
+            onChange={handleChangeFator}
+            value={factor?.prodFactorTypes}
+            type="text"
+            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
+          />
+        </TextField>
+        <TextField className="flex w-80  flex-col items-center justify-start">
+          <Label className="w-full text-left text-xl font-semibold text-super-main-color">
+            ปริมาณ :
+          </Label>
           <div className="flex w-full items-start justify-center gap-2">
             <Input
               required
@@ -148,22 +161,6 @@ function UpdateFactor({
             />
             <TypeAmountCombox factor={factor} setFactor={setFactor} />
           </div>
-        </TextField>
-
-        <TextField className="flex w-80  flex-col items-center justify-start">
-          <Label className="w-full text-left text-xl font-semibold text-super-main-color">
-            ปริมาณ :
-          </Label>
-          <Input
-            required
-            name="amount"
-            onChange={handleChangeFator}
-            value={factor?.amount}
-            type="number"
-            placeholder="กิโลกรัม"
-            inputMode="numeric"
-            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
-          />
         </TextField>
         <TextField className="flex w-80  flex-col items-center justify-start">
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
