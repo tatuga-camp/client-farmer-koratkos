@@ -20,6 +20,7 @@ import {
 } from "../../../services/kos5";
 import { HarvestLogDocKos5, Pagination } from "../../../model";
 import PlantCombox from "./combox/plantCombox";
+import TypeAmountCombox from "./combox/typeAmountCombox";
 
 type CreateActivityProps = {
   docKos?: UseQueryResult<ResponseGetAllDocKosService, Error>;
@@ -39,7 +40,10 @@ function CreateHarvestLog({
     plantType?: string;
     amount?: number;
     marketing?: string;
-  }>();
+    typeAmount?: string;
+  }>({
+    typeAmount: "กิโลกรัม",
+  });
   const handleChangeCreateHarvest = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -75,6 +79,7 @@ function CreateHarvestLog({
         amount: harvestLog?.amount as number,
         marketing: harvestLog?.marketing as string,
         docKos05Id: docKos05Id,
+        typeAmount: harvestLog?.typeAmount as string,
       });
 
       if (setTriggetCreateHarvestlog) {
@@ -150,16 +155,21 @@ function CreateHarvestLog({
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
             ปริมาณ :
           </Label>
-          <Input
-            required
-            name="amount"
-            onChange={handleChangeCreateHarvest}
-            value={harvestLog?.amount}
-            type="number"
-            placeholder="กิโลกรัม"
-            inputMode="numeric"
-            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
-          />
+          <div className="flex w-full items-start justify-center gap-2">
+            <Input
+              required
+              name="amount"
+              onChange={handleChangeCreateHarvest}
+              value={harvestLog?.amount}
+              type="number"
+              inputMode="numeric"
+              className="w-full rounded-lg p-3 ring-1 ring-gray-300"
+            />
+            <TypeAmountCombox
+              setHarvestLog={setHarvestLog}
+              harvestLog={harvestLog}
+            />
+          </div>
         </TextField>
         <TextField className="flex w-80  flex-col items-center justify-start">
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">

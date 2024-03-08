@@ -125,7 +125,7 @@ function CardFactor({
             <div className="flex items-center justify-center rounded-full bg-super-main-color p-1 text-white">
               <GiWeight />
             </div>
-            {factor.amount.toLocaleString()} กิโลกรัม
+            {factor.amount.toLocaleString()} {factor.typeAmount}
           </div>
           <span className="text-base text-super-main-color">
             {purchaseDate}

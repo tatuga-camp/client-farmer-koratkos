@@ -56,6 +56,7 @@ type RequestCreateHarvestLogKos5Service = {
   plantType: string;
   amount: number;
   marketing: string;
+  typeAmount: string;
   docKos05Id: string;
 };
 export async function CreateHarvestLogKos5Service(
@@ -89,6 +90,7 @@ type RequestUpdateHarvestLogKos5Service = {
     harvestDate?: string;
     plantType?: string;
     amount?: number;
+    typeAmount: string;
     marketing?: string;
   };
 };

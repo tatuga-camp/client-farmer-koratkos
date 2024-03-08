@@ -35,7 +35,9 @@ function CreateOrgCropProd({
 }: OrgCropProdProps) {
   const deviceType = useDeviceType();
   const [orgCropProdCalForKos2s, setOrgCropProdCalForKos2s] =
-    useState<OrgCropProdCalForKos2Data>();
+    useState<OrgCropProdCalForKos2Data>({
+      yearPlan: new Date().toISOString(),
+    });
 
   const handleCheckOrgCropProdCalForKos2 = (
     e: React.ChangeEvent<HTMLInputElement>,

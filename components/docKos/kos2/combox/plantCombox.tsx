@@ -10,7 +10,7 @@ import { plantLists } from "../../../../data/plants";
 type PlantComboxProps = {
   orgCropProdCalForKos2s: OrgCropProdCalForKos2Data | undefined;
   setOrgCropProdCalForKos2s: React.Dispatch<
-    React.SetStateAction<OrgCropProdCalForKos2Data | undefined>
+    React.SetStateAction<OrgCropProdCalForKos2Data>
   >;
 };
 function PlantCombox({

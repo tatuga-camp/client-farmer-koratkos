@@ -54,6 +54,7 @@ type RequestCreateFactoryKos4Service = {
   amount: number;
   source: string;
   docKos04Id: string;
+  typeAmount: string;
 };
 export async function CreateFatorKos4Service(
   input: RequestCreateFactoryKos4Service,
@@ -86,6 +87,7 @@ type RequestUpdateFactoryKos4Service = {
     prodFactorTypes?: string;
     amount?: number;
     source?: string;
+    typeAmount?: string;
   };
 };
 export async function UpdateFatorKos4Service(

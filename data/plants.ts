@@ -77,3 +77,45 @@ export const plantLists = [
   { title: "ข้าวโพด" },
   { title: "อื่นๆ ระบุ" },
 ];
+
+export const typeAmount = [
+  {
+    title: "กิโลกรัม",
+  },
+  {
+    title: "ลิตร",
+  },
+  {
+    title: "ถุง",
+  },
+  {
+    title: "กระป๋อง",
+  },
+  {
+    title: "กล่อง",
+  },
+  {
+    title: "ขวด",
+  },
+  {
+    title: "ถัง",
+  },
+  {
+    title: "กระสอบ",
+  },
+  {
+    title: "แพ็ค",
+  },
+  {
+    title: "แท่ง",
+  },
+  {
+    title: "ห่อ",
+  },
+  {
+    title: "แผง",
+  },
+  {
+    title: "ต้น",
+  },
+];

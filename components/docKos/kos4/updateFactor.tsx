@@ -31,6 +31,7 @@ import {
   UpdateFatorKos4Service,
 } from "../../../services/kos4";
 import { FactoryKos4, Pagination } from "../../../model";
+import TypeAmountCombox from "./combox/typeAmountCombox";
 type CreateActivityProps = {
   factors: UseQueryResult<Pagination<FactoryKos4>, Error>;
   selectFactor: FactoryKos4;
@@ -48,11 +49,13 @@ function UpdateFactor({
     prodFactorTypes?: string;
     amount?: number;
     source?: string;
+    typeAmount?: string;
   }>({
     purchaseDate: selectFactor?.purchaseDate,
     prodFactorTypes: selectFactor?.prodFactorTypes,
     amount: selectFactor?.amount,
     source: selectFactor?.source,
+    typeAmount: selectFactor?.typeAmount,
   });
   const handleChangeFator = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,6 +83,7 @@ function UpdateFactor({
           prodFactorTypes: factor.prodFactorTypes,
           amount: factor.amount,
           source: factor.source,
+          typeAmount: factor.typeAmount,
         },
       });
       await factors.refetch();
@@ -132,14 +136,18 @@ function UpdateFactor({
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
             ชนิดของปัจจัย :
           </Label>
-          <Input
-            required
-            name="prodFactorTypes"
-            onChange={handleChangeFator}
-            value={factor?.prodFactorTypes}
-            type="text"
-            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
-          />
+          <div className="flex w-full items-start justify-center gap-2">
+            <Input
+              required
+              name="amount"
+              onChange={handleChangeFator}
+              value={factor?.amount}
+              type="number"
+              inputMode="numeric"
+              className="h-12 w-full rounded-lg p-3 ring-1 ring-gray-300"
+            />
+            <TypeAmountCombox factor={factor} setFactor={setFactor} />
+          </div>
         </TextField>
 
         <TextField className="flex w-80  flex-col items-center justify-start">

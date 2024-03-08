@@ -126,7 +126,7 @@ function CardHarvestLog({
             <div className="flex items-center justify-center rounded-full bg-super-main-color p-1 text-white">
               <GiWeight />
             </div>
-            {harvestLog.amount.toLocaleString()} กิโลกรัม
+            {harvestLog.amount.toLocaleString()} {harvestLog.typeAmount}
           </div>
           <span className="text-base text-super-main-color">{harvestDate}</span>
         </div>

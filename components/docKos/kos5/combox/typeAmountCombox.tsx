@@ -1,11 +1,9 @@
 import { Combobox, Transition } from "@headlessui/react";
-import { useQuery } from "@tanstack/react-query";
 import React, { Fragment, useEffect, useState } from "react";
 import { Input, Label, TextField } from "react-aria-components";
 import { FaCheck } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
-import { OrgCropProdCalForKos2Data } from "../../kos2/form/createOrgCropProd";
-import { plantLists } from "../../../../data/plants";
+import { typeAmount } from "../../../../data/plants";
 
 type PlantComboxProps = {
   harvestLog: {
@@ -16,7 +14,6 @@ type PlantComboxProps = {
     marketing?: string | undefined;
     typeAmount?: string | undefined;
   };
-
   setHarvestLog: React.Dispatch<
     React.SetStateAction<{
       plotNumber?: number | undefined;
@@ -28,45 +25,57 @@ type PlantComboxProps = {
     }>
   >;
 };
-function PlantCombox({ setHarvestLog, harvestLog }: PlantComboxProps) {
+function TypeAmountCombox({ setHarvestLog, harvestLog }: PlantComboxProps) {
   const [query, setQuery] = useState("");
-  const [unknownPlant, setUnknownPlant] = useState(false);
+  const [unknowOption, setUnknowOption] = useState(false);
   const filterPlants =
     query === ""
-      ? plantLists
-      : plantLists?.filter((plant) => {
-          return plant.title.toLowerCase().includes(query.toLowerCase());
+      ? typeAmount
+      : typeAmount?.filter((type) => {
+          return type.title.toLowerCase().includes(query.toLowerCase());
         });
 
   useEffect(() => {
-    if (harvestLog?.plantType !== undefined) {
-      const isKnowPlat = plantLists?.find(
-        (plant) => plant.title === harvestLog?.plantType,
+    if (harvestLog?.typeAmount !== undefined) {
+      const isKnowPlat = typeAmount?.find(
+        (type) => type.title === harvestLog?.typeAmount,
       );
       if (!isKnowPlat) {
-        setUnknownPlant(() => true);
+        setUnknowOption(() => true);
       } else if (isKnowPlat) {
-        setUnknownPlant(() => false);
+        setUnknowOption(() => false);
       }
     }
   }, [harvestLog]);
   return (
     <Combobox
-      value={harvestLog?.plantType}
+      value={harvestLog?.typeAmount}
       onChange={(value) => {
         setHarvestLog((prev) => {
           return {
             ...prev,
-            plantType: value,
+            typeAmount: value,
           };
         });
       }}
     >
-      <div className="relative flex w-80 flex-col items-start justify-center  gap-2">
-        <Label className="w-40 text-xl font-bold text-super-main-color">
-          ชนิดพืชที่เก็บเกี่ยว:
-        </Label>
-        {!unknownPlant && (
+      <div className="relative flex w-10/12 flex-col items-start justify-center  gap-2">
+        {unknowOption && (
+          <Input
+            value={harvestLog?.typeAmount}
+            onChange={(e) =>
+              setHarvestLog((prev) => {
+                return {
+                  ...prev,
+                  typeAmount: e.target.value,
+                };
+              })
+            }
+            className=" h-12 w-full rounded-md border-[1px] border-black   p-3 text-lg "
+          />
+        )}
+
+        {!unknowOption && (
           <div
             className="relative w-full cursor-default overflow-hidden bg-slate-200
        text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75
@@ -74,8 +83,8 @@ function PlantCombox({ setHarvestLog, harvestLog }: PlantComboxProps) {
           >
             <Combobox.Input
               required
-              className=" w-full rounded-md  border-2 border-black p-3 text-lg "
-              displayValue={(plant: any) => plant}
+              className=" h-12 w-full rounded-md border-[1px] border-black   p-3 text-lg "
+              displayValue={(type: any) => type}
               onChange={(event) => setQuery(event.target.value)}
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
@@ -83,36 +92,22 @@ function PlantCombox({ setHarvestLog, harvestLog }: PlantComboxProps) {
             </Combobox.Button>
           </div>
         )}
-        {unknownPlant ? (
+        {unknowOption ? (
           <button
             type="button"
-            className="rounded-lg bg-super-main-color px-4 py-1 text-white drop-shadow-lg"
-            onClick={() => setUnknownPlant((prev) => !prev)}
+            className="rounded-lg bg-super-main-color px-1  py-1 text-white drop-shadow-lg"
+            onClick={() => setUnknowOption((prev) => !prev)}
           >
             เลือกจากรายการ
           </button>
         ) : (
           <button
             type="button"
-            className="rounded-lg bg-super-main-color px-4 py-1 text-white drop-shadow-lg"
-            onClick={() => setUnknownPlant((prev) => !prev)}
+            className="rounded-lg bg-super-main-color px-1 py-1 text-white drop-shadow-lg"
+            onClick={() => setUnknowOption((prev) => !prev)}
           >
             ระบุอื่น ๆ
           </button>
-        )}
-        {unknownPlant && (
-          <Input
-            value={harvestLog?.plantType}
-            onChange={(e) =>
-              setHarvestLog((prev) => {
-                return {
-                  ...prev,
-                  plantType: e.target.value,
-                };
-              })
-            }
-            className="border-1 w-full rounded-md  border-black  p-3 text-lg "
-          />
         )}
 
         <Transition
@@ -171,4 +166,4 @@ function PlantCombox({ setHarvestLog, harvestLog }: PlantComboxProps) {
   );
 }
 
-export default PlantCombox;
+export default TypeAmountCombox;

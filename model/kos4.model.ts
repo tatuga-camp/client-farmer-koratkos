@@ -14,4 +14,5 @@ export type FactoryKos4 = {
   amount: number;
   source: string;
   docKos04Id: string;
+  typeAmount: string;
 };

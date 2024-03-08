@@ -30,6 +30,7 @@ import {
   CreateFatorKos4Service,
 } from "../../../services/kos4";
 import { FactoryKos4, Pagination } from "../../../model";
+import TypeAmountCombox from "./combox/typeAmountCombox";
 type CreateActivityProps = {
   docKos?: UseQueryResult<ResponseGetAllDocKosService, Error>;
   factors?: UseQueryResult<Pagination<FactoryKos4>, Error>;
@@ -47,7 +48,10 @@ function CreateFactor({
     prodFactorTypes?: string;
     amount?: number;
     source?: string;
-  }>();
+    typeAmount?: string;
+  }>({
+    typeAmount: "กิโลกรัม",
+  });
   const handleChangeFator = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFactor((prev) => ({ ...prev, [name]: value }));
@@ -79,6 +83,7 @@ function CreateFactor({
         amount: factor?.amount as number,
         source: factor?.source as string,
         docKos04Id: docKos04Id,
+        typeAmount: factor?.typeAmount as string,
       });
 
       if (setTriggerCreateFactor) {
@@ -154,16 +159,18 @@ function CreateFactor({
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">
             ปริมาณ :
           </Label>
-          <Input
-            required
-            name="amount"
-            onChange={handleChangeFator}
-            value={factor?.amount}
-            type="number"
-            placeholder="กิโลกรัม"
-            inputMode="numeric"
-            className="w-full rounded-lg p-3 ring-1 ring-gray-300"
-          />
+          <div className="flex w-full items-start justify-center gap-2">
+            <Input
+              required
+              name="amount"
+              onChange={handleChangeFator}
+              value={factor?.amount}
+              type="number"
+              inputMode="numeric"
+              className="h-12 w-full rounded-lg p-3 ring-1 ring-gray-300"
+            />
+            <TypeAmountCombox factor={factor} setFactor={setFactor} />
+          </div>
         </TextField>
         <TextField className="flex w-80  flex-col items-center justify-start">
           <Label className="w-full text-left text-xl font-semibold text-super-main-color">

@@ -138,7 +138,7 @@ function CardActivity({
         </div>
       </div>
       {image && (
-        <div className="relative h-60 w-full overflow-hidden rounded-lg bg-slate-300">
+        <div className="relative h-80 w-full overflow-hidden rounded-lg bg-slate-300">
           <Image
             src={image}
             alt="image of activity"
@@ -168,7 +168,7 @@ function CardActivity({
           })}
         </div>
       ) : (
-        <div className=" line-clamp-4 text-pretty indent-5 font-medium text-super-main-color">
+        <div className=" text-pretty indent-5 text-lg font-medium text-super-main-color">
           {activity.note}
         </div>
       )}
