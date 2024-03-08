@@ -158,7 +158,11 @@ function CreateOrgCropProd({
           </TextField>
           <PlantCombox
             orgCropProdCalForKos2s={orgCropProdCalForKos2s}
-            setOrgCropProdCalForKos2s={setOrgCropProdCalForKos2s}
+            setOrgCropProdCalForKos2s={
+              setOrgCropProdCalForKos2s as React.Dispatch<
+                React.SetStateAction<OrgCropProdCalForKos2Data | undefined>
+              >
+            }
           />
           <TextField className="flex w-80  items-center justify-start gap-2 ">
             <Label className="w-20 text-base font-semibold text-super-main-color">
