@@ -258,7 +258,7 @@ function FarmFieldInformation({
 
         <section className="mt-5 flex h-full flex-col gap-4 lg:mt-0 lg:w-full lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color">
           <Label className="text-xl font-semibold text-super-main-color ">
-            พิกัดแปลง (UTM) 47/48 P :
+            พิกัดแปลง:
           </Label>
           <TextField
             className="flex w-full items-center justify-start gap-2  "
