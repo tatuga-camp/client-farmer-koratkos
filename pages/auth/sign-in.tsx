@@ -17,6 +17,8 @@ import Link from "next/link";
 import { setCookie } from "nookies";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import { sponsors } from "../../data/menus";
+import { backgroundImageBase64 } from "../../data/base64Images";
 
 function SignIn() {
   const router = useRouter();
@@ -80,7 +82,26 @@ function SignIn() {
         <title>เข้าสู่ระบบ</title>
       </Head>
 
-      <div className="w-full pt-40 lg:py-20">
+      <div className="w-full pt-40 lg:py-5">
+        <ul className="my-5 flex w-full items-center justify-center gap-2">
+          {sponsors.map((sponsor, index) => {
+            return (
+              <li
+                key={index}
+                className=" relative h-10  w-10 overflow-hidden rounded-full"
+              >
+                <Image
+                  alt="logo"
+                  src={sponsor.url}
+                  fill
+                  blurDataURL={backgroundImageBase64}
+                  placeholder="blur"
+                  className="object-cover"
+                />
+              </li>
+            );
+          })}
+        </ul>
         <header className=" flex w-full flex-col items-center justify-center gap-4 font-Anuphan">
           <section className="flex w-40 flex-col items-center justify-center rounded-lg bg-third-color px-5 py-2 text-base font-semibold text-white lg:w-60">
             <h1>เข้าสู่ระบบ</h1>
