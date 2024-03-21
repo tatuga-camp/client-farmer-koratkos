@@ -66,7 +66,13 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
           Swal.showLoading();
         },
       });
-      const farmer = await UpdateFarmerService(userSettingData);
+      const farmer = await UpdateFarmerService({
+        title: userSettingData.title,
+        firstName: userSettingData.firstName,
+        lastName: userSettingData.lastName,
+        identityCardId: userSettingData.identityCardId,
+        phoneNumber: userSettingData.phoneNumber,
+      });
       Swal.fire({
         title: "บันทึกข้อมูลสำเร็จ",
         timerProgressBar: true,
@@ -193,6 +199,8 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                   className="h-10 w-full  p-2 text-xl"
                   maxLength={13}
                   mask="9-9999-99999-99-9"
+                  type="text"
+                  inputMode="numeric"
                   placeholder="9-9999-99999-99-9"
                 />
               </TextField>
@@ -210,6 +218,8 @@ function Setting({ initialFarmer }: { initialFarmer: Farmer }) {
                 <InputMask
                   name="phoneNumber"
                   maxLength={10}
+                  type="text"
+                  inputMode="numeric"
                   mask="999-999-9999"
                   placeholder="999-999-9999"
                   value={userSettingData.phoneNumber}
