@@ -72,7 +72,7 @@ export const menuKos = ({
 export const sponsors = [
   {
     title: "หน่วยบริหารและจัดการทุน ด้านการพัฒนาระดับพื้นที่",
-    url: "/logo/หน่วยบริหารและจัดการทุน ด้านการพัฒนาระดับพื้นที่.png",
+    url: "/logo/หน่วยบริหารและจัดการทุนด้านการพัฒนาระดับพื้นที่.png",
   },
   {
     title: "มหาวิทยาลัยราชภัฏนครราชสีมา",
@@ -80,7 +80,7 @@ export const sponsors = [
   },
   {
     title: "KORAT Organic Standard",
-    url: "/logo/KORAT Organic Standard.png",
+    url: "/logo/KORATOrganicStandard.png",
   },
   {
     title: "จังหวัดนครราชสีมา",
