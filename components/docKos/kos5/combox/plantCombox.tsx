@@ -1,10 +1,8 @@
 import { Combobox, Transition } from "@headlessui/react";
-import { useQuery } from "@tanstack/react-query";
 import React, { Fragment, useEffect, useState } from "react";
-import { Input, Label, TextField } from "react-aria-components";
+import { Input, Label } from "react-aria-components";
 import { FaCheck } from "react-icons/fa";
 import { RiExpandUpDownLine } from "react-icons/ri";
-import { OrgCropProdCalForKos2Data } from "../../kos2/form/createOrgCropProd";
 import { plantLists } from "../../../../data/plants";
 
 type PlantComboxProps = {

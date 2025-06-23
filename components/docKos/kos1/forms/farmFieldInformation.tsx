@@ -21,7 +21,7 @@ import {
 import { IoMdCloseCircle } from "react-icons/io";
 import { FaSave } from "react-icons/fa";
 import Link from "next/link";
-import { useDeviceType } from "../../../../utils";
+import { useDeviceType, useGeolocation } from "../../../../utils";
 
 type FarmFieldInformationProps = {
   isUpdate?: boolean;
@@ -33,6 +33,7 @@ function FarmFieldInformation({
 }: FarmFieldInformationProps) {
   const router = useRouter();
   const deviceType = useDeviceType();
+  const { location, error, getLocation, isLoading } = useGeolocation();
   const [baicInformation, setBasicInformation] = useState<
     | (BasicInformation & {
         certRequestDate?: Date;
@@ -81,6 +82,18 @@ function FarmFieldInformation({
   };
 
   useEffect(() => {
+    if (location) {
+      setBasicInformation((prev: any) => {
+        return {
+          ...prev,
+          latitude: location.latitude.toString(),
+          longitude: location.longitude.toString(),
+        };
+      });
+    }
+  }, [location]);
+
+  useEffect(() => {
     const farmFieldInformation = localStorage.getItem("farmFieldInformation");
 
     if (farmFieldInformation) {
@@ -108,7 +121,7 @@ function FarmFieldInformation({
             Swal.showLoading();
           },
         });
-        const update = await UpdateFarmKos01Service({
+        await UpdateFarmKos01Service({
           body: {
             address: baicInformation?.address,
             villageNumber: baicInformation?.moo,
@@ -260,6 +273,14 @@ function FarmFieldInformation({
           <Label className="text-xl font-semibold text-super-main-color ">
             พิกัดแปลง:
           </Label>
+          <button
+            disabled={isLoading}
+            onClick={getLocation}
+            className="rounded-lg bg-super-main-color px-2 py-2 text-white drop-shadow-md transition duration-1000
+            hover:scale-105 active:scale-110"
+          >
+            {isLoading ? "กำลังโหลด" : "ใช้ตำแหน่งปัจจุบัน"}
+          </button>
           <TextField
             className="flex w-full items-center justify-start gap-2  "
             name="latitude "

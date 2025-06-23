@@ -1,25 +1,13 @@
-import React, { ChangeEventHandler, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Label,
-  TextArea,
-  TextField,
-} from "react-aria-components";
+import { UseQueryResult } from "@tanstack/react-query";
+import { useRouter } from "next/router";
 import { Calendar } from "primereact/calendar";
+import React, { useState } from "react";
+import { Button, Form, Input, Label, TextField } from "react-aria-components";
 import { FaSave } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { useRouter } from "next/router";
-import { UseQueryResult } from "@tanstack/react-query";
-import { ResponseGetAllDocKosService } from "../../../services/farmer";
-import { useDeviceType } from "../../../utils";
-import {
-  CreateDocKos05Service,
-  CreateHarvestLogKos5Service,
-  UpdateHarvestLogKos5Service,
-} from "../../../services/kos5";
 import { HarvestLogDocKos5, Pagination } from "../../../model";
+import { UpdateHarvestLogKos5Service } from "../../../services/kos5";
+import { useDeviceType } from "../../../utils";
 import PlantCombox from "./combox/plantCombox";
 import TypeAmountCombox from "./combox/typeAmountCombox";
 

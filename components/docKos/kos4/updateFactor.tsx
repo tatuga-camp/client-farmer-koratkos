@@ -1,36 +1,13 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Label,
-  TextArea,
-  TextField,
-} from "react-aria-components";
 import { Calendar } from "primereact/calendar";
+import React, { useState } from "react";
+import { Button, Form, Input, Label, TextField } from "react-aria-components";
 import { FaSave } from "react-icons/fa";
-
-import {
-  CreateActivityKos3Service,
-  CreateDocKos3Service,
-  CreateFileOnActivityKos3Service,
-  ResponseGetActivityKos3ByPageService,
-} from "../../../services/kos3";
-import Swal from "sweetalert2";
-import {
-  GetSignURLService,
-  UploadSignURLService,
-} from "../../../services/google-storage";
-import { useRouter } from "next/router";
 import { UseQueryResult } from "@tanstack/react-query";
-import { ResponseGetAllDocKosService } from "../../../services/farmer";
-import { useDeviceType } from "../../../utils";
-import {
-  CreateDocKos04Service,
-  CreateFatorKos4Service,
-  UpdateFatorKos4Service,
-} from "../../../services/kos4";
+import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 import { FactoryKos4, Pagination } from "../../../model";
+import { UpdateFatorKos4Service } from "../../../services/kos4";
+import { useDeviceType } from "../../../utils";
 import TypeAmountCombox from "./combox/typeAmountCombox";
 type CreateActivityProps = {
   factors: UseQueryResult<Pagination<FactoryKos4>, Error>;
