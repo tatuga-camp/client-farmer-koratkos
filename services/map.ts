@@ -26,7 +26,7 @@ export async function GetStaticMapService(
     });
     return map.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

@@ -25,7 +25,7 @@ export async function SignInService(
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -58,7 +58,7 @@ export async function SignUpService(
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

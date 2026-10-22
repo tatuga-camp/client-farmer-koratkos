@@ -1,298 +1,226 @@
-import React, { useState } from "react";
-import HomePageLayout from "../../layouts/homePageLayout";
-import { Farmer } from "../../components/svgs/Farmer";
-import {
-  Button,
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-} from "react-aria-components";
-import { InputMask, InputMaskChangeEvent } from "primereact/inputmask";
-import { Checkbox } from "primereact/checkbox";
 import Head from "next/head";
-import Swal from "sweetalert2";
-import { SignUpService } from "../../services/auth";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { LuKeyRound, LuLoader2, LuLogIn, LuUserPlus } from "react-icons/lu";
+import Swal from "sweetalert2";
+import {
+  AccountValues,
+  FormAlert,
+  IdCardField,
+  NoteBox,
+  PhoneField,
+  TitleField,
+  accountTitle,
+  emptyAccount,
+  toDigits,
+  validateAccount,
+} from "../../components/account/accountFields";
 import Agreement from "../../components/agreement";
+import { ErrorSummary, FieldErrorText, TextField } from "../../components/ui";
+import HomePageLayout from "../../layouts/homePageLayout";
+import { SignUpService } from "../../services/auth";
+import { errorMessage } from "../../utils/confirm";
+import { useFieldErrors } from "../../utils/useFieldErrors";
 
 function SignUp() {
   const router = useRouter();
-  const [signUpForm, setSignUpForm] = useState<{
-    title: string;
-    firstName: string;
-    lastName: string;
-    idCard: string;
-    phone: string;
-    confirmIdCard: string;
-    confirmPhone: string;
-    isAccept: boolean;
-  }>({
-    title: "",
-    firstName: "",
-    lastName: "",
-    idCard: "",
-    phone: "",
-    confirmIdCard: "",
-    confirmPhone: "",
-    isAccept: false,
+  const [values, setValues] = useState<AccountValues>(emptyAccount);
+  const [accepted, setAccepted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<unknown>();
+
+  const form = useFieldErrors({
+    ...validateAccount(values),
+    isAccept: accepted ? undefined : "กรุณาอ่านข้อตกลง แล้วติ๊กช่อง “ฉันอ่านและยอมรับข้อตกลง”",
   });
 
-  const handleOnChangeSignUpForm = (
-    e: React.ChangeEvent<HTMLInputElement> | InputMaskChangeEvent,
-  ) => {
-    const { name, value } = e.target;
-    setSignUpForm((prev) => ({ ...prev, [name]: value }));
+  const update = (name: keyof AccountValues) => (value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setServerError(undefined);
   };
 
-  const handleSummitOnSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setServerError(undefined);
+    if (!form.validate()) return;
+    setSubmitting(true);
     try {
-      e.preventDefault();
-      Swal.fire({
-        title: "กำลังลงทะเบียน",
-        html: "กรุณารอสักครู่",
-        timerProgressBar: true,
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
+      await SignUpService({
+        title: accountTitle(values),
+        firstName: values.firstName.trim(),
+        lastName: values.lastName.trim(),
+        identityCardId: toDigits(values.idCard),
+        phoneNumber: toDigits(values.phone),
       });
-      // Validate form values
-      if (
-        signUpForm.title === "" ||
-        signUpForm.firstName === "" ||
-        signUpForm.lastName === "" ||
-        signUpForm.idCard === "" ||
-        signUpForm.phone === "" ||
-        signUpForm.confirmIdCard === "" ||
-        signUpForm.confirmPhone === ""
-      ) {
-        throw new Error("กรุณากรอกข้อมูลให้ครบทุกช่อง");
-      }
-
-      if (signUpForm.confirmIdCard !== signUpForm.idCard) {
-        throw new Error("หมายเลขบัตรประชาชนไม่ตรงกัน");
-      }
-
-      if (signUpForm.confirmPhone !== signUpForm.phone) {
-        throw new Error("หมายเลขโทรศัพท์ไม่ตรงกัน");
-      }
-
-      const farmer = await SignUpService({
-        title: signUpForm.title,
-        firstName: signUpForm.firstName,
-        lastName: signUpForm.lastName,
-        identityCardId: signUpForm.idCard.replace(/-/g, ""),
-        phoneNumber: signUpForm.phone.replace(/-/g, ""),
-      });
-
-      router.push("/auth/sign-in");
-      Swal.fire({
-        title: "ลงทะเบียนสำเร็จ",
-        html: "โปรดเข้าสู่ระบบอีกครั้งด้วย เลขบัตรประจำตัวประชาชน และ เบอร์มือถือ",
-        icon: "success",
-        timer: 5000,
-        showConfirmButton: false,
-      });
-    } catch (error: any) {
-      console.error(error);
-      Swal.fire({
-        title: "ลงทะเบียนไม่สำเร็จ",
-        html: error.message,
-        icon: "error",
-      });
+    } catch (error) {
+      setServerError(error ?? null);
+      setSubmitting(false);
+      return;
     }
+    router.push("/auth/sign-in");
+    // Both values contain only digits and dashes (see formatIdCard / formatPhone), so they are safe as HTML.
+    Swal.fire({
+      icon: "success",
+      title: "สมัครใช้งานสำเร็จ",
+      html: `ต่อไปให้เข้าสู่ระบบด้วย<br />เลขบัตรประชาชน <b>${values.idCard}</b><br />และเบอร์โทร <b>${values.phone}</b>`,
+      confirmButtonText: "ไปเข้าสู่ระบบ",
+    });
   };
+
+  const message = serverError !== undefined ? errorMessage(serverError) : "";
+  const alreadyRegistered = message.includes("มีอยู่ในระบบ");
 
   return (
     <HomePageLayout>
       <Head>
-        <title>ลงทะเบียนสำหรับเกษตรกรใหม่</title>
+        <title>สมัครใช้งาน | Korat KOS สำหรับเกษตรกร</title>
       </Head>
-
-      <div className="w-full pt-40">
-        <header className="flex justify-center">
-          <section className="flex w-60  items-center justify-center gap-2 rounded-lg bg-super-main-color py-2 font-bold text-white">
-            <div className="h-12 w-12">
-              <Farmer />
-            </div>
-            <div>
-              <h1>ลงทะเบียนสำหรับ</h1>
-              <h1>เกษตรกรใหม่</h1>
-            </div>
-          </section>
+      <div className="card flex flex-col gap-6 p-5 sm:p-8">
+        <header className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold leading-snug sm:text-3xl">สมัครใช้งาน</h1>
+          <p className="text-lg text-super-main-color/80">สำหรับเกษตรกรที่ยังไม่มีบัญชี ใช้เวลาไม่ถึง 2 นาที</p>
         </header>
-        <main className="mt-10 flex justify-center pb-10">
-          <Form
-            onSubmit={handleSummitOnSignUp}
-            className="flex w-10/12 flex-col items-center justify-start gap-10 lg:w-8/12"
-          >
-            <section className="flex w-full flex-col gap-2">
-              <TextField
-                className="flex w-full items-center justify-start  gap-2"
-                name="title"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  คำนำหน้า :
-                </Label>
-                <Input
-                  value={signUpForm.title}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-40  p-2 text-xl"
-                />
-              </TextField>
-              <TextField
-                className="mt-5 flex w-full flex-col items-start justify-start  gap-2"
-                name="firstName"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  ชื่อจริง :
-                </Label>
-                <Input
-                  value={signUpForm.firstName}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                />
-              </TextField>
-              <TextField
-                className=" flex w-full flex-col items-start justify-start  gap-2"
-                name="lastName"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  นามสกุล :
-                </Label>
-                <Input
-                  value={signUpForm.lastName}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                />
-              </TextField>
-            </section>
 
-            <section className="flex w-full flex-col gap-2">
-              <TextField
-                className=" flex w-full flex-col items-start justify-start  gap-2"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  เลขบัตรประชาชน :
-                </Label>
-                <InputMask
-                  name="idCard"
-                  value={signUpForm.idCard}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                  maxLength={13}
-                  inputMode="numeric"
-                  type="text"
-                  mask="9-9999-99999-99-9"
-                  placeholder="9-9999-99999-99-9"
-                />
-              </TextField>
-              <TextField
-                className=" flex w-full flex-col items-start justify-start  gap-2"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  ยืนยันเลขบัตรประชาชน :
-                </Label>
-                <InputMask
-                  value={signUpForm.confirmIdCard}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                  maxLength={13}
-                  name="confirmIdCard"
-                  inputMode="numeric"
-                  type="text"
-                  mask="9-9999-99999-99-9"
-                  placeholder="9-9999-99999-99-9"
-                />
-              </TextField>
-            </section>
-            <section className="flex w-full flex-col gap-2">
-              <TextField
-                className=" flex w-full flex-col items-start justify-start  gap-2"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  เบอร์โทรศัพท์ :
-                </Label>
+        <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-7">
+          <ErrorSummary errors={form.errors} show={form.submitted} />
 
-                <InputMask
-                  name="phone"
-                  maxLength={10}
-                  mask="999-999-9999"
-                  placeholder="999-999-9999"
-                  value={signUpForm.phone}
-                  inputMode="numeric"
-                  type="text"
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                />
-              </TextField>
-              <TextField
-                className=" flex w-full flex-col items-start justify-start  gap-2"
-                type="text"
-                isRequired
-              >
-                <Label className="text-xl font-bold text-super-main-color">
-                  ยืนยันเบอร์โทรศัพท์ :
-                </Label>
-                <InputMask
-                  name="confirmPhone"
-                  maxLength={10}
-                  mask="999-999-9999"
-                  inputMode="numeric"
-                  type="text"
-                  placeholder="999-999-9999"
-                  value={signUpForm.confirmPhone}
-                  onChange={handleOnChangeSignUpForm}
-                  className="h-10 w-full  p-2 text-xl"
-                />
-              </TextField>
-            </section>
-            <Agreement />
-            <TextField className="flex items-center justify-center gap-2">
-              <input
-                type="checkbox"
-                className="h-5 w-5"
-                onChange={(e) =>
-                  setSignUpForm((prev) => {
-                    return {
-                      ...prev,
-                      isAccept: !prev.isAccept,
-                    };
-                  })
-                }
-                checked={signUpForm.isAccept}
-              />
-              <Label className="text-xl font-bold text-super-main-color">
-                ฉันยอมรับข้อตกลงและเงื่อนไข
-              </Label>
-            </TextField>
+          <section aria-labelledby="name-title" className="flex flex-col gap-5">
+            <h2 id="name-title" className="text-xl font-bold">
+              ชื่อผู้สมัคร
+            </h2>
+            <TitleField
+              id="title"
+              choice={values.titleChoice}
+              otherTitle={values.otherTitle}
+              onChoiceChange={update("titleChoice")}
+              onOtherTitleChange={update("otherTitle")}
+              onOtherTitleBlur={() => form.touch("otherTitle")}
+              errors={form.errors}
+            />
+            <TextField
+              id="firstName"
+              label="ชื่อ"
+              hint="ชื่อจริงตามบัตรประชาชน ไม่ต้องใส่คำนำหน้า เช่น สมชาย"
+              value={values.firstName}
+              onChange={update("firstName")}
+              onBlur={() => form.touch("firstName")}
+              error={form.errors.firstName}
+              autoComplete="given-name"
+              maxLength={255}
+            />
+            <TextField
+              id="lastName"
+              label="นามสกุล"
+              hint="เช่น ใจดี"
+              value={values.lastName}
+              onChange={update("lastName")}
+              onBlur={() => form.touch("lastName")}
+              error={form.errors.lastName}
+              autoComplete="family-name"
+              maxLength={255}
+            />
+          </section>
 
-            <Button
-              type="submit"
-              isDisabled={!signUpForm.isAccept}
-              className={`rounded-xl ${signUpForm.isAccept ? "bg-third-color" : "bg-slate-400"}  px-10 py-2  text-xl font-bold text-white 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
+          <section aria-labelledby="login-title" className="flex flex-col gap-5">
+            <h2 id="login-title" className="text-xl font-bold">
+              ข้อมูลสำหรับเข้าสู่ระบบ
+            </h2>
+            <NoteBox icon={<LuKeyRound />} tone="warn">
+              เลขบัตรประชาชนและเบอร์โทรนี้ ใช้เข้าสู่ระบบทุกครั้ง (ไม่มีรหัสผ่าน) กรุณาตรวจดูให้ถูกต้อง
+            </NoteBox>
+            <IdCardField
+              id="idCard"
+              label="เลขบัตรประชาชน"
+              hint="ตัวเลข 13 หลักบนบัตร พิมพ์แค่ตัวเลข ระบบใส่ขีดให้เอง เช่น 1-2345-67890-12-3"
+              value={values.idCard}
+              onChange={update("idCard")}
+              onBlur={() => form.touch("idCard")}
+              error={form.errors.idCard}
+            />
+            <PhoneField
+              id="phone"
+              label="เบอร์โทรศัพท์"
+              hint="เบอร์มือถือที่ใช้อยู่ 10 หลัก เช่น 081-234-5678"
+              value={values.phone}
+              onChange={update("phone")}
+              onBlur={() => form.touch("phone")}
+              error={form.errors.phone}
+            />
+          </section>
+
+          <section aria-labelledby="agreement-title" className="flex flex-col gap-3">
+            <h2 id="agreement-title" className="text-xl font-bold">
+              ข้อตกลงการใช้งาน
+            </h2>
+            <p className="hint">เลื่อนอ่านในกรอบด้านล่างให้จบ แล้วติ๊กยอมรับ</p>
+            <div
+              tabIndex={0}
+              role="region"
+              aria-labelledby="agreement-title"
+              className="max-h-64 overflow-y-auto rounded-xl border border-super-main-color/20 bg-fourth-color/60 p-4 focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-main-color"
             >
-              ลงทะเบียน
-            </Button>
-          </Form>
-        </main>
+              <Agreement />
+            </div>
+            <label
+              className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 bg-white p-4 transition-colors ${
+                accepted
+                  ? "border-main-color bg-main-color/5"
+                  : form.errors.isAccept
+                    ? "border-red-600"
+                    : "border-super-main-color/20 hover:border-super-main-color/40"
+              }`}
+            >
+              <input
+                id="isAccept"
+                type="checkbox"
+                checked={accepted}
+                onChange={(event) => setAccepted(event.target.checked)}
+                aria-invalid={form.errors.isAccept ? true : undefined}
+                aria-describedby={form.errors.isAccept ? "isAccept-error" : undefined}
+                className="size-6 shrink-0 cursor-pointer accent-main-color"
+              />
+              <span className="text-lg font-semibold">ฉันอ่านและยอมรับข้อตกลง</span>
+            </label>
+            {form.errors.isAccept && <FieldErrorText id="isAccept-error">{form.errors.isAccept}</FieldErrorText>}
+          </section>
+
+          {serverError !== undefined && (
+            <FormAlert title="สมัครใช้งานไม่สำเร็จ">
+              <p className="whitespace-pre-line">{message}</p>
+              {alreadyRegistered && (
+                <p>
+                  ถ้าเคยสมัครไว้แล้ว ไม่ต้องสมัครใหม่{" "}
+                  <Link href="/auth/sign-in" className="font-semibold underline underline-offset-2">
+                    ไปหน้าเข้าสู่ระบบ
+                  </Link>
+                </p>
+              )}
+            </FormAlert>
+          )}
+
+          <button type="submit" className="btn btn-primary w-full" disabled={submitting}>
+            {submitting ? (
+              <>
+                <LuLoader2 aria-hidden="true" className="size-5 animate-spin" />
+                กำลังสมัคร…
+              </>
+            ) : (
+              <>
+                <LuUserPlus aria-hidden="true" className="size-5" />
+                สมัครใช้งาน
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="flex flex-col gap-3 border-t border-third-color/30 pt-5">
+          <p className="text-center text-lg">มีบัญชีแล้ว?</p>
+          <Link href="/auth/sign-in" className="btn btn-secondary w-full">
+            <LuLogIn aria-hidden="true" className="size-5" />
+            เข้าสู่ระบบ
+          </Link>
+        </div>
       </div>
     </HomePageLayout>
   );

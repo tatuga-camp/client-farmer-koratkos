@@ -23,7 +23,7 @@ export async function GetCheckStatusEvaluationService(): Promise<ResponseCheckEv
     });
     return status.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -50,7 +50,7 @@ export async function CreateRegisterFormEvaluatonService(
     });
     return registerForm.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -78,7 +78,7 @@ export async function UpdateRegisterFormEvaluatonService(
     });
     return registerForm.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -100,7 +100,7 @@ export async function GetFormEvaluatonsService(): Promise<ResponseGetFormEvaluat
     });
     return fromEvaluations.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

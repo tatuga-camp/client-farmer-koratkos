@@ -1,18 +1,19 @@
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  FieldError,
-  FileTrigger,
-  Form,
-  Input,
-  Label,
-  TextArea,
-  TextField,
-} from "react-aria-components";
-import { CiImageOn } from "react-icons/ci";
-import { FaSave } from "react-icons/fa";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { LuArrowRight, LuSave } from "react-icons/lu";
 import Swal from "sweetalert2";
+import {
+  ErrorSummary,
+  ExampleDetails,
+  FormActions,
+  FormCard,
+  PhotoPicker,
+  PickedPhoto,
+  TextAreaField,
+  TextField,
+} from "../../../ui";
+import { kosGuide } from "../../../../data/kosGuides";
 import {
   CreateDocKos2Service,
   CreateFileOnDocKos02Service,
@@ -20,309 +21,225 @@ import {
   ResponseGetDocKos02Service,
   UpdateDocKos2Service,
 } from "../../../../services/kos2";
-import { UseQueryResult } from "@tanstack/react-query";
-import { ResponseGetAllDocKosService } from "../../../../services/farmer";
-import { useRouter } from "next/router";
-import {
-  GetSignURLService,
-  UploadSignURLService,
-} from "../../../../services/google-storage";
-import { MdDelete } from "react-icons/md";
+import { GetSignURLService, UploadSignURLService } from "../../../../services/google-storage";
+import { confirmDelete, showError, showSaved, showSaving } from "../../../../utils/confirm";
+import { useFieldErrors } from "../../../../utils/useFieldErrors";
+import { FieldErrors, checkText } from "../../../../utils/validators";
+
+/** KOS-02 is filled in two parts: the farm map first, then a crop plan for each plot. */
+export const kos02Steps = ["ผังแปลง", "แผนการปลูก"];
+
+type MapValues = { plots: string; marketing: string; photos: PickedPhoto[] };
+
+function validateMap(values: MapValues): FieldErrors {
+  return {
+    numberOfPlotForKosCertificated: checkText(values.plots, { label: "หมายเลขแปลงที่ขอรับรอง", example: "1, 2, 4" }),
+    mapPhotos:
+      values.photos.length === 0 ? "กรุณาเพิ่มรูปผังแปลงอย่างน้อย 1 รูป วาดบนกระดาษแล้วถ่ายรูปก็ได้" : undefined,
+    marketingDetail: checkText(values.marketing, {
+      label: "การจัดการหลังเก็บเกี่ยวและการตลาด",
+      max: 1000,
+      required: false,
+    }),
+  };
+}
+
+/** Changes the open "saving" dialog's title in place, so it doesn't flash between photos. */
+function setSavingTitle(title: string) {
+  const element = Swal.getTitle();
+  if (element) element.textContent = title;
+}
+
 type Kos2FormProps = {
-  docKos: UseQueryResult<ResponseGetAllDocKosService, Error>;
-  isUpdate?: boolean;
-  dockos02: UseQueryResult<ResponseGetDocKos02Service, Error>;
+  /** The saved document when editing; leave out on the create page. */
+  saved?: ResponseGetDocKos02Service;
+  onCancel?: () => void;
+  onSaved?: () => void;
 };
-function Kos2Form({ docKos, isUpdate, dockos02 }: Kos2FormProps) {
-  const [docKos2Data, setDocKos2Data] = useState<{
-    numberOfPlotForKosCertificated?: string;
-    marketingDetail?: string;
-  }>();
-  const [files, setFiles] = useState<
-    {
-      id?: string;
-      url?: string;
-      type?: string;
-      file?: File;
-      docKos02Id?: string;
-    }[]
-  >([]);
+
+/** KOS-02 part 1: which plots to certify, photos of the farm map, and post-harvest / marketing notes. */
+function Kos2Form({ saved, onCancel, onSaved }: Kos2FormProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [plots, setPlots] = useState(saved?.numberOfPlotForKosCertificated ?? "");
+  const [marketing, setMarketing] = useState(saved?.marketingDetail ?? "");
+  const [photos, setPhotos] = useState<PickedPhoto[]>(
+    () => saved?.files.map((file) => ({ id: file.id, url: file.url })) ?? [],
+  );
+  // Known once the document exists, so saving again after a failed upload updates instead of creating twice.
+  const [docId, setDocId] = useState(saved?.id);
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (isUpdate && dockos02.isSuccess) {
-      setTimeout(() => {
-        setDocKos2Data(() => {
-          return {
-            numberOfPlotForKosCertificated:
-              dockos02.data?.numberOfPlotForKosCertificated,
-            marketingDetail: dockos02.data?.marketingDetail,
-          };
-        });
-        setFiles(() => {
-          return dockos02.data?.files.map((file) => {
-            return {
-              id: file.id,
-              url: file.url,
-              type: file.type,
-              docKos02Id: file.docKos02Id,
-            };
-          });
-        });
-      }, 100);
-    }
-  }, [dockos02.data]);
-  const handleSumitDocKos2 = async (e: React.FormEvent) => {
-    try {
-      e.preventDefault();
+  const form = useFieldErrors(validateMap({ plots, marketing, photos }));
 
-      Swal.fire({
-        title: "กำลังบันทึกข้อมูล",
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-      if (isUpdate) {
-        const update = await UpdateDocKos2Service({
-          numberOfPlotForKosCertificated:
-            docKos2Data?.numberOfPlotForKosCertificated as string,
-          marketingDetail: docKos2Data?.marketingDetail as string,
-        });
-        const newFile = files?.filter((file) => !file.id);
-        for (const file of newFile) {
-          const signURL = await GetSignURLService({
-            fileName: file.file?.name as string,
-            fileType: file.file?.type as string,
-          });
-
-          const upload = await UploadSignURLService({
-            contentType: file.file?.type as string,
-            file: file.file as File,
-            signURL: signURL.signURL,
-          });
-
-          const createFile = await CreateFileOnDocKos02Service({
-            url: signURL.originalURL,
-            type: file.file?.type as string,
-            docKos02Id: update.id,
-          });
-        }
-      } else {
-        if (!files) {
-          throw new Error("กรุณาเลือกไฟล์รูปภาพแปลง");
-        }
-        if (files?.length === 0) {
-          throw new Error("กรุณาเลือกไฟล์รูปภาพแปลง");
-        }
-        const create = await CreateDocKos2Service({
-          numberOfPlotForKosCertificated:
-            docKos2Data?.numberOfPlotForKosCertificated as string,
-          marketingDetail: docKos2Data?.marketingDetail as string,
-        });
-        for (const file of files) {
-          const signURL = await GetSignURLService({
-            fileName: file.file?.name as string,
-            fileType: file.file?.type as string,
-          });
-
-          const upload = await UploadSignURLService({
-            contentType: file.file?.type as string,
-            file: file.file as File,
-            signURL: signURL.signURL,
-          });
-
-          const createFile = await CreateFileOnDocKos02Service({
-            url: signURL.originalURL,
-            type: file.file?.type as string,
-            docKos02Id: create.id,
-          });
-        }
-
-        router.push({
-          pathname: `/kos02/${create.id}`,
-        });
+  /** Uploads every photo not saved yet; returns the grid numbers ("รูปที่ N") of those that failed. */
+  const uploadNewPhotos = async (docKos02Id: string) => {
+    const pending = photos.filter((photo) => !photo.id && photo.file);
+    const failed: number[] = [];
+    for (let index = 0; index < pending.length; index++) {
+      const photo = pending[index];
+      const file = photo.file as File;
+      const fileType = file.type || "image/jpeg";
+      setSavingTitle(`กำลังอัปโหลดรูปที่ ${index + 1} จาก ${pending.length}`);
+      try {
+        const signURL = await GetSignURLService({ fileName: file.name, fileType });
+        const upload = await UploadSignURLService({ contentType: fileType, file, signURL: signURL.signURL });
+        // Don't record a file that never reached storage.
+        if (upload.message === "error") throw new Error("upload failed");
+        const created = await CreateFileOnDocKos02Service({ url: signURL.originalURL, type: fileType, docKos02Id });
+        // Mark it saved, so pressing save again only retries the ones that failed.
+        setPhotos((prev) => prev.map((item) => (item === photo ? { id: created.id, url: created.url } : item)));
+      } catch {
+        failed.push(photos.indexOf(photo) + 1);
       }
-      await docKos.refetch();
-      Swal.fire({
-        icon: "success",
-        title: "บันทึกข้อมูลสำเร็จ",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-    } catch (error: any) {
-      console.error(error);
-      Swal.fire({
-        icon: "error",
-        title: "ผิดพลาด",
-        text: error.message,
-      });
+    }
+    return failed;
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!form.validate()) return;
+    const body = {
+      numberOfPlotForKosCertificated: plots.trim(),
+      marketingDetail: marketing.trim(),
+    };
+    try {
+      setSaving(true);
+      showSaving();
+      let id = docId;
+      if (id) {
+        await UpdateDocKos2Service(body);
+      } else {
+        id = (await CreateDocKos2Service(body)).id;
+        setDocId(id);
+        queryClient.invalidateQueries({ queryKey: ["docKos"] });
+      }
+      const failed = await uploadNewPhotos(id);
+
+      if (failed.length > 0) {
+        // The text is saved; stay here with the failed photos (still marked "ยังไม่บันทึก") so a retry sends only those.
+        // Not refreshed on the create page: it would open the saved document and drop the unsent photos.
+        if (saved) queryClient.invalidateQueries({ queryKey: ["docKos02"] });
+        showError(
+          new Error(`รูปที่ ${failed.join(", ")} ยังอัปโหลดไม่สำเร็จ ตรวจสอบสัญญาณอินเทอร์เน็ต แล้วกดบันทึกอีกครั้ง`),
+          `บันทึกแล้ว แต่รูปยังขึ้นไม่ครบ (${failed.length} รูป)`,
+        );
+      } else if (saved) {
+        await queryClient.invalidateQueries({ queryKey: ["docKos02"] });
+        showSaved();
+        onSaved?.();
+      } else {
+        showSaved("บันทึกผังแปลงแล้ว", "ขั้นต่อไป: เพิ่มแผนการปลูกของแต่ละแปลง");
+        await router.push(kosGuide("kos2").viewHref(id));
+        // Only after leaving: the create page opens the saved document as soon as it sees one.
+        queryClient.invalidateQueries({ queryKey: ["docKos02"] });
+      }
+    } catch (error) {
+      showError(error);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleDeleteFile = async ({
-    fileOnDocKos02Id,
-    url,
-  }: {
-    fileOnDocKos02Id: string;
-    url: string;
-  }) => {
+  const handleRemove = async (photo: PickedPhoto) => {
+    form.touch("mapPhotos");
+    if (!photo.id) {
+      URL.revokeObjectURL(photo.url);
+      setPhotos((prev) => prev.filter((item) => item !== photo));
+      return;
+    }
+    const isLast = photos.length === 1;
+    const confirmed = await confirmDelete({
+      title: `ลบรูปผังแปลงรูปที่ ${photos.indexOf(photo) + 1}?`,
+      text: isLast
+        ? "รูปจะถูกลบทันทีและกู้คืนไม่ได้ ต้องมีรูปผังแปลงอย่างน้อย 1 รูป หลังลบให้เพิ่มรูปใหม่แล้วกดบันทึก"
+        : "รูปจะถูกลบออกจากระบบทันที และกู้คืนไม่ได้",
+    });
+    if (!confirmed) return;
+    const fileOnDocKos02Id = photo.id;
     try {
-      Swal.fire({
-        title: "กำลังลบ",
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-      if (!fileOnDocKos02Id) {
-        const unDeleteFiles = files?.filter((file) => file.url !== url);
-        setFiles(() => unDeleteFiles);
-      } else {
-        const deleteFile = await DeleteFileOnDocKos02Service({
-          fileOnDocKos02Id: fileOnDocKos02Id,
-        });
-        await dockos02.refetch();
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "ลบไฟล์สำเร็จ",
-        timer: 1500,
-      });
-    } catch (error: any) {
-      Swal.fire({
-        icon: "error",
-        title: "ผิดพลาด",
-        text: error.message,
-      });
+      showSaving("กำลังลบรูป");
+      await DeleteFileOnDocKos02Service({ fileOnDocKos02Id });
+      setPhotos((prev) => prev.filter((item) => item.id !== fileOnDocKos02Id));
+      queryClient.invalidateQueries({ queryKey: ["docKos02"] });
+      showSaved("ลบรูปแล้ว");
+    } catch (error) {
+      showError(error, "ลบรูปไม่สำเร็จ");
     }
   };
+
   return (
-    <div className="mt-10 flex w-full flex-col items-center justify-center">
-      <h2 className="w-80 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
-        แผนผังแปลง
-      </h2>
-      <Form
-        onSubmit={handleSumitDocKos2}
-        className="lg: mt-10 flex w-full  flex-col items-center justify-start gap-3 border-b-2 border-b-super-main-color pb-10 lg:w-8/12 lg:rounded-lg lg:border-b-0 lg:p-5 lg:ring-2 lg:ring-third-color"
+    <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <ErrorSummary errors={form.errors} show={form.submitted} />
+      <FormCard
+        title={saved ? "แก้ไขผังแปลง" : "ผังแปลง"}
+        description={saved ? undefined : "บันทึกผังแปลงก่อน ขั้นต่อไปจะเพิ่มแผนการปลูกของแต่ละแปลง"}
       >
-        <TextField className="flex  w-11/12 flex-col items-center gap-2 lg:w-full ">
-          <Label className="w-80 text-balance text-center text-lg font-semibold text-super-main-color lg:w-max">
-            แปลงที่ขอรับ KOS ระบุให้ สอดคล้องกับแผนผังฟาร์ม{" "}
-          </Label>
-          <Label className="text-lg font-semibold text-super-main-color">
-            ได้แก่แปลงที่ :{" "}
-          </Label>
-          <Input
-            value={docKos2Data?.numberOfPlotForKosCertificated}
-            onChange={(e) =>
-              setDocKos2Data((prev) => {
-                return {
-                  ...prev,
-                  numberOfPlotForKosCertificated: e.target.value,
-                };
-              })
-            }
-            required
-            className="h-10 rounded-lg bg-white p-2 ring-1"
-          />
+        <TextField
+          id="numberOfPlotForKosCertificated"
+          label="หมายเลขแปลงที่ขอรับรอง"
+          hint="ใส่หมายเลขแปลงให้ตรงกับในผัง ถ้ามีหลายแปลงให้คั่นด้วยจุลภาค เช่น 1, 2, 4"
+          value={plots}
+          onChange={setPlots}
+          onBlur={() => form.touch("numberOfPlotForKosCertificated")}
+          error={form.errors.numberOfPlotForKosCertificated}
+          maxLength={255}
+          autoComplete="off"
+        />
+        <PhotoPicker
+          id="mapPhotos"
+          label="รูปผังแปลง"
+          hint="วาดผังด้วยมือบนกระดาษแล้วถ่ายรูปก็ได้ ในผังให้มีหมายเลขแปลง ทิศเหนือ แหล่งน้ำ และแปลงข้างเคียง ถ่ายในที่สว่างให้อ่านตัวหนังสือได้"
+          photos={photos}
+          onAdd={(added) => setPhotos((prev) => [...prev, ...added])}
+          onRemove={handleRemove}
+          error={form.errors.mapPhotos}
+        />
+      </FormCard>
 
-          <FieldError className="text-red-700">กรุณาใส่ข้อมูล</FieldError>
-        </TextField>
-        <FileTrigger
-          allowsMultiple
-          acceptedFileTypes={[
-            "image/png",
-            "image/jpg",
-            "image/jpeg",
-            "image/gif",
-            "image/bmp",
-            "image/webp",
-          ]}
-          onSelect={(e) => {
-            if (!e) return null;
+      <FormCard
+        title="หลังเก็บเกี่ยวและการตลาด"
+        description="ไม่บังคับ แต่ช่วยให้ผู้ตรวจเข้าใจว่าผลผลิตอินทรีย์ของคุณไม่ปนกับผลผลิตทั่วไป"
+      >
+        <TextAreaField
+          id="marketingDetail"
+          label="เก็บเกี่ยวแล้วทำอย่างไรต่อ และขายที่ไหน"
+          hint="เล่าสั้น ๆ เช่น ล้าง คัด บรรจุอย่างไร เก็บไว้ที่ไหน และขายให้ใคร"
+          optional
+          rows={5}
+          maxLength={1000}
+          value={marketing}
+          onChange={setMarketing}
+          onBlur={() => form.touch("marketingDetail")}
+          error={form.errors.marketingDetail}
+        />
+        <ExampleDetails>
+          เก็บผักตอนเช้า ล้างด้วยน้ำสะอาด คัดใบเหลืองออก มัดเป็นกำ ใส่ตะกร้าที่ใช้กับผักอินทรีย์เท่านั้น
+          ไม่ปนกับผักทั่วไป นำไปขายที่ตลาดเกษตรอินทรีย์ในอำเภอทุกวันเสาร์ และส่งร้านอาหารใกล้บ้าน
+        </ExampleDetails>
+      </FormCard>
 
-            const files: FileList = e;
-
-            Array.from(files).forEach((file) => {
-              const url = URL.createObjectURL(file);
-              const reader = new FileReader();
-
-              setFiles((prev) => {
-                if (!prev) return [{ file, url: url }];
-                return [...prev, { file, url: url }];
-              });
-
-              reader.readAsDataURL(file);
-            });
-          }}
-        >
-          <Button
-            className=" flex items-center justify-center gap-2 rounded-lg bg-third-color px-4 py-1 
-          font-semibold text-white"
-          >
-            <CiImageOn />
-            อัพโหลดรูปภาพแปลง
-          </Button>
-        </FileTrigger>
-        {files && files?.length > 0 && (
-          <div className="grid w-10/12 grid-cols-2">
-            {files?.map((file, index) => {
-              return (
-                <div key={index} className="relative h-60 w-full">
-                  <div
-                    onClick={() => {
-                      handleDeleteFile({
-                        fileOnDocKos02Id: file.id as string,
-                        url: file.url as string,
-                      });
-                    }}
-                    className="absolute right-2 top-2 z-40 flex
-                     cursor-pointer items-center justify-center gap-2 rounded-md bg-red-500 p-1 px-5 text-sm text-white"
-                  >
-                    ลบรูป <MdDelete />
-                  </div>
-                  <Image
-                    onClick={() => {
-                      window.open(file.url as string, "_blank");
-                    }}
-                    src={file.url as string}
-                    fill
-                    alt="รูปภาพแบบแปลง"
-                    className="cursor-pointer object-cover"
-                  />
-                </div>
-              );
-            })}
-          </div>
+      <FormActions>
+        {saved && (
+          <button type="button" className="btn btn-secondary" onClick={onCancel} disabled={saving}>
+            ยกเลิก
+          </button>
         )}
-        <TextField className="mt-2 flex flex-col items-start gap-2 lg:w-full">
-          <Label className="w-max text-balance text-center text-lg font-semibold text-super-main-color">
-            การจัดการหลังการเก็บเกี่ยว และการตลาด :{" "}
-          </Label>
-          <TextArea
-            onChange={(e) => {
-              setDocKos2Data((prev) => {
-                return {
-                  ...prev,
-                  marketingDetail: e.target.value,
-                };
-              });
-            }}
-            value={docKos2Data?.marketingDetail}
-            placeholder="...อธิบายการตลาด"
-            className="h-40 w-full rounded-lg p-3 ring-1 ring-blue-200 "
-          />
-        </TextField>
-        <Button
-          type="submit"
-          className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-1 
-          text-base text-white drop-shadow-md"
-        >
-          <FaSave />
-          บันทึก
-        </Button>
-      </Form>
-    </div>
+        <button type="submit" className="btn btn-primary sm:min-w-44" disabled={saving}>
+          {saved ? (
+            <>
+              <LuSave aria-hidden="true" className="size-5" />
+              บันทึก
+            </>
+          ) : (
+            <>
+              บันทึกและไปเพิ่มแผนการปลูก
+              <LuArrowRight aria-hidden="true" className="size-5" />
+            </>
+          )}
+        </button>
+      </FormActions>
+    </form>
   );
 }
 

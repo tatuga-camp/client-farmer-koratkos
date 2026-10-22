@@ -1,248 +1,172 @@
-import { UseQueryResult, useQuery } from "@tanstack/react-query";
-import React from "react";
-import { Button } from "react-aria-components";
-import { MdBrowserNotSupported } from "react-icons/md";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import Swal from "sweetalert2";
+import {
+  LuCheckCircle2,
+  LuChevronDown,
+  LuClock,
+  LuLock,
+  LuSend,
+  LuXCircle,
+} from "react-icons/lu";
 import {
   CreateRegisterFormEvaluatonService,
   GetCheckStatusEvaluationService,
-  ResponseCheckEvaluationService,
   UpdateRegisterFormEvaluatonService,
 } from "../../services/evaluation";
-import moment from "moment";
-import Swal from "sweetalert2";
-
-type StatusProps = {
-  status: UseQueryResult<ResponseCheckEvaluationService, Error>;
-  setTriggerViewEvaluationReport?: React.Dispatch<
-    React.SetStateAction<boolean>
-  >;
-};
-export type statusListsType =
-  | "ยังไม่สามารถส่งคำร้องขอรับการประเมินได้"
-  | "รอรับการประเมิน"
-  | "ยื่นส่งคำร้องขอรับการประเมิน"
-  | "ผ่านการประเมินแล้ว"
-  | "ไม่ผ่านการประเมิน";
-
-const handleSummitCreateRegisterFormEvaluaton = async ({
-  status,
-}: StatusProps) => {
-  try {
-    Swal.fire({
-      title: "กำลังส่งคำร้องขอรับการประเมิน",
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    });
-    const create = await CreateRegisterFormEvaluatonService({
-      isReadyToEvaluated: true,
-      summitEvaluationDate: moment().toISOString(),
-    });
-    await status.refetch();
-    Swal.fire({
-      icon: "success",
-      title: "ส่งคำร้องขอรับการประเมินสำเร็จ",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  } catch (error: any) {
-    Swal.fire({
-      icon: "error",
-      title: "ส่งคำร้องขอรับการประเมินไม่สำเร็จ",
-      text: error?.message,
-    });
-  }
-};
-
-const handleSummitUpdateRegisterFormEvaluaton = async ({
-  status,
-}: StatusProps) => {
-  try {
-    Swal.fire({
-      title: "กำลังส่งคำร้องขอรับการประเมินใหม่",
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-    });
-    const update = await UpdateRegisterFormEvaluatonService({
-      isReadyToEvaluated: true,
-      summitEvaluationDate: moment().toISOString(),
-      status: "pending",
-    });
-    await status.refetch();
-    Swal.fire({
-      icon: "success",
-      title: "ส่งคำร้องขอรับการประเมินสำเร็จ",
-      showConfirmButton: false,
-      timer: 1500,
-    });
-  } catch (error: any) {
-    Swal.fire({
-      icon: "error",
-      title: "ส่งคำร้องขอรับการประเมินไม่สำเร็จ",
-      text: error?.message,
-    });
-  }
-};
-const readyToEvaluation = ({ status }: StatusProps) => {
-  return (
-    <div className="flex flex-col gap-3">
-      <Button
-        onPress={() => handleSummitCreateRegisterFormEvaluaton({ status })}
-        type="button"
-        className="flex flex-col items-center justify-center rounded-xl
-         bg-super-main-color p-3 px-5 text-white transition duration-100  hover:scale-105
-          active:scale-110"
-      >
-        <span>พร้อม</span>
-        <span>ขอรับการประเมิน</span>
-      </Button>
-      <span
-        onClick={() => handleSummitCreateRegisterFormEvaluaton({ status })}
-        className="cursor-pointer text-base text-blue-700"
-      >
-        คลิกเพื่อส่งคำร้องขอรับการประเมิน
-      </span>
-    </div>
-  );
-};
-
-const notReadyToEvaluation = () => {
-  return (
-    <div className="flex flex-col gap-3">
-      <Button
-        type="button"
-        className="flex flex-col items-center justify-center rounded-xl bg-orange-500 p-3 px-5  text-white transition duration-100 active:scale-110"
-      >
-        <span>ยังไม่สามารถส่งคำร้อง</span>
-        <span>ขอรับการประเมินได้</span>
-      </Button>
-      <span className="text-base text-red-500">
-        *โปรดตรวจสอบข้อมูลให้ถูกต้อง
-      </span>
-    </div>
-  );
-};
-
-const PassedEvaluation = ({ setTriggerViewEvaluationReport }: StatusProps) => {
-  return (
-    <div className="flex flex-col gap-3">
-      <div
-        className="flex flex-col items-center justify-center rounded-xl bg-green-700
-       p-3 px-5  text-white"
-      >
-        <span>ผ่านการประเมิน</span>
-      </div>
-      <div className="flex items-center justify-center gap-5">
-        <button
-          onClick={() =>
-            setTriggerViewEvaluationReport &&
-            setTriggerViewEvaluationReport(() => true)
-          }
-          className="rounded-lg bg-third-color px-2 py-1 font-semibold text-white
-         drop-shadow-lg transition duration-150 hover:scale-105 active:scale-110"
-        >
-          รายละเอียดการประเมิน
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const NotPassedEvaluation = ({
-  setTriggerViewEvaluationReport,
-  status,
-}: StatusProps) => {
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="0 flex items-center justify-center gap-2 rounded-xl bg-red-800 p-3  px-5 text-white">
-        <span>ไม่ผ่านการประเมิน</span>
-        <MdBrowserNotSupported />
-      </div>
-      <div className="flex items-center justify-center gap-5">
-        <button
-          onClick={() => handleSummitUpdateRegisterFormEvaluaton({ status })}
-          className="rounded-lg bg-green-700 px-2 py-1 font-semibold text-white
-         drop-shadow-lg transition duration-150 hover:scale-105 active:scale-110"
-        >
-          ส่งการประเมินใหม่
-        </button>
-        <button
-          onClick={() =>
-            setTriggerViewEvaluationReport &&
-            setTriggerViewEvaluationReport(() => true)
-          }
-          className="rounded-lg bg-third-color px-2 py-1 font-semibold text-white
-         drop-shadow-lg transition duration-150 hover:scale-105 active:scale-110"
-        >
-          รายละเอียดการประเมิน
-        </button>
-      </div>
-      <span className="text-balance text-center text-red-800">
-        *แก้ไขข้อมูลและส่งคำร้องขอรับการประเมินอีกครั้ง
-      </span>
-    </div>
-  );
-};
-
-const PenddingEvaluation = () => {
-  return (
-    <div className="flex flex-col gap-3">
-      <Button
-        type="button"
-        className="flex flex-col items-center justify-center rounded-xl bg-secondary-color p-3 px-5  text-white transition duration-100 active:scale-110"
-      >
-        <span>รอรับการประเมิน</span>
-      </Button>
-      <span className="text-base text-secondary-color">
-        โปรดรอจากประเมินจากคณะกรรมการ
-      </span>
-    </div>
-  );
-};
+import { showError, showSaving } from "../../utils/confirm";
+import { Skeleton } from "../ui";
+import EvaluationReport from "./evaluationReport";
 
 type StatusEvaluationProps = {
-  setTriggerViewEvaluationReport: React.Dispatch<React.SetStateAction<boolean>>;
+  /** Step number in the home checklist. */
+  step: number;
+  /** How many of the five documents are saved, for the "not ready" message. */
+  doneCount: number;
 };
-function StatusEvaluation({
-  setTriggerViewEvaluationReport,
-}: StatusEvaluationProps) {
+
+async function confirmSend(again: boolean) {
+  const result = await Swal.fire({
+    icon: "question",
+    title: again ? "ส่งคำร้องขอรับการประเมินอีกครั้ง?" : "ส่งคำร้องขอรับการประเมิน?",
+    text: again
+      ? "ตรวจดูว่าแก้ไขตามความคิดเห็นของผู้ประเมินครบแล้ว ก่อนส่งอีกครั้ง"
+      : "ตรวจดูข้อมูลในเอกสารทั้ง 5 ฉบับให้ถูกต้องก่อนส่ง",
+    showCancelButton: true,
+    confirmButtonText: "ส่งคำร้อง",
+    cancelButtonText: "ยังไม่ส่ง",
+    reverseButtons: true,
+  });
+  return result.isConfirmed;
+}
+
+/** Final checklist step: send the evaluation request, then follow its result. */
+function StatusEvaluation({ step, doneCount }: StatusEvaluationProps) {
+  const queryClient = useQueryClient();
+  const [showReport, setShowReport] = useState(false);
   const status = useQuery({
     queryKey: ["status-evluation"],
     queryFn: () => GetCheckStatusEvaluationService(),
   });
-  return (
-    <div
-      className="flex h-max w-80 flex-col items-center justify-center gap-1 rounded-3xl bg-slate-200
-     p-2 font-Anuphan drop-shadow-lg lg:w-96"
+
+  const send = async (again: boolean) => {
+    if (!(await confirmSend(again))) return;
+    try {
+      showSaving("กำลังส่งคำร้อง");
+      const input = { isReadyToEvaluated: true, summitEvaluationDate: new Date().toISOString() };
+      if (again) await UpdateRegisterFormEvaluatonService({ ...input, status: "pending" });
+      else await CreateRegisterFormEvaluatonService(input);
+      await queryClient.invalidateQueries({ queryKey: ["status-evluation"] });
+      Swal.fire({
+        icon: "success",
+        title: "ส่งคำร้องเรียบร้อย",
+        text: "คณะกรรมการจะตรวจประเมินจากเอกสารที่กรอกไว้ ติดตามผลได้ที่หน้านี้",
+        confirmButtonText: "ตกลง",
+      });
+    } catch (error) {
+      showError(error, "ส่งคำร้องไม่สำเร็จ");
+    }
+  };
+
+  const reportToggle = (
+    <button
+      type="button"
+      onClick={() => setShowReport((open) => !open)}
+      aria-expanded={showReport}
+      className="btn btn-secondary"
     >
-      <h2 className="text-lg font-bold text-super-main-color">
-        สถานะการส่งคำร้อง
-      </h2>
-      {status.isLoading ? (
-        <div className="flex h-20 w-10/12 flex-col gap-2 ">
-          <div className="h-10 w-full animate-pulse rounded-lg bg-slate-300"></div>
-          <div className="flex items-center justify-center gap-2">
-            <div className="h-10 w-10 animate-pulse rounded-full bg-slate-300"></div>
-            <div className="h-10 w-10/12 animate-pulse rounded-lg bg-slate-300"></div>
-          </div>
+      {showReport ? "ซ่อนผลการประเมิน" : "ดูผลการประเมิน"}
+      <LuChevronDown aria-hidden="true" className={`size-5 transition-transform ${showReport ? "rotate-180" : ""}`} />
+    </button>
+  );
+
+  let tone = "border-third-color/40";
+  let icon = <LuLock aria-hidden="true" className="size-6" />;
+  let iconClass = "border-2 border-third-color/70 text-super-main-color/70";
+  let title = "ส่งคำร้องขอรับการประเมิน";
+  let body: React.ReactNode = null;
+
+  if (status.isLoading) {
+    body = <Skeleton className="h-16 w-full" />;
+  } else if (status.isError) {
+    body = (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="hint">ตรวจสอบสถานะคำร้องไม่สำเร็จ</p>
+        <button type="button" className="btn btn-secondary" onClick={() => status.refetch()}>
+          ลองใหม่
+        </button>
+      </div>
+    );
+  } else if (status.data === "not-ready") {
+    body = (
+      <p className="hint">
+        กรอกเอกสารให้ครบทั้ง 5 ฉบับก่อน จึงจะส่งคำร้องได้ (ตอนนี้บันทึกแล้ว {doneCount} จาก 5 ฉบับ)
+      </p>
+    );
+  } else if (status.data === "ready") {
+    tone = "border-2 border-main-color ring-4 ring-main-color/10";
+    icon = <LuSend aria-hidden="true" className="size-6" />;
+    iconClass = "bg-main-color text-white";
+    title = "เอกสารครบแล้ว ส่งคำร้องได้เลย";
+    body = (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="hint">กดปุ่มเพื่อแจ้งคณะกรรมการว่าพร้อมรับการตรวจประเมิน</p>
+        <button type="button" className="btn btn-primary shrink-0" onClick={() => send(false)}>
+          <LuSend aria-hidden="true" className="size-5" />
+          ส่งคำร้องขอรับการประเมิน
+        </button>
+      </div>
+    );
+  } else if (status.data === "approved") {
+    tone = "border-2 border-main-color/60";
+    icon = <LuCheckCircle2 aria-hidden="true" className="size-6" />;
+    iconClass = "bg-main-color text-white";
+    title = "ผ่านการประเมินแล้ว";
+    body = (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="hint">ยินดีด้วย แปลงของคุณผ่านการประเมินมาตรฐาน KOS</p>
+        {reportToggle}
+      </div>
+    );
+  } else if (status.data === "rejected") {
+    tone = "border-2 border-red-600/50";
+    icon = <LuXCircle aria-hidden="true" className="size-6" />;
+    iconClass = "bg-red-700 text-white";
+    title = "ยังไม่ผ่านการประเมิน";
+    body = (
+      <div className="flex flex-col gap-3">
+        <p className="hint">อ่านความคิดเห็นของผู้ประเมิน แก้ไขเอกสารตามนั้น แล้วส่งคำร้องอีกครั้ง</p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          {reportToggle}
+          <button type="button" className="btn btn-primary" onClick={() => send(true)}>
+            <LuSend aria-hidden="true" className="size-5" />
+            ส่งคำร้องอีกครั้ง
+          </button>
         </div>
-      ) : status.data === "not-ready" ? (
-        notReadyToEvaluation()
-      ) : status.data === "ready" ? (
-        readyToEvaluation({ status: status })
-      ) : status.data === "approved" ? (
-        PassedEvaluation({ setTriggerViewEvaluationReport, status })
-      ) : status.data === "rejected" ? (
-        NotPassedEvaluation({ setTriggerViewEvaluationReport, status })
-      ) : (
-        PenddingEvaluation()
-      )}
-    </div>
+      </div>
+    );
+  } else {
+    tone = "border-2 border-secondary-color/50";
+    icon = <LuClock aria-hidden="true" className="size-6" />;
+    iconClass = "bg-secondary-color text-white";
+    title = "ส่งคำร้องแล้ว รอการตรวจประเมิน";
+    body = <p className="hint">คณะกรรมการกำลังตรวจเอกสาร ผลการประเมินจะแสดงที่หน้านี้</p>;
+  }
+
+  return (
+    <li className={`card flex flex-col gap-4 p-4 sm:p-5 ${tone}`}>
+      <div className="flex gap-4">
+        <span aria-hidden="true" className={`flex size-11 shrink-0 items-center justify-center rounded-full ${iconClass}`}>
+          {status.data === "not-ready" || status.isLoading ? <span className="text-lg font-bold">{step}</span> : icon}
+        </span>
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <span className="text-base font-bold text-super-main-color/80">ขั้นสุดท้าย</span>
+          <h3 className="text-xl font-bold leading-snug">{title}</h3>
+          {body}
+        </div>
+      </div>
+      {showReport && <EvaluationReport />}
+    </li>
   );
 }
 

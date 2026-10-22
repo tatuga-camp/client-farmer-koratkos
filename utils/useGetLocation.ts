@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 export const useGeolocation = () => {
-  // State to store location data, loading status, and errors
   const [location, setLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -9,22 +8,18 @@ export const useGeolocation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Function to get the user's current position
   const getLocation = () => {
-    // Check if the Geolocation API is supported by the browser
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
+      setError("โทรศัพท์หรือเบราว์เซอร์นี้หาตำแหน่งไม่ได้ กรุณากรอกพิกัดเอง");
       return;
     }
 
     setIsLoading(true);
     setError(null);
-    setLocation(null); // Reset location on new request
+    setLocation(null);
 
-    // Request the current position
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        // Success callback
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -32,33 +27,29 @@ export const useGeolocation = () => {
         setIsLoading(false);
       },
       (err) => {
-        // Error callback
-        let errorMessage = "An unknown error occurred.";
+        let errorMessage = "หาตำแหน่งไม่สำเร็จ ลองกดอีกครั้ง หรือกรอกพิกัดเอง";
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            errorMessage = "You denied the request for Geolocation.";
+            errorMessage =
+              "ยังไม่ได้อนุญาตให้ใช้ตำแหน่ง ให้กด “อนุญาต” เมื่อมีหน้าต่างถาม หรือเปิดสิทธิ์ตำแหน่งในการตั้งค่าเบราว์เซอร์ แล้วกดอีกครั้ง";
             break;
           case err.POSITION_UNAVAILABLE:
-            errorMessage = "Location information is unavailable.";
+            errorMessage = "ยังหาตำแหน่งไม่ได้ ให้เปิด GPS ของโทรศัพท์ แล้วออกไปที่โล่งก่อนกดอีกครั้ง";
             break;
           case err.TIMEOUT:
-            errorMessage = "The request to get user location timed out.";
+            errorMessage = "หาตำแหน่งนานเกินไป ลองกดอีกครั้งในที่โล่ง หรือกรอกพิกัดเอง";
             break;
-          default:
-            errorMessage = "An unknown error occurred.";
         }
         setError(errorMessage);
         setIsLoading(false);
       },
       {
-        // Options for the geolocation request
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 0,
       },
     );
   };
 
-  // Return the state and the function to be used by components
   return { location, isLoading, error, getLocation };
 };

@@ -1,178 +1,102 @@
-import React from "react";
-import { ActivityKos3, FileActivityKos3 } from "../../../model";
-import moment from "moment";
-import { AiFillEdit } from "react-icons/ai";
-import { MdDelete } from "react-icons/md";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { UseQueryResult } from "@tanstack/react-query";
-import {
-  DeleteActivityKos3Service,
-  ResponseGetActivityKos3ByPageService,
-} from "../../../services/kos3";
-import Swal from "sweetalert2";
-type CardActivityProps = {
-  activity: ActivityKos3 & { fileOnActivities: FileActivityKos3[] };
-  activities: UseQueryResult<ResponseGetActivityKos3ByPageService, Error>;
-  setTriggerUpdateActivity: React.Dispatch<React.SetStateAction<boolean>>;
-  setSelectActivity: React.Dispatch<
-    React.SetStateAction<
-      | (ActivityKos3 & {
-          fileOnActivities: FileActivityKos3[];
-        })
-      | undefined
-    >
-  >;
-};
-function CardActivity({
-  activity,
-  activities,
-  setTriggerUpdateActivity,
-  setSelectActivity,
-}: CardActivityProps) {
-  const activityDate = moment(activity.activityDate)
-    .locale("th")
-    .format("DD/MMMM/YYYY");
-  const image =
-    activity.fileOnActivities.length > 0
-      ? activity.fileOnActivities[0].url
-      : "";
+import React, { useState } from "react";
+import { LuPencil, LuTrash2 } from "react-icons/lu";
+import { DeleteActivityKos3Service } from "../../../services/kos3";
+import { confirmDelete, showError, showSaved, showSaving } from "../../../utils/confirm";
+import { formatThaiDate } from "../../../utils/format";
+import { ActivityWithFiles } from "./activityForm";
 
-  const handleDeleteAcivity = async ({
-    activitiesKos3Id,
-    plotNumber,
-  }: {
-    activitiesKos3Id: string;
-    plotNumber: number;
-  }) => {
-    let content = document.createElement("div");
-    content.innerHTML =
-      "<div>กรุณาพิมพ์ข้อความนี้</div> <strong>" +
-      "ยืนยันการลบ" +
-      "</strong> <div>เพื่อลบข้อมูล</div>";
-    const { value } = await Swal.fire<{ value: string }>({
-      title: `ลบ แปลงที่ ${plotNumber}`,
-      input: "text",
-      html: content,
-      footer: "<strong>หากลบแล้วคุณจะไม่สามารถกู้คืนข้อมูลได้</strong>",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (value !== "ยืนยันการลบ") {
-          return "กรุณาพิมพ์ข้อความยืนยันให้ถูกต้อง";
-        }
-      },
+type CardActivityProps = {
+  activity: ActivityWithFiles;
+  onEdit: (activity: ActivityWithFiles) => void;
+};
+
+/** One saved KOS-03 activity: date, plot, what was done, photos, and edit / delete. */
+function CardActivity({ activity, onEdit }: CardActivityProps) {
+  const queryClient = useQueryClient();
+  const [deleting, setDeleting] = useState(false);
+  const photos = activity.fileOnActivities;
+  const dateText = formatThaiDate(activity.activityDate);
+  const itemName = `บันทึกวันที่ ${formatThaiDate(activity.activityDate, "short")} แปลงที่ ${activity.plotNumber}`;
+
+  const handleDelete = async () => {
+    const confirmed = await confirmDelete({
+      title: `ลบ${itemName}?`,
+      text: photos.length > 0 ? `รูปที่แนบไว้ ${photos.length} รูปจะถูกลบด้วย ลบแล้วกู้คืนไม่ได้` : undefined,
     });
-    if (value) {
-      try {
-        Swal.fire({
-          title: "กำลังลบข้อมูล",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const deletePlant = await DeleteActivityKos3Service({
-          activitiesKos3Id: activitiesKos3Id,
-        });
-        await activities.refetch();
-        Swal.fire({
-          icon: "success",
-          title: "ลบสำเร็จ",
-          text: "ลบข้อมูลสำเร็จ",
-        });
-      } catch (error: any) {
-        console.log(error);
-        Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: error.message,
-        });
-      }
+    if (!confirmed) return;
+    try {
+      setDeleting(true);
+      showSaving("กำลังลบบันทึก");
+      await DeleteActivityKos3Service({ activitiesKos3Id: activity.id });
+      await queryClient.invalidateQueries({ queryKey: ["activities"] });
+      showSaved("ลบบันทึกเรียบร้อย");
+    } catch (error) {
+      showError(error, "ลบไม่สำเร็จ");
+    } finally {
+      setDeleting(false);
     }
   };
-  return (
-    <section
-      className="flex  h-max w-full flex-col gap-4 bg-[#F1E4C3] p-4 py-5 font-Anuphan lg:rounded-lg lg:drop-shadow-md"
-      key={activity.id}
-    >
-      <div className="flex w-full flex-row-reverse justify-between">
-        <div className="my-0 flex justify-end gap-2">
-          <button
-            onClick={() => {
-              setTriggerUpdateActivity(() => true);
-              setSelectActivity(() => activity);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="flex flex-col 
-                            items-center justify-center gap-1 transition duration-100 hover:scale-105 active:scale-110"
-          >
-            <div className="rounded-lg bg-[#597E52] p-2 text-white">
-              <AiFillEdit />
-            </div>
-            <span className="text-sm font-semibold">แก้ไข</span>
-          </button>
-          <button
-            onClick={() =>
-              handleDeleteAcivity({
-                activitiesKos3Id: activity.id,
-                plotNumber: activity.plotNumber,
-              })
-            }
-            className="flex flex-col 
-                            items-center justify-center gap-1 transition duration-100 hover:scale-105 active:scale-110"
-          >
-            <div className="rounded-lg bg-red-700 p-2 text-white">
-              <MdDelete />
-            </div>
-            <span className="text-sm font-semibold">ลบ</span>
-          </button>
-        </div>
 
-        <div
-          className={` w-max flex-col ${image ? "hidden" : "flex px-6 py-2"}  items-start justify-between
-           rounded-lg bg-[#597E52] `}
-        >
-          <h1 className="text-2xl font-semibold text-white">
-            แปลงที่ {activity.plotNumber}
-          </h1>
-          <h2 className="text-base font-medium text-white">{activityDate}</h2>
+  return (
+    <li className="card flex flex-col gap-4 p-4 sm:p-5">
+      <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-3">
+        <div className="flex min-w-0 flex-col">
+          <dt className="text-sm text-super-main-color/70">วันที่ทำงาน</dt>
+          <dd className="text-lg font-bold leading-snug">{dateText}</dd>
         </div>
+        <div className="flex flex-col items-end">
+          <dt className="text-sm text-super-main-color/70">แปลงที่</dt>
+          <dd className="min-w-12 rounded-lg bg-main-color/10 px-3 py-0.5 text-center text-xl font-bold text-main-color tabular-nums">
+            {activity.plotNumber}
+          </dd>
+        </div>
+        <div className="col-span-2 flex flex-col gap-0.5">
+          <dt className="text-sm text-super-main-color/70">สิ่งที่ทำ</dt>
+          <dd className="whitespace-pre-line break-words text-lg leading-relaxed">{activity.note}</dd>
+        </div>
+      </dl>
+
+      {photos.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-super-main-color/70">รูปถ่าย {photos.length} รูป (แตะเพื่อดูรูปใหญ่)</p>
+          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {photos.map((photo, index) => (
+              <li key={photo.id}>
+                <a
+                  href={photo.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative block aspect-square overflow-hidden rounded-lg border border-third-color/50 bg-fourth-color focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-2 focus-visible:outline-main-color"
+                >
+                  <Image
+                    src={photo.url}
+                    alt={`รูปที่ ${index + 1} ของ${itemName} (เปิดรูปขนาดเต็ม)`}
+                    fill
+                    sizes="(max-width: 640px) 33vw, 160px"
+                    className="object-cover"
+                  />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="flex gap-2 border-t border-third-color/30 pt-3 sm:justify-end [&>*]:flex-1 sm:[&>*]:flex-none">
+        <button type="button" onClick={() => onEdit(activity)} className="btn btn-secondary btn-sm" disabled={deleting}>
+          <LuPencil aria-hidden="true" className="size-5" />
+          แก้ไข
+          <span className="sr-only">{itemName}</span>
+        </button>
+        <button type="button" onClick={handleDelete} className="btn btn-danger-soft btn-sm" disabled={deleting}>
+          <LuTrash2 aria-hidden="true" className="size-5" />
+          ลบ
+          <span className="sr-only">{itemName}</span>
+        </button>
       </div>
-      {image && (
-        <div className="relative h-80 w-full overflow-hidden rounded-lg bg-slate-300">
-          <Image
-            src={image}
-            alt="image of activity"
-            fill
-            className="object-cover"
-          />
-          <div
-            className={` w-max flex-col ${image ? "flex px-4 py-2" : "hidden"} absolute bottom-2 right-2 z-40 m-auto  items-start justify-between
-           rounded-lg bg-[#597E52] `}
-          >
-            <h1 className="text-xl font-semibold text-white">
-              แปลงที่ {activity.plotNumber}
-            </h1>
-            <h2 className="text-sm font-medium text-white">{activityDate}</h2>
-          </div>
-        </div>
-      )}
-      {activities.isFetching ? (
-        <div className="bg flex h-max w-full flex-col gap-2">
-          {[...new Array(4)].map((_, index) => {
-            return (
-              <div
-                key={index}
-                className="h-3 w-full animate-pulse bg-slate-300"
-              ></div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className=" text-pretty indent-5 text-lg font-medium text-super-main-color">
-          {activity.note}
-        </div>
-      )}
-    </section>
+    </li>
   );
 }
 

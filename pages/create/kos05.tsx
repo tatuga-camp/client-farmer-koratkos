@@ -1,73 +1,24 @@
-import React from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { parseCookies } from "nookies";
-import {
-  GetAllDocKosService,
-  GetFarmerServerSideService,
-} from "../../services/farmer";
-import { Farmer } from "../../model";
 import Head from "next/head";
-import { useQuery } from "@tanstack/react-query";
-import CreateHarvestLog from "../../components/docKos/kos5/createHarvestLog";
+import React from "react";
+import HarvestLogForm from "../../components/docKos/kos5/harvestLogForm";
+import { GuideBox, KosPageHeader } from "../../components/ui";
+import { kosGuide } from "../../data/kosGuides";
+import DashboardLayout from "../../layouts/dashboardLayout";
 
-function Kos02({ farmer }: { farmer: Farmer }) {
-  const docKos = useQuery({
-    queryKey: ["docKos"],
-    queryFn: () => GetAllDocKosService(),
-  });
+const guide = kosGuide("kos5");
+
+/** Starts KOS-05 with its first record; the document itself is created on save. */
+function CreateKos05() {
   return (
-    <DashboardLayout farmer={farmer}>
+    <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-5</title>
+        <title>{`${guide.code} ${guide.name} | Korat KOS`}</title>
       </Head>
-      <div className="flex min-h-screen w-full flex-col items-center bg-fourth-color pb-10  pt-10 font-Anuphan">
-        <header className="flex w-full flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5 lg:h-20 lg:flex-row">
-            <h1 className="text-xl font-semibold text-white">(KOS-05) </h1>
-            <h2 className="text-balance text-center text-lg font-normal text-white">
-              แบบบันทึก การเก็บเกี่ยวในแปลง ผลิตพืชอินทรีย์
-            </h2>
-          </section>
-        </header>
-        <main>
-          <CreateHarvestLog docKos={docKos} />
-        </main>
-      </div>
+      <KosPageHeader code={guide.code} title={guide.name} description={guide.summary} />
+      <GuideBox title="สิ่งที่ต้องเตรียม" items={guide.prepare} />
+      <HarvestLogForm />
     </DashboardLayout>
   );
 }
 
-export default Kos02;
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext,
-) => {
-  try {
-    const cookies = parseCookies(ctx);
-    const accessToken = cookies.access_token;
-    if (accessToken) {
-      const farmer = await GetFarmerServerSideService({
-        access_token: accessToken,
-      });
-      return {
-        props: {
-          farmer,
-        },
-      };
-    } else {
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/auth/sign-in",
-        },
-      };
-    }
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/auth/sign-in",
-      },
-    };
-  }
-};
+export default CreateKos05;

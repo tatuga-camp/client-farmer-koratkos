@@ -24,7 +24,7 @@ export async function CreateDocKos2Service(
     });
     return farm.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -51,7 +51,7 @@ export async function UpdateDocKos2Service(
     });
     return farm.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -75,7 +75,7 @@ export async function GetDocKos02Service(): Promise<ResponseGetDocKos02Service> 
     });
     return dockos02.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -111,7 +111,7 @@ export async function CreateOrgProdKos2Service(
     });
     return dockos02.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -152,7 +152,7 @@ export async function UpdateOrgProdKos2Service(
     });
     return orgCrop.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -180,7 +180,7 @@ export async function DeleteOrgCropProdCalForKos2Service(
     });
     return orgCrop.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -209,7 +209,7 @@ export async function CreateFileOnDocKos02Service(
     });
     return file.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -236,7 +236,7 @@ export async function DeleteFileOnDocKos02Service(
     });
     return file.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

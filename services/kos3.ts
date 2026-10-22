@@ -17,7 +17,7 @@ export async function CreateDocKos3Service(): Promise<DocKos3> {
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -52,7 +52,7 @@ export async function GetActivityKos3ByPageService(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -81,7 +81,7 @@ export async function CreateActivityKos3Service(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -115,7 +115,7 @@ export async function UpdateActivityKos3Service(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -144,7 +144,7 @@ export async function CreateFileOnActivityKos3Service(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -171,7 +171,7 @@ export async function DeleteFileOnActivityKos3Service(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -198,7 +198,7 @@ export async function DeleteActivityKos3Service(
     });
     return kos3.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

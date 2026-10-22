@@ -16,7 +16,7 @@ export async function CreateDocKos04Service(): Promise<DocKos4> {
     });
     return kos4.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -43,7 +43,7 @@ export async function GetFactorKos04ByPageService(
     });
     return kos4.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -73,7 +73,7 @@ export async function CreateFatorKos4Service(
     });
     return kos4.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -107,7 +107,7 @@ export async function UpdateFatorKos4Service(
     });
     return factor.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -132,7 +132,7 @@ export async function DeleteFatorKos4Service(
     });
     return factor.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

@@ -16,7 +16,7 @@ export async function CreateDocKos05Service(): Promise<DocKos5> {
     });
     return harvestLogs.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -45,7 +45,7 @@ export async function GetHarvestLogKos5ByPageService(
     });
     return harvestLogs.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -76,7 +76,7 @@ export async function CreateHarvestLogKos5Service(
     });
     return harvestLog.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -111,7 +111,7 @@ export async function UpdateHarvestLogKos5Service(
     });
     return harvestLog.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -136,7 +136,7 @@ export async function DeleteHarvestLogKos5Service(
     });
     return harvestLog.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

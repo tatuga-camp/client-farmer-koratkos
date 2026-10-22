@@ -1,179 +1,124 @@
-import React, { useState } from "react";
-import HomePageLayout from "../../layouts/homePageLayout";
-import { Farmer } from "../../components/svgs/Farmer";
-import {
-  Button,
-  FieldError,
-  Form,
-  Input,
-  Label,
-  TextField,
-} from "react-aria-components";
-import { InputMask, InputMaskChangeEvent } from "primereact/inputmask";
+import { useQueryClient } from "@tanstack/react-query";
 import Head from "next/head";
-import { SignInService } from "../../services/auth";
-import Swal from "sweetalert2";
 import Link from "next/link";
-import { setCookie } from "nookies";
 import { useRouter } from "next/router";
-import Image from "next/image";
-import { sponsors } from "../../data/menus";
-import { backgroundImageBase64 } from "../../data/base64Images";
+import { setCookie } from "nookies";
+import React, { useState } from "react";
+import { LuInfo, LuLoader2, LuLogIn, LuUserPlus } from "react-icons/lu";
+import { FormAlert, IdCardField, NoteBox, PhoneField, toDigits } from "../../components/account/accountFields";
+import HomePageLayout from "../../layouts/homePageLayout";
+import { SignInService } from "../../services/auth";
+import { errorMessage } from "../../utils/confirm";
+import { useFieldErrors } from "../../utils/useFieldErrors";
+import { checkThaiIdCard, checkThaiPhone } from "../../utils/validators";
 
 function SignIn() {
   const router = useRouter();
-  const [farmerData, setFarmerData] = useState({
-    idCard: "",
-    phone: "",
+  const queryClient = useQueryClient();
+  const [values, setValues] = useState({ idCard: "", phone: "" });
+  const [submitting, setSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<unknown>();
+
+  const form = useFieldErrors({
+    idCard: checkThaiIdCard(values.idCard),
+    phone: checkThaiPhone(values.phone),
   });
 
-  const handleOnChangeFarmerData = (e: InputMaskChangeEvent) => {
-    const { name, value } = e.target;
-    setFarmerData((prev) => ({ ...prev, [name]: value }));
+  const update = (name: keyof typeof values) => (value: string) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+    setServerError(undefined);
   };
 
-  const handleSummitOnSignIn = async (e: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setServerError(undefined);
+    if (!form.validate()) return;
+    setSubmitting(true);
+    let accessToken: string;
     try {
-      e.preventDefault();
-      if (farmerData.idCard.length !== 17 || farmerData.phone.length !== 12) {
-        throw new Error("กรุณากรอกข้อมูลให้ครบถ้วน");
-      }
-      Swal.fire({
-        title: "กำลังเข้าสู่ระบบ",
-        html: "กรุณารอสักครู่",
-        timerProgressBar: true,
-        allowEscapeKey: false,
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-      console.log(farmerData.idCard);
       const signIn = await SignInService({
-        identityCardId: farmerData.idCard.replace(/-/g, ""),
-        phoneNumber: farmerData.phone.replace(/-/g, ""),
+        identityCardId: toDigits(values.idCard),
+        phoneNumber: toDigits(values.phone),
       });
-      setCookie(null, "access_token", signIn.access_token, {
-        maxAge: 2 * 24 * 60 * 60, // Cookie expiration time in seconds (e.g., 30 days)
-        path: "/", // Cookie path (can be adjusted based on your needs)
-      });
-      router.push("/");
-      Swal.fire({
-        title: "เข้าสู่ระบบสำเร็จ",
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (error: any) {
-      console.log(error);
-      Swal.fire({
-        title: "เข้าสู่ระบบไม่สำเร็จ!",
-        html: error.message.toString(),
-        icon: "error",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      accessToken = signIn.access_token;
+    } catch (error) {
+      setServerError(error ?? null);
+      setSubmitting(false);
+      return;
     }
+    setCookie(null, "access_token", accessToken, {
+      maxAge: 2 * 24 * 60 * 60, // 2 days, same as the token itself
+      path: "/",
+    });
+    // On a shared phone the previous farmer's data may still be cached.
+    queryClient.removeQueries();
+    router.push("/");
   };
+
+  const notFound = (serverError as { statusCode?: number } | null)?.statusCode === 404;
 
   return (
     <HomePageLayout>
       <Head>
-        <title>เข้าสู่ระบบ</title>
+        <title>เข้าสู่ระบบ | Korat KOS สำหรับเกษตรกร</title>
       </Head>
-
-      <div className="w-full pt-40 lg:py-5">
-        <ul className="my-5 flex w-full items-center justify-center gap-2">
-          {sponsors.map((sponsor, index) => {
-            return (
-              <li
-                key={index}
-                className=" relative h-10  w-10 overflow-hidden rounded-full"
-              >
-                <Image
-                  alt="logo"
-                  src={sponsor.url}
-                  fill
-                  blurDataURL={backgroundImageBase64}
-                  placeholder="blur"
-                  className="object-cover"
-                />
-              </li>
-            );
-          })}
-        </ul>
-        <header className=" flex w-full flex-col items-center justify-center gap-4 font-Anuphan">
-          <section className="flex w-40 flex-col items-center justify-center rounded-lg bg-third-color px-5 py-2 text-base font-semibold text-white lg:w-60">
-            <h1>เข้าสู่ระบบ</h1>
-            <h2>สำหรับเกษตรกร</h2>
-          </section>
-          <div className="h-24 w-24 overflow-hidden  rounded-full ring-2 ring-super-main-color">
-            <Farmer />
-          </div>
+      <div className="card flex flex-col gap-6 p-5 sm:p-8">
+        <header className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold leading-snug sm:text-3xl">เข้าสู่ระบบ</h1>
+          <p className="text-lg text-super-main-color/80">สำหรับเกษตรกรที่สมัครใช้งานแล้ว</p>
         </header>
-        <main className="mt-5 flex items-center justify-center font-Anuphan">
-          <Form
-            onSubmit={handleSummitOnSignIn}
-            className="flex flex-col items-center justify-center gap-5 lg:w-8/12"
-          >
-            <TextField
-              type="text"
-              className="flex w-10/12 flex-col"
-              name="idCard"
-              isRequired
-            >
-              <Label className="text-xl font-bold text-third-color">
-                เลขบัตรประจำตัวประชาชน :
-              </Label>
-              <InputMask
-                required
-                onChange={handleOnChangeFarmerData}
-                mask="9-9999-99999-99-9"
-                placeholder="9-9999-99999-99-9"
-                name="idCard"
-                type="text"
-                value={farmerData.idCard}
-                inputMode="numeric"
-                className="h-10 w-full bg-slate-200 pl-5 text-xl"
-              />
-            </TextField>
-            <TextField type="tel" className="flex w-10/12 flex-col" isRequired>
-              <Label className="text-xl font-bold  text-third-color">
-                เบอร์โทรศัพท์ :
-              </Label>
 
-              <InputMask
-                required
-                name="phone"
-                type="text"
-                inputMode="numeric"
-                className="h-10 w-full bg-slate-200 pl-5 text-xl"
-                mask="999-999-9999"
-                placeholder="999-999-9999"
-                onChange={handleOnChangeFarmerData}
-                value={farmerData.phone}
-              />
-            </TextField>
-            <div>
-              <Button
-                className="rounded-xl bg-third-color px-10 py-2 text-xl font-bold text-white 
-                transition duration-100 hover:bg-super-main-color 
-                active:scale-110 active:ring-2 active:ring-super-main-color"
-                type="submit"
-              >
+        <NoteBox icon={<LuInfo />}>ใช้เลขบัตรประชาชนและเบอร์โทรที่ใช้ตอนสมัคร ไม่ต้องมีรหัสผ่าน</NoteBox>
+
+        <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <IdCardField
+            id="idCard"
+            label="เลขบัตรประชาชน"
+            hint="ตัวเลข 13 หลักบนบัตร พิมพ์แค่ตัวเลข ระบบใส่ขีดให้เอง เช่น 1-2345-67890-12-3"
+            value={values.idCard}
+            onChange={update("idCard")}
+            onBlur={() => form.touch("idCard")}
+            error={form.errors.idCard}
+          />
+          <PhoneField
+            id="phone"
+            label="เบอร์โทรศัพท์"
+            hint="เบอร์มือถือ 10 หลัก เช่น 081-234-5678"
+            value={values.phone}
+            onChange={update("phone")}
+            onBlur={() => form.touch("phone")}
+            error={form.errors.phone}
+          />
+
+          {serverError !== undefined && (
+            <FormAlert title="เข้าสู่ระบบไม่สำเร็จ">
+              <p className="whitespace-pre-line">{errorMessage(serverError)}</p>
+              {notFound && <p>ถ้ายังไม่เคยสมัคร ให้กดปุ่ม “สมัครใช้งาน” ด้านล่าง</p>}
+            </FormAlert>
+          )}
+
+          <button type="submit" className="btn btn-primary w-full" disabled={submitting}>
+            {submitting ? (
+              <>
+                <LuLoader2 aria-hidden="true" className="size-5 animate-spin" />
+                กำลังเข้าสู่ระบบ…
+              </>
+            ) : (
+              <>
+                <LuLogIn aria-hidden="true" className="size-5" />
                 เข้าสู่ระบบ
-              </Button>
-            </div>
-          </Form>
-        </main>
-        <footer className="mt-5 flex w-full justify-center">
-          <Link
-            className="font-Anuphan text-lg text-blue-700 underline"
-            href="/auth/sign-up"
-          >
-            ไม่มีบัญชี? กดเพื่อลงทะเบียน
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="flex flex-col gap-3 border-t border-third-color/30 pt-5">
+          <p className="text-center text-lg">ยังไม่มีบัญชี?</p>
+          <Link href="/auth/sign-up" className="btn btn-secondary w-full">
+            <LuUserPlus aria-hidden="true" className="size-5" />
+            สมัครใช้งาน
           </Link>
-        </footer>
+        </div>
       </div>
     </HomePageLayout>
   );
