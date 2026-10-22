@@ -1,566 +1,287 @@
+import { UseQueryResult, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  FieldError,
-  Form,
-  Input,
-  Label,
-  Radio,
-  RadioGroup,
-  TextField,
-} from "react-aria-components";
-import {
-  IoIosCheckbox,
-  IoIosCheckboxOutline,
-  IoMdCloseCircle,
-} from "react-icons/io";
-import {
-  MdCheckBoxOutlineBlank,
-  MdOutlineNavigateBefore,
-  MdOutlineNavigateNext,
-  MdOutlineRadioButtonChecked,
-  MdOutlineRadioButtonUnchecked,
-} from "react-icons/md";
+import { LuArrowLeft, LuCheck, LuSave } from "react-icons/lu";
 import Swal from "sweetalert2";
-import { BasicInformation } from "./basicInformation";
+import { ChoiceCards, ErrorSummary, FieldErrorText, FormActions, FormCard, NumberField, TextField } from "../../../ui";
+import { ProductionDraft, clearKos01Drafts, readFarmDraft, readProductionDraft, saveProductionDraft } from "../farmDraft";
 import {
-  CreateDocKos1Service,
   CreateFarmDocKos1Service,
   ResponseGetAllDocKos1Service,
   UpdateFarmKos01Service,
 } from "../../../../services/kos1";
-import { Farmer } from "../../../../model";
-import { useRouter } from "next/router";
+import { showError, showSaved, showSaving } from "../../../../utils/confirm";
+import { formatArea } from "../../../../utils/format";
+import { useFieldErrors } from "../../../../utils/useFieldErrors";
+import { checkNumber, checkText, FieldErrors } from "../../../../utils/validators";
 import { Step } from "../../../../pages/create/kos01";
-import { UseQueryResult } from "@tanstack/react-query";
-import Link from "next/link";
-import { FaSave } from "react-icons/fa";
+
 type ProductionInformationProps = {
-  farmer: Farmer;
   isUpdate?: boolean;
   docKos1?: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
 };
-function ProductionInformation({
-  farmer,
-  isUpdate,
-  docKos1,
-}: ProductionInformationProps) {
+
+const processOptions = [
+  {
+    value: "มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น",
+    label: "ปลูกเฉพาะพืชอินทรีย์",
+    description: "ทุกแปลงในฟาร์มเป็นอินทรีย์ ไม่ใช้สารเคมีเลย",
+  },
+  {
+    value: "มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป",
+    label: "ปลูกทั้งพืชอินทรีย์และพืชทั่วไป",
+    description: "บางแปลงยังใช้ปุ๋ยหรือสารเคมีอยู่",
+  },
+];
+
+const OTHER = "อื่นๆ";
+const methodOptions = [
+  { value: "ชนิดพืชที่ผลิตแตกต่างกัน", label: "ปลูกพืชคนละชนิด", description: "พืชในแปลงอินทรีย์เป็นคนละชนิดกับพืชในแปลงทั่วไป" },
+  { value: "เวลาการผลิตแตกต่างกัน", label: "ปลูกคนละช่วงเวลา", description: "พืชชนิดเดียวกัน แต่ปลูกและเก็บเกี่ยวคนละช่วง" },
+  { value: OTHER, label: "อื่น ๆ", description: "อธิบายวิธีของคุณเอง" },
+];
+
+const emptyProduction: ProductionDraft = {
+  productionProcess: "",
+  productionMethod: "",
+  productionMethodOther: "",
+  plotsTotal: "",
+  raiTotal: "",
+  nganTotal: "0",
+  certicatedPlotTotal: "",
+  certicatedRaiTotal: "",
+  certicatedNganTotal: "0",
+};
+
+const toNgan = (rai: string, ngan: string) => Number(rai || 0) * 4 + Number(ngan || 0);
+const nganRule = { label: "งาน", example: "2", unit: "งาน", max: 3.99, maxMessage: "งานต้องน้อยกว่า 4 (4 งาน = 1 ไร่ ให้นับเป็นไร่แทน)" };
+
+function validateProduction(value: ProductionDraft): FieldErrors {
+  const errors: FieldErrors = {
+    productionProcess: value.productionProcess ? undefined : "กรุณาเลือกว่าฟาร์มของคุณปลูกแบบไหน",
+    productionMethod: value.productionMethod ? undefined : "กรุณาเลือกวิธีแยกการผลิต",
+    productionMethodOther:
+      value.productionMethod === OTHER
+        ? checkText(value.productionMethodOther, { label: "วิธีการผลิตของคุณ", example: "ปลูกแยกแปลง มีแนวกันชน" })
+        : undefined,
+    plotsTotal: checkNumber(value.plotsTotal, { label: "จำนวนแปลงทั้งหมด", integer: true, min: 1, example: "3", unit: "แปลง" }),
+    raiTotal: checkNumber(value.raiTotal, { label: "พื้นที่ทั้งหมด (ไร่)", example: "5", unit: "ไร่" }),
+    nganTotal: checkNumber(value.nganTotal, nganRule),
+    certicatedPlotTotal: checkNumber(value.certicatedPlotTotal, { label: "จำนวนแปลงที่ขอรับรอง", integer: true, min: 1, example: "2", unit: "แปลง" }),
+    certicatedRaiTotal: checkNumber(value.certicatedRaiTotal, { label: "พื้นที่ที่ขอรับรอง (ไร่)", example: "2", unit: "ไร่" }),
+    certicatedNganTotal: checkNumber(value.certicatedNganTotal, nganRule),
+  };
+  if (!errors.raiTotal && !errors.nganTotal && toNgan(value.raiTotal, value.nganTotal) <= 0) {
+    errors.raiTotal = "พื้นที่ทั้งหมดต้องมากกว่า 0";
+  }
+  if (!errors.certicatedRaiTotal && !errors.certicatedNganTotal && toNgan(value.certicatedRaiTotal, value.certicatedNganTotal) <= 0) {
+    errors.certicatedRaiTotal = "พื้นที่ที่ขอรับรองต้องมากกว่า 0";
+  }
+  if (!errors.plotsTotal && !errors.certicatedPlotTotal && Number(value.certicatedPlotTotal) > Number(value.plotsTotal)) {
+    errors.certicatedPlotTotal = `แปลงที่ขอรับรองต้องไม่มากกว่าแปลงทั้งหมด (${value.plotsTotal} แปลง)`;
+  }
+  const areaOk = !errors.raiTotal && !errors.nganTotal && !errors.certicatedRaiTotal && !errors.certicatedNganTotal;
+  if (areaOk && toNgan(value.certicatedRaiTotal, value.certicatedNganTotal) > toNgan(value.raiTotal, value.nganTotal)) {
+    errors.certicatedRaiTotal = `พื้นที่ที่ขอรับรองมากกว่าพื้นที่ทั้งหมด (${formatArea(value.raiTotal, value.nganTotal)}) ลองตรวจตัวเลขอีกครั้ง`;
+  }
+  return errors;
+}
+
+/** KOS-01 step 3: organic-only or parallel production, and plot counts and areas. */
+function ProductionInformation({ isUpdate, docKos1 }: ProductionInformationProps) {
   const router = useRouter();
-  const [productionInformation, setProductionInformation] = useState<{
-    productionProcess?: string[];
-    productionMethod?: {
-      value: string;
-      select: string;
-    };
-    plotsTotal?: number;
-    raiTotal?: number;
-    nganTotal?: number;
-    certicatedPlotTotal?: number;
-    certicatedRaiTotal?: number;
-    certicatedNganTotal?: number;
-  }>();
+  const queryClient = useQueryClient();
+  const [value, setValue] = useState<ProductionDraft>(emptyProduction);
+  const [saving, setSaving] = useState(false);
+  const savedFarm = docKos1?.data?.farmKos1;
 
-  const handleChangeProductionInformation = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setProductionInformation((prev: any) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value,
-      };
-    });
-  };
   useEffect(() => {
-    if (docKos1?.isSuccess) {
-      setProductionInformation(() => {
-        let productionMethod = "อื่นๆ";
-        if (
-          docKos1?.data?.farmKos1?.productionMethod ===
-            "ชนิดพืชที่ผลิตแตกต่างกัน" ||
-          docKos1?.data?.farmKos1?.productionMethod === "เวลาการผลิตแตกต่างกัน"
-        ) {
-          productionMethod = docKos1?.data?.farmKos1.productionMethod;
-        }
-        return {
-          productionProcess: docKos1?.data?.farmKos1?.productionProcess,
-          productionMethod: {
-            value: docKos1?.data?.farmKos1?.productionMethod || "",
-            select: productionMethod,
-          },
-          plotsTotal: docKos1?.data?.farmKos1?.plotsTotal || 0,
-          raiTotal: docKos1?.data?.farmKos1?.raiTotal || 0,
-          nganTotal: docKos1?.data?.farmKos1?.nganTotal || 0,
-          certicatedPlotTotal:
-            docKos1?.data?.farmKos1?.certicatedPlotTotal || 0,
-          certicatedRaiTotal: docKos1?.data?.farmKos1?.certicatedRaiTotal || 0,
-          certicatedNganTotal:
-            docKos1?.data?.farmKos1?.certicatedNganTotal || 0,
-        };
+    if (isUpdate) {
+      if (!savedFarm) return;
+      const method = savedFarm.productionMethod ?? "";
+      const known = methodOptions.some((option) => option.value === method && option.value !== OTHER);
+      setValue({
+        // Older applications could tick both boxes; the first one wins.
+        productionProcess: savedFarm.productionProcess?.[0] ?? "",
+        productionMethod: method ? (known ? method : OTHER) : "",
+        productionMethodOther: known ? "" : method,
+        plotsTotal: String(savedFarm.plotsTotal ?? ""),
+        raiTotal: String(savedFarm.raiTotal ?? ""),
+        nganTotal: String(savedFarm.nganTotal ?? 0),
+        certicatedPlotTotal: String(savedFarm.certicatedPlotTotal ?? ""),
+        certicatedRaiTotal: String(savedFarm.certicatedRaiTotal ?? ""),
+        certicatedNganTotal: String(savedFarm.certicatedNganTotal ?? 0),
       });
+    } else {
+      const draft = readProductionDraft();
+      if (draft) setValue(draft);
     }
-  }, [docKos1?.isSuccess]);
+  }, [isUpdate, savedFarm]);
 
-  const handleSummitProductionInformation = async (e: React.FormEvent) => {
+  const form = useFieldErrors(validateProduction(value));
+  const set = (key: keyof ProductionDraft) => (next: string) => setValue((prev) => ({ ...prev, [key]: next }));
+  const numberProps = (key: keyof ProductionDraft) => ({
+    id: key,
+    value: value[key],
+    onChange: set(key),
+    onBlur: () => form.touch(key),
+    error: form.errors[key],
+  });
+
+  const production = {
+    productionProcess: [value.productionProcess],
+    productionMethod: value.productionMethod === OTHER ? value.productionMethodOther.trim() : value.productionMethod,
+    plotsTotal: Number(value.plotsTotal),
+    raiTotal: Number(value.raiTotal),
+    nganTotal: Number(value.nganTotal || 0),
+    certicatedPlotTotal: Number(value.certicatedPlotTotal),
+    certicatedRaiTotal: Number(value.certicatedRaiTotal),
+    certicatedNganTotal: Number(value.certicatedNganTotal || 0),
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!form.validate()) return;
     try {
-      e.preventDefault();
-
       if (isUpdate) {
-        Swal.fire({
-          icon: "info",
-          title: "กำลังอัพเดทข้อมูล",
-          text: "กรุณารอสักครู่",
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const update = await UpdateFarmKos01Service({
-          body: {
-            productionProcess:
-              productionInformation?.productionProcess as string[],
-            docKos01Id: docKos1?.data?.id as string,
-            productionMethod: productionInformation?.productionMethod
-              ?.value as string,
-            plotsTotal: productionInformation?.plotsTotal as number,
-            raiTotal: productionInformation?.raiTotal as number,
-            nganTotal: productionInformation?.nganTotal as number,
-            certicatedPlotTotal:
-              productionInformation?.certicatedPlotTotal as number,
-            certicatedRaiTotal:
-              productionInformation?.certicatedRaiTotal as number,
-            certicatedNganTotal:
-              productionInformation?.certicatedNganTotal as number,
-          },
-        });
-        router.push({
-          pathname: `/kos01/${docKos1?.data?.id}`,
-        });
-        await docKos1?.refetch();
-        Swal.fire({
-          icon: "success",
-          title: "บันทึกสำเร็จ",
-          text: "บันทึกข้อมูลสำเร็จ",
-          timer: 2000,
-          timerProgressBar: true,
-        });
-      } else {
-        Swal.fire({
-          icon: "info",
-          title: "กำลังสร้างเอกสาร KOS 1",
-          text: "กรุณารอสักครู่",
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-
-        const basicInformation = localStorage.getItem("basicInformation");
-        const parseBasicInformation: BasicInformation = JSON.parse(
-          basicInformation as string,
-        );
-        const farmInformation = localStorage.getItem("farmFieldInformation");
-        const parseFarmInformation: BasicInformation & {
-          certRequestDate: string;
-          longitude: string;
-          latitude: string;
-          mapTerrain: string;
-          mapHybrid: string;
-        } = JSON.parse(farmInformation as string);
-
-        const farmDocKos1 = await CreateFarmDocKos1Service({
-          address: parseFarmInformation.address,
-          villageNumber: parseFarmInformation.moo,
-          subdistrict: parseFarmInformation.tambon?.name_th as string,
-          district: parseFarmInformation.amphure?.name_th as string,
-          province: parseFarmInformation.province?.name_th as string,
-          latitude: parseFarmInformation.latitude,
-          longitude: parseFarmInformation.longitude,
-          productionProcess:
-            productionInformation?.productionProcess as string[],
-          certRequestDate: parseFarmInformation.certRequestDate,
-          productionMethod: productionInformation?.productionMethod
-            ?.value as string,
-          mapTerrain: parseFarmInformation.mapTerrain,
-          mapHybrid: parseFarmInformation.mapHybrid,
-          plotsTotal: productionInformation?.plotsTotal as number,
-          raiTotal: productionInformation?.raiTotal as number,
-          nganTotal: productionInformation?.nganTotal as number,
-          certicatedPlotTotal:
-            productionInformation?.certicatedPlotTotal as number,
-          certicatedRaiTotal:
-            productionInformation?.certicatedRaiTotal as number,
-          certicatedNganTotal:
-            productionInformation?.certicatedNganTotal as number,
-        });
-
-        localStorage.removeItem("basicInformation");
-        localStorage.removeItem("farmFieldInformation");
-        router.push({
-          pathname: `/kos01/${farmDocKos1.docKos01Id}/plantKos1`,
-        });
-        Swal.fire({
-          icon: "success",
-          title: "สร้างเอกสาร KOS 1 สำเร็จ",
-        });
+        setSaving(true);
+        showSaving();
+        await UpdateFarmKos01Service({ body: { ...production, docKos01Id: docKos1?.data?.id } });
+        await queryClient.invalidateQueries({ queryKey: ["docKos1"] });
+        showSaved();
+        router.push(`/kos01/${docKos1?.data?.id}`);
+        return;
       }
-    } catch (error: any) {
-      console.log(error.message);
-      Swal.fire({
-        icon: "error",
-        title: "ผิดพลาด",
-        text: error.message,
+      const farm = readFarmDraft();
+      if (!farm || !farm.mapHybrid || !farm.mapTerrain || !farm.certRequestDate) {
+        saveProductionDraft(value);
+        await Swal.fire({
+          icon: "warning",
+          title: "ยังไม่มีข้อมูลที่ตั้งแปลง",
+          text: "กรุณากลับไปกรอกขั้นที่ 2 ที่ตั้งแปลงให้ครบก่อน",
+          confirmButtonText: "ไปที่ขั้นที่ 2",
+        });
+        router.push({ pathname: "/create/kos01", query: { step: "farmFieldInformation" as Step } });
+        return;
+      }
+      setSaving(true);
+      showSaving("กำลังบันทึกใบสมัคร");
+      const created = await CreateFarmDocKos1Service({
+        address: farm.address.trim(),
+        villageNumber: farm.moo.trim(),
+        subdistrict: farm.tambon,
+        district: farm.amphure,
+        province: farm.province,
+        latitude: farm.latitude,
+        longitude: farm.longitude,
+        certRequestDate: farm.certRequestDate,
+        mapTerrain: farm.mapTerrain,
+        mapHybrid: farm.mapHybrid,
+        ...production,
       });
+      clearKos01Drafts();
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["docKos1"] }),
+        queryClient.invalidateQueries({ queryKey: ["docKos"] }),
+      ]);
+      showSaved("บันทึกเรียบร้อย", "เหลืออีกขั้นเดียว: เพิ่มชนิดพืชที่ขอรับรอง");
+      router.push(`/kos01/${created.docKos01Id}/plantKos1`);
+    } catch (error) {
+      showError(error);
+    } finally {
+      setSaving(false);
     }
   };
-  const handleClickOnBack = () => {
-    router.push({
-      pathname: "/create/kos1",
-      query: { step: "farmFieldInformation" as Step },
-    });
+
+  const goBack = () => {
+    saveProductionDraft(value);
+    router.push({ pathname: "/create/kos01", query: { step: "farmFieldInformation" as Step } });
   };
 
   return (
-    <div className="flex w-full flex-col items-center justify-center font-Anuphan">
-      <div className="flex w-full  items-center justify-center">
-        <Form
-          onSubmit={handleSummitProductionInformation}
-          aria-label="เลือกกระบวนการผลิต"
-          className="mt-5 flex w-full flex-col items-center justify-start gap-5 lg:mt-2 lg:grid lg:grid-cols-2 lg:place-items-center lg:gap-3 lg:p-5"
-        >
-          <section
-            className="mt-4 flex h-full w-full flex-col items-center 
-        justify-start gap-2 lg:mt-0 lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color  "
-          >
-            <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
-              กระบวนการผลิต
-            </h2>
-            <CheckboxGroup
-              aria-label="เลือกกระบวนการผลิต"
-              isRequired
-              value={productionInformation?.productionProcess}
-              onChange={(e) => {
-                setProductionInformation((prev: any) => {
-                  return {
-                    ...prev,
-                    productionProcess: e as string[],
-                  };
-                });
-              }}
-              className="flex flex-col gap-2 "
-            >
-              <Checkbox
-                className={({ isPressed, isSelected }) =>
-                  isSelected ? "" : ""
-                }
-                value="มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น"
-              >
-                {({ isSelected }) => (
-                  <div className="flex items-center justify-start gap-2 ">
-                    <div className="text-3xl text-super-main-color">
-                      {isSelected ? (
-                        <IoIosCheckbox />
-                      ) : (
-                        <MdCheckBoxOutlineBlank />
-                      )}
-                    </div>
-                    <span className="text-lg font-bold text-super-main-color">
-                      มีเฉพาะผลิตผลพืช อินทรีย์เท่านั้น
-                    </span>
-                  </div>
-                )}
-              </Checkbox>
-              <Checkbox
-                className={({ isPressed, isSelected }) =>
-                  isSelected ? "" : ""
-                }
-                value="มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป"
-              >
-                {({ isSelected }) => (
-                  <div className="flex items-center justify-start gap-2 ">
-                    <div className="text-3xl text-super-main-color">
-                      {isSelected ? (
-                        <IoIosCheckbox />
-                      ) : (
-                        <MdCheckBoxOutlineBlank />
-                      )}
-                    </div>
-                    <span className="text-lg font-bold text-super-main-color">
-                      มีทั้งผลิตผลพืชอินทรีย์ และทั่วไป
-                    </span>
-                  </div>
-                )}
-              </Checkbox>
-              <FieldError className=" text-red-700 duration-200">
-                ***กรุณาใส่ข้อมูล***
-              </FieldError>
-            </CheckboxGroup>
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      <ErrorSummary errors={form.errors} show={form.submitted} />
 
-            <RadioGroup
-              isRequired
-              value={productionInformation?.productionMethod?.select}
-              onChange={(e) =>
-                setProductionInformation((prev: any) => {
-                  return {
-                    ...prev,
-                    productionMethod: {
-                      select: e,
-                      value: e,
-                    },
-                  };
-                })
-              }
-              className="mt-4 flex  flex-col gap-2"
-            >
-              <Label className="text-xl font-bold text-super-main-color">
-                วิธีการผลิต
-              </Label>
-              <Radio value="ชนิดพืชที่ผลิตแตกต่างกัน">
-                {({ isSelected }) => (
-                  <div className=" flex items-center justify-start gap-2">
-                    <div className="text-2xl text-super-main-color">
-                      {isSelected ? (
-                        <MdOutlineRadioButtonChecked />
-                      ) : (
-                        <MdOutlineRadioButtonUnchecked />
-                      )}
-                    </div>
-                    <span className="text-lg font-semibold">
-                      ชนิดพืชที่ผลิตแตกต่างกัน
-                    </span>
-                  </div>
-                )}
-              </Radio>
-              <Radio value="เวลาการผลิตแตกต่างกัน">
-                {({ isSelected }) => (
-                  <div className=" flex items-center justify-start gap-2">
-                    <div className="text-2xl text-super-main-color">
-                      {isSelected ? (
-                        <MdOutlineRadioButtonChecked />
-                      ) : (
-                        <MdOutlineRadioButtonUnchecked />
-                      )}
-                    </div>
-                    <span className="text-lg font-semibold">
-                      เวลาการผลิตแตกต่างกัน
-                    </span>
-                  </div>
-                )}
-              </Radio>
-              <div className="flex  items-center justify-start gap-2">
-                <Radio value="อื่นๆ">
-                  {({ isSelected }) => (
-                    <div className=" flex items-center justify-start gap-2">
-                      <div className="text-2xl text-super-main-color">
-                        {isSelected ? (
-                          <MdOutlineRadioButtonChecked />
-                        ) : (
-                          <MdOutlineRadioButtonUnchecked />
-                        )}
-                      </div>
-                      <div>
-                        <span className="text-lg font-semibold">อื่น ๆ</span>
-                      </div>
-                    </div>
-                  )}
-                </Radio>
-                <TextField aria-label="ตัวเลือกอื่นๆ" className="relative  ">
-                  <Input
-                    value={
-                      productionInformation?.productionMethod?.select ===
-                      "อื่นๆ"
-                        ? productionInformation?.productionMethod?.value
-                        : ""
-                    }
-                    onChange={(e) =>
-                      setProductionInformation((prev: any) => {
-                        return {
-                          ...prev,
-                          productionMethod: {
-                            select: "อื่นๆ",
-                            value: e.target.value,
-                          },
-                        };
-                      })
-                    }
-                    className="  p-2 "
-                  />
-                </TextField>
-              </div>
-              <FieldError className=" text-red-700 duration-200">
-                ***กรุณาใส่ข้อมูล***
-              </FieldError>
-            </RadioGroup>
-          </section>
-          <section
-            className="mt-4 flex h-full w-full flex-col items-center 
-        justify-start gap-2 lg:mt-0 lg:rounded-xl lg:p-7 lg:ring-2 lg:ring-third-color  "
-          >
-            <h2 className="mt-5 w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white">
-              ชนิดพืชที่ขอการรับรอง
-            </h2>
-            <div className="flex w-10/12 flex-col items-start gap-2">
+      <FormCard title="การผลิต">
+        <ChoiceCards
+          id="productionProcess"
+          label="ฟาร์มของคุณปลูกแบบไหน"
+          options={processOptions}
+          value={value.productionProcess}
+          onChange={set("productionProcess")}
+          error={form.errors.productionProcess}
+          columns={2}
+        />
+        <ChoiceCards
+          id="productionMethod"
+          label="แยกการผลิตอินทรีย์ออกจากการผลิตทั่วไปอย่างไร"
+          hint="ถ้าปลูกเฉพาะพืชอินทรีย์ ให้เลือกข้อที่ใกล้เคียงที่สุด หรือเลือก “อื่น ๆ” แล้วพิมพ์ว่า “ผลิตเฉพาะพืชอินทรีย์”"
+          options={methodOptions}
+          value={value.productionMethod}
+          onChange={set("productionMethod")}
+          error={form.errors.productionMethod}
+          renderSelected={(option) =>
+            option.value === OTHER && (
               <TextField
-                isRequired
-                className="relative flex  flex-col items-start  "
-              >
-                <Label className="text-lg font-semibold text-super-main-color">
-                  จำนวนแปลงทั้งหมด:{" "}
-                </Label>
-                <Input
-                  name="plotsTotal"
-                  onChange={handleChangeProductionInformation}
-                  value={productionInformation?.plotsTotal}
-                  required
-                  type="number"
-                  inputMode="numeric"
-                  className=" p-2"
-                />
-              </TextField>
-              <div className="flex w-full items-center justify-center gap-2">
-                <TextField
-                  isRequired
-                  className="relative flex w-max items-center  justify-center gap-2 "
-                >
-                  <Label className="text-lg font-semibold text-super-main-color">
-                    พื้นที่:{" "}
-                  </Label>
-                  <Input
-                    name="raiTotal"
-                    onChange={handleChangeProductionInformation}
-                    value={productionInformation?.raiTotal}
-                    type="number"
-                    inputMode="numeric"
-                    className="w-20  p-2"
-                  />
-                  <span className="text-lg font-semibold text-super-main-color">
-                    ไร่
-                  </span>
-                </TextField>
-                <TextField
-                  isRequired
-                  aria-label="งาน"
-                  className="relative flex w-max items-center  justify-center gap-2 "
-                >
-                  <Input
-                    name="nganTotal"
-                    onChange={handleChangeProductionInformation}
-                    value={productionInformation?.nganTotal}
-                    type="number"
-                    inputMode="numeric"
-                    className="w-20  p-2"
-                  />
-                  <span className="text-lg font-semibold text-super-main-color">
-                    งาน
-                  </span>
-                </TextField>
-              </div>
-            </div>
-            <div className="mt-5 flex w-10/12 flex-col  items-start gap-2">
-              <TextField
-                isRequired
-                className="relative flex  w-full flex-col items-start   "
-              >
-                <Label className="text-lg font-semibold text-super-main-color">
-                  จำนวนแปลงที่ขอรับรอง KOS:{" "}
-                </Label>
-                <Input
-                  name="certicatedPlotTotal"
-                  onChange={handleChangeProductionInformation}
-                  value={productionInformation?.certicatedPlotTotal}
-                  type="number"
-                  inputMode="numeric"
-                  className=" p-2"
-                />
-              </TextField>
-              <div className="flex w-full items-center justify-center gap-2">
-                <TextField
-                  isRequired
-                  className="relative flex w-max items-center  justify-center gap-2 "
-                >
-                  <Label className="text-lg font-semibold text-super-main-color">
-                    พื้นที่:{" "}
-                  </Label>
-                  <Input
-                    name="certicatedRaiTotal"
-                    onChange={handleChangeProductionInformation}
-                    value={productionInformation?.certicatedRaiTotal}
-                    type="number"
-                    inputMode="numeric"
-                    className="w-20  p-2"
-                  />
-                  <span className="text-lg font-semibold text-super-main-color">
-                    ไร่
-                  </span>
-                </TextField>
-                <TextField
-                  isRequired
-                  aria-label="งาน"
-                  className="relative flex w-max items-center  justify-center gap-2 "
-                >
-                  <Input
-                    name="certicatedNganTotal"
-                    onChange={handleChangeProductionInformation}
-                    value={productionInformation?.certicatedNganTotal}
-                    type="number"
-                    inputMode="numeric"
-                    className="w-20  p-2"
-                  />
-                  <span className="text-lg font-semibold text-super-main-color">
-                    งาน
-                  </span>
-                </TextField>
-              </div>
-            </div>
-          </section>
-          {isUpdate ? (
-            <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2">
-              <Link
-                href={`/kos01/${docKos1?.data?.id}`}
-                className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
-          text-xl text-white drop-shadow-md"
-              >
-                <IoMdCloseCircle />
-                ยกเลิก
-              </Link>
-              <Button
-                type="submit"
-                className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-2 
-          text-xl text-white drop-shadow-md"
-              >
-                <FaSave />
-                บันทึก
-              </Button>
-            </div>
-          ) : (
-            <div className="mt-20 flex w-full justify-center gap-2 lg:col-span-2">
-              <Button
-                onPress={handleClickOnBack}
-                type="button"
-                className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color 
-            px-5 py-2 text-lg font-semibold text-white drop-shadow-lg 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
-              >
-                <MdOutlineNavigateBefore /> ย้อนกลับ
-              </Button>
-              <Button
-                type="submit"
-                className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10
-             py-2 text-lg  font-semibold text-white drop-shadow-lg 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
-              >
-                ถัดไป <MdOutlineNavigateNext />
-              </Button>
-            </div>
+                id="productionMethodOther"
+                label="อธิบายวิธีการผลิตของคุณ"
+                placeholder="เช่น ผลิตเฉพาะพืชอินทรีย์"
+                value={value.productionMethodOther}
+                onChange={set("productionMethodOther")}
+                onBlur={() => form.touch("productionMethodOther")}
+                error={form.errors.productionMethodOther}
+                maxLength={255}
+                className="pl-4"
+              />
+            )
+          }
+        />
+      </FormCard>
+
+      <FormCard title="จำนวนแปลงและพื้นที่" description="1 ไร่ = 4 งาน ถ้าไม่มีเศษเป็นงาน ให้ใส่ 0">
+        <div className="flex flex-col gap-4">
+          <h3 className="text-lg font-bold">พื้นที่ทั้งหมดของฟาร์ม</h3>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <NumberField {...numberProps("plotsTotal")} label="จำนวนแปลง" hint="นับทุกแปลง ทั้งอินทรีย์และทั่วไป" unit="แปลง" integer className="col-span-2 sm:col-span-1" />
+            <NumberField {...numberProps("raiTotal")} label="พื้นที่ (ไร่)" hint="เช่น 5" unit="ไร่" />
+            <NumberField {...numberProps("nganTotal")} label="และ (งาน)" hint="0 ถึง 3" unit="งาน" />
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 border-t border-third-color/30 pt-5">
+          <h3 className="text-lg font-bold">ส่วนที่ขอรับรอง KOS</h3>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <NumberField {...numberProps("certicatedPlotTotal")} label="จำนวนแปลง" hint="ไม่เกินจำนวนแปลงทั้งหมด" unit="แปลง" integer className="col-span-2 sm:col-span-1" />
+            <NumberField {...numberProps("certicatedRaiTotal")} label="พื้นที่ (ไร่)" hint="เช่น 2" unit="ไร่" />
+            <NumberField {...numberProps("certicatedNganTotal")} label="และ (งาน)" hint="0 ถึง 3" unit="งาน" />
+          </div>
+          {!form.errors.certicatedRaiTotal && toNgan(value.certicatedRaiTotal, value.certicatedNganTotal) > 0 && toNgan(value.raiTotal, value.nganTotal) > 0 && (
+            <p className="flex items-center gap-1.5 text-base text-main-color">
+              <LuCheck aria-hidden="true" className="size-5" />
+              ขอรับรอง {formatArea(value.certicatedRaiTotal, value.certicatedNganTotal)} จากทั้งหมด {formatArea(value.raiTotal, value.nganTotal)}
+            </p>
           )}
-        </Form>
-      </div>
-    </div>
+        </div>
+        {form.submitted && form.errorCount > 0 && <FieldErrorText>แก้ไขช่องที่มีกรอบสีแดงก่อนบันทึก</FieldErrorText>}
+      </FormCard>
+
+      <FormActions>
+        {isUpdate ? (
+          <Link href={`/kos01/${docKos1?.data?.id}`} className="btn btn-secondary">
+            ยกเลิก
+          </Link>
+        ) : (
+          <button type="button" onClick={goBack} className="btn btn-secondary">
+            <LuArrowLeft aria-hidden="true" className="size-5" />
+            ย้อนกลับ
+          </button>
+        )}
+        <button type="submit" className="btn btn-primary sm:min-w-44" disabled={saving}>
+          <LuSave aria-hidden="true" className="size-5" />
+          {isUpdate ? "บันทึก" : "บันทึกและไปเพิ่มพืช"}
+        </button>
+      </FormActions>
+    </form>
   );
 }
 

@@ -1,78 +1,41 @@
-import React from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { parseCookies } from "nookies";
-import {
-  GetAllDocKosService,
-  GetFarmerServerSideService,
-} from "../../services/farmer";
-import { Farmer } from "../../model";
-import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
-import Kos2Form from "../../components/docKos/kos2/form/kos2Form";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import React, { useEffect } from "react";
+import Kos2Form, { kos02Steps } from "../../components/docKos/kos2/form/kos2Form";
+import { FormStepper, GuideBox, KosPageHeader, Skeleton } from "../../components/ui";
+import { kosGuide } from "../../data/kosGuides";
+import DashboardLayout from "../../layouts/dashboardLayout";
 import { GetDocKos02Service } from "../../services/kos2";
 
-function Kos02({ farmer }: { farmer: Farmer }) {
-  const docKos = useQuery({
-    queryKey: ["docKos"],
-    queryFn: () => GetAllDocKosService(),
-  });
-  const dockos02 = useQuery({
-    queryKey: ["kos02"],
+/** KOS-02 part 1, the farm map. Crop plans are added on /kos02/[id] once the map is saved. */
+function CreateKos02() {
+  const router = useRouter();
+  const guide = kosGuide("kos2");
+  // The server answers 404 until the farmer has saved a map.
+  const docKos02 = useQuery({
+    queryKey: ["docKos02"],
     queryFn: () => GetDocKos02Service(),
+    retry: false,
   });
+  const existingId = docKos02.data?.id;
+
+  // A farmer has one KOS-02: if it is already saved, open it instead of starting a second.
+  useEffect(() => {
+    if (existingId) router.replace(guide.viewHref(existingId));
+  }, [existingId, guide, router]);
+
   return (
-    <DashboardLayout farmer={farmer}>
+    <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-2</title>
+        <title>KOS-02 ผังแปลงและแผนการปลูก | Korat KOS</title>
       </Head>
-      <div className="min-h-screen bg-fourth-color pb-10  pt-10 font-Anuphan">
-        <header className="flex flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5">
-            <h1 className="text-xl font-semibold text-white">(KOS-02) </h1>
-            <h2 className="text-balance text-center text-lg font-normal text-white">
-              ผังแปลง ขอรับการตรวจประเมิน มาตรฐานเกษตรอินทรีย์ ขั้นพื้นฐาน
-            </h2>
-          </section>
-        </header>
-        <main>
-          <Kos2Form dockos02={dockos02} docKos={docKos} />
-        </main>
-      </div>
+      <KosPageHeader code={guide.code} title={guide.name} description={guide.summary} />
+      <FormStepper steps={kos02Steps} current={0} />
+      <GuideBox title="สิ่งที่ต้องเตรียม" items={guide.prepare} />
+      {docKos02.isLoading || existingId ? <Skeleton className="h-96 w-full" /> : <Kos2Form />}
     </DashboardLayout>
   );
 }
 
-export default Kos02;
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext,
-) => {
-  try {
-    const cookies = parseCookies(ctx);
-    const accessToken = cookies.access_token;
-    if (accessToken) {
-      const farmer = await GetFarmerServerSideService({
-        access_token: accessToken,
-      });
-      return {
-        props: {
-          farmer,
-        },
-      };
-    } else {
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/auth/sign-in",
-        },
-      };
-    }
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/auth/sign-in",
-      },
-    };
-  }
-};
+export default CreateKos02;

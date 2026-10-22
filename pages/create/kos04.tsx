@@ -1,73 +1,24 @@
-import React from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { parseCookies } from "nookies";
-import {
-  GetAllDocKosService,
-  GetFarmerServerSideService,
-} from "../../services/farmer";
-import { Farmer } from "../../model";
 import Head from "next/head";
-import { useQuery } from "@tanstack/react-query";
-import CreateFactor from "../../components/docKos/kos4/createFactor";
+import React from "react";
+import FactorForm from "../../components/docKos/kos4/factorForm";
+import { GuideBox, KosPageHeader } from "../../components/ui";
+import { kosGuide } from "../../data/kosGuides";
+import DashboardLayout from "../../layouts/dashboardLayout";
 
-function Kos02({ farmer }: { farmer: Farmer }) {
-  const docKos = useQuery({
-    queryKey: ["docKos"],
-    queryFn: () => GetAllDocKosService(),
-  });
+const guide = kosGuide("kos4");
+
+/** Starts KOS-04 with its first record; the document itself is created on save. */
+function CreateKos04() {
   return (
-    <DashboardLayout farmer={farmer}>
+    <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-4</title>
+        <title>{`${guide.code} ${guide.name} | Korat KOS`}</title>
       </Head>
-      <div className="flex min-h-screen w-full flex-col items-center bg-fourth-color pb-10  pt-10 font-Anuphan">
-        <header className="flex w-full flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5 lg:h-20 lg:flex-row">
-            <h1 className="text-xl font-semibold text-white">(KOS-04) </h1>
-            <h2 className="text-balance text-center text-lg font-normal text-white">
-              แบบบันทึก ปัจจัยการผลิตในแปลง ผลิตพืชอินทรีย์{" "}
-            </h2>
-          </section>
-        </header>
-        <main>
-          <CreateFactor />
-        </main>
-      </div>
+      <KosPageHeader code={guide.code} title={guide.name} description={guide.summary} />
+      <GuideBox title="สิ่งที่ต้องเตรียม" items={guide.prepare} />
+      <FactorForm />
     </DashboardLayout>
   );
 }
 
-export default Kos02;
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext,
-) => {
-  try {
-    const cookies = parseCookies(ctx);
-    const accessToken = cookies.access_token;
-    if (accessToken) {
-      const farmer = await GetFarmerServerSideService({
-        access_token: accessToken,
-      });
-      return {
-        props: {
-          farmer,
-        },
-      };
-    } else {
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/auth/sign-in",
-        },
-      };
-    }
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/auth/sign-in",
-      },
-    };
-  }
-};
+export default CreateKos04;

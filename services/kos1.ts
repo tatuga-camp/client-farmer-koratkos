@@ -27,7 +27,7 @@ export async function CreateDocKos1Service(
     });
     return kos1.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -49,7 +49,7 @@ export async function GetDocKos1Service(): Promise<ResponseGetAllDocKos1Service>
     });
     return kos1.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -94,7 +94,7 @@ export async function CreateFarmDocKos1Service(
     });
     return farmDockos1.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -127,7 +127,7 @@ export async function CreatePlantKos1Service(
     });
     return plant.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -163,7 +163,7 @@ export async function UpdatePlantKos1Service(
     });
     return plant.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -189,7 +189,7 @@ export async function DeletePlantKos1Service(
     });
     return plant.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -221,7 +221,7 @@ export async function UpdateDocKos1Service(
     });
     return kos1.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -268,7 +268,7 @@ export async function UpdateFarmKos01Service(
     });
     return farm.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

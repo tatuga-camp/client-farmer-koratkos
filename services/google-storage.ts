@@ -29,7 +29,7 @@ export async function GetSignURLService(
     });
     return signURL.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -45,16 +45,21 @@ export async function UploadSignURLService(
   message: "success" | "error";
 }> {
   try {
-    await fetch(input.signURL, {
+    const response = await fetch(input.signURL, {
       method: "PUT",
       headers: {
         "Content-Type": `${input.contentType}`,
       },
       body: input.file,
     });
+    // fetch only rejects on network failure; an expired or refused signed URL comes back as 4xx.
+    if (!response.ok) {
+      console.error(`Upload failed with status ${response.status}`);
+      return { message: "error" };
+    }
     return { message: "success" };
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     return { message: "error" };
   }
 }

@@ -2,12 +2,10 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    "./index.html",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./layouts/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/primereact/**/*.{js,ts,jsx,tsx}",
+    "./data/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -24,7 +22,7 @@ const config: Config = {
         "fourth-color": "#FFFFEC",
       },
       fontFamily: {
-        Anuphan: ["Anuphan", "sans-serif"],
+        Anuphan: ["var(--font-anuphan)", "Anuphan", "sans-serif"],
       },
     },
   },

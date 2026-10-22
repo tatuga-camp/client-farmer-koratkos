@@ -1,91 +1,85 @@
 import { useQuery } from "@tanstack/react-query";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useState } from "react";
 import { GetFormEvaluatonsService } from "../../services/evaluation";
-import { FormEvaluation, User } from "../../model";
-import { IoArrowBackCircle } from "react-icons/io5";
+import { formatThaiDate } from "../../utils/format";
+import { Skeleton } from "../ui";
 
-type EvaluationReportProps = {
-  setTriggerViewEvaluationReport: Dispatch<SetStateAction<boolean>>;
+const statusText: Record<string, { label: string; className: string }> = {
+  approved: { label: "ผ่าน", className: "bg-main-color/10 text-main-color" },
+  rejected: { label: "ไม่ผ่าน", className: "bg-red-50 text-red-700" },
+  evaluating: { label: "กำลังประเมิน", className: "bg-secondary-color/10 text-secondary-color" },
+  pending: { label: "รอประเมิน", className: "bg-third-color/20 text-super-main-color" },
 };
-function EvaluationReport({
-  setTriggerViewEvaluationReport,
-}: EvaluationReportProps) {
-  const [selectFormEvaluation, setSelectFormEvaluation] = useState<
-    FormEvaluation & { user: User }
-  >();
+
+/** Results of each evaluation round: who evaluated, the outcome and their comments. */
+function EvaluationReport() {
+  const [selectedId, setSelectedId] = useState<string>();
   const formEvaluations = useQuery({
     queryKey: ["formEvaluations"],
-    queryFn: () =>
-      GetFormEvaluatonsService().then((res) => {
-        setSelectFormEvaluation(() => res[0]);
-        return res;
-      }),
+    queryFn: () => GetFormEvaluatonsService(),
   });
 
-  return (
-    <div
-      className="flex  w-11/12 flex-col items-center justify-start rounded-lg 
-    bg-[#F1E4C3] p-5 font-Anuphan md:w-8/12"
-    >
-      <h1 className="rounded-lg bg-third-color px-2 py-1 font-semibold text-white">
-        รายละเอียดการประเมิน
-      </h1>
-      <ul className="mt-5 flex items-center justify-center gap-5">
-        {formEvaluations.data?.map((formEvaluation) => {
-          return (
-            <li
-              onClick={() => setSelectFormEvaluation(() => formEvaluation)}
-              className={`cursor-pointer rounded-lg px-5 py-1 text-sm font-semibold 
-               text-white transition duration-150 hover:scale-105
-                active:scale-110 ${selectFormEvaluation?.id === formEvaluation.id ? "bg-super-main-color" : "bg-secondary-color"}`}
-              key={formEvaluation.id}
-            >
-              ครั้งที่ {formEvaluation.number}
-            </li>
-          );
-        })}
-      </ul>
-      <div className="flex w-full flex-col  items-center gap-3">
-        <div
-          className="mt-5 flex w-11/12 max-w-96 items-center justify-center gap-2 rounded-lg bg-secondary-color
-         px-4 py-2 text-sm font-semibold text-white"
-        >
-          <span>ผู้ประเมิน ครั้งที่ {selectFormEvaluation?.number}</span>
-          <span>
-            {" "}
-            : {selectFormEvaluation?.user.firstName}{" "}
-            {selectFormEvaluation?.user.lastName}
-          </span>
-        </div>
-        <div className="rounded-lg bg-third-color px-4 py-2  text-sm font-semibold text-white">
-          สถานะ:{" "}
-          {selectFormEvaluation?.status === "approved"
-            ? "ผ่าน"
-            : selectFormEvaluation?.status === "rejected" && "ไม่ผ่าน"}
-        </div>
-        <div className="h-max w-full text-wrap px-4">
-          <span className="text-sm font-bold text-super-main-color">
-            ความคิดเห็น :
-          </span>
-          <div className="w-full  text-balance break-words text-sm ">
-            {selectFormEvaluation?.reason}{" "}
-          </div>
-        </div>
-        <button
-          onClick={() => {
-            setTriggerViewEvaluationReport(() => false);
-          }}
-          className="flex w-max items-center justify-center gap-2
-         rounded-lg bg-super-main-color px-4 py-1 text-white drop-shadow-lg transition 
-         duration-150 hover:scale-105 active:scale-110"
-        >
-          <div className="rounded-full bg-white p-1 text-super-main-color">
-            <IoArrowBackCircle />
-          </div>
-          ย้อนกลับ
+  if (formEvaluations.isLoading) return <Skeleton className="h-40 w-full" />;
+  if (formEvaluations.isError) {
+    return (
+      <div className="flex flex-col items-start gap-2 rounded-xl bg-fourth-color p-4">
+        <p className="hint">โหลดผลการประเมินไม่สำเร็จ</p>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => formEvaluations.refetch()}>
+          ลองใหม่
         </button>
       </div>
-    </div>
+    );
+  }
+  const rounds = [...(formEvaluations.data ?? [])].sort((a, b) => a.number - b.number);
+  if (rounds.length === 0) {
+    return <p className="rounded-xl bg-fourth-color p-4 hint">ยังไม่มีผลการประเมิน</p>;
+  }
+  // Latest round first by default: that is the result that matters now.
+  const selected = rounds.find((round) => round.id === selectedId) ?? rounds[rounds.length - 1];
+  const status = statusText[selected.status] ?? statusText.pending;
+
+  return (
+    <section aria-label="ผลการประเมิน" className="flex flex-col gap-4 rounded-xl border border-third-color/40 bg-fourth-color/60 p-4">
+      {rounds.length > 1 && (
+        <div role="group" aria-label="เลือกครั้งที่ประเมิน" className="flex flex-wrap gap-2">
+          {rounds.map((round) => (
+            <button
+              key={round.id}
+              type="button"
+              aria-pressed={round.id === selected.id}
+              onClick={() => setSelectedId(round.id)}
+              className={`btn btn-sm ${round.id === selected.id ? "btn-dark" : "btn-secondary"}`}
+            >
+              ครั้งที่ {round.number}
+            </button>
+          ))}
+        </div>
+      )}
+      <dl className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <dt className="text-sm text-super-main-color/70">ผลการประเมิน ครั้งที่ {selected.number}</dt>
+          <dd>
+            <span className={`mt-1 inline-block rounded-full px-3 py-0.5 text-base font-bold ${status.className}`}>{status.label}</span>
+          </dd>
+        </div>
+        <div>
+          <dt className="text-sm text-super-main-color/70">ผู้ประเมิน</dt>
+          <dd className="text-lg font-semibold">
+            {selected.user ? `${selected.user.firstName} ${selected.user.lastName}` : "-"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-sm text-super-main-color/70">วันที่ประเมิน</dt>
+          <dd className="text-lg font-semibold">{formatThaiDate(selected.evaluatedDate)}</dd>
+        </div>
+      </dl>
+      <div>
+        <h4 className="text-base font-bold">ความคิดเห็นของผู้ประเมิน</h4>
+        <p className="mt-1 whitespace-pre-line break-words rounded-lg bg-white p-3 text-lg leading-relaxed">
+          {selected.reason?.trim() || "ไม่มีความคิดเห็นเพิ่มเติม"}
+        </p>
+      </div>
+    </section>
   );
 }
 

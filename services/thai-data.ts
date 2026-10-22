@@ -15,7 +15,7 @@ export async function GetAllProvinceService(): Promise<ResponseGetAllProvinceSer
     });
     return provinces.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -40,7 +40,7 @@ export async function GetAllAmphuresByProvinceService(
     });
     return amphures.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -65,7 +65,7 @@ export async function GetAllTambonByAmphureService(
     });
     return tambons.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

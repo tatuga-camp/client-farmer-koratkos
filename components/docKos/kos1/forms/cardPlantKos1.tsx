@@ -1,218 +1,153 @@
+import { UseQueryResult, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import React, { useState } from "react";
-import { IoMdAddCircleOutline } from "react-icons/io";
-import CreatePlantKos1, { PlantData } from "./createPlantKos1";
-import { UseQueryResult } from "@tanstack/react-query";
-import {
-  DeletePlantKos1Service,
-  ResponseGetAllDocKos1Service,
-} from "../../../../services/kos1";
-import { AiFillEdit } from "react-icons/ai";
-import { MdDelete } from "react-icons/md";
-import { FaCalendarAlt } from "react-icons/fa";
-import { GiWeight } from "react-icons/gi";
-import { TbToolsKitchen } from "react-icons/tb";
-import UpdatePlantKos1 from "./updatePlantKos1";
-import Swal from "sweetalert2";
+import { LuCheckCircle2, LuPencil, LuPlus, LuSprout, LuTrash2 } from "react-icons/lu";
+import { EmptyState, GuideBox, Skeleton } from "../../../ui";
+import PlantKos1Form from "./plantKos1Form";
+import { PlantKos1 } from "../../../../model";
+import { DeletePlantKos1Service, ResponseGetAllDocKos1Service } from "../../../../services/kos1";
+import { confirmDelete, showError, showSaved } from "../../../../utils/confirm";
+import { formatNumber, formatThaiDate, formatThaiMonth } from "../../../../utils/format";
 
-type PlantKos1Type = {
-  farmKOS1Id: string;
+type CardPlantKos1Props = {
   docKos1: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
 };
-function CardPlantKos1({ farmKOS1Id, docKos1 }: PlantKos1Type) {
-  const [triggerCreatePlant, setTriggerCreatePlant] = useState(false);
-  const [triggerUpdatePlant, setTriggerUpdatePlant] = useState(false);
-  const [selectUpdatePlant, setSelectUpdatePlant] = useState<
-    (PlantData & { id: string }) | undefined
-  >();
-  if (triggerCreatePlant) {
+
+type Mode = { kind: "list" } | { kind: "add" } | { kind: "edit"; plant: PlantKos1 };
+
+/** KOS-01 step 4: the crops to certify, as cards with add / edit / delete. */
+function CardPlantKos1({ docKos1 }: CardPlantKos1Props) {
+  const queryClient = useQueryClient();
+  const [mode, setMode] = useState<Mode>({ kind: "list" });
+  const farmKOS1Id = docKos1.data?.farmKos1?.id;
+  const plants = docKos1.data?.plantKOS1s ?? [];
+
+  const switchTo = (next: Mode) => {
+    setMode(next);
+    window.scrollTo({ top: 0 });
+  };
+
+  const handleDelete = async (plant: PlantKos1) => {
+    const confirmed = await confirmDelete({ title: `ลบ${plant.plant}ออกจากใบสมัคร?` });
+    if (!confirmed) return;
+    try {
+      await DeletePlantKos1Service({ plantKOS1Id: plant.id });
+      await queryClient.invalidateQueries({ queryKey: ["docKos1"] });
+      showSaved("ลบเรียบร้อย");
+    } catch (error) {
+      showError(error, "ลบไม่สำเร็จ");
+    }
+  };
+
+  if (docKos1.isLoading) return <Skeleton className="h-64 w-full" />;
+
+  if (!farmKOS1Id) {
     return (
-      <div className="flex w-full justify-center">
-        <CreatePlantKos1
-          docKos1={docKos1}
-          farmKOS1Id={farmKOS1Id}
-          setTriggerCreatePlant={setTriggerCreatePlant}
-        />
-      </div>
-    );
-  }
-  if (triggerUpdatePlant && selectUpdatePlant) {
-    return (
-      <div className="flex w-full justify-center">
-        <UpdatePlantKos1
-          setTriggerUpdatePlant={setTriggerUpdatePlant}
-          docKos1={docKos1}
-          setSelectUpdatePlant={setSelectUpdatePlant}
-          selectUpdatePlant={selectUpdatePlant}
-        />
-      </div>
+      <EmptyState
+        icon={<LuSprout />}
+        title="ยังเพิ่มพืชไม่ได้"
+        description="ต้องกรอกขั้นที่ 2 ที่ตั้งแปลง และขั้นที่ 3 การผลิตและพื้นที่ ให้ครบก่อน"
+        action={
+          <Link href="/create/kos01?step=farmFieldInformation" className="btn btn-primary">
+            ไปกรอกขั้นที่ 2
+          </Link>
+        }
+      />
     );
   }
 
-  const handleDeletePlant = async ({ plantId }: { plantId: string }) => {
-    let content = document.createElement("div");
-    content.innerHTML =
-      "<div>กรุณาพิมพ์ข้อความนี้</div> <strong>" +
-      "ยืนยันการลบ" +
-      "</strong> <div>เพื่อลบข้อมูล</div>";
-    const { value } = await Swal.fire<{ value: string }>({
-      title: "ยืนยันการลบข้อมูล",
-      input: "text",
-      html: content,
-      footer: "<strong>หากลบแล้วคุณจะไม่สามารถกู้คืนข้อมูลได้</strong>",
-      showCancelButton: true,
-      inputValidator: (value) => {
-        if (value !== "ยืนยันการลบ") {
-          return "กรุณาพิมพ์ข้อความยืนยันให้ถูกต้อง";
-        }
-      },
-    });
-    if (value) {
-      try {
-        Swal.fire({
-          title: "กำลังลบข้อมูล",
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const deletePlant = await DeletePlantKos1Service({
-          plantKOS1Id: plantId,
-        });
-        await docKos1.refetch();
-        Swal.fire({
-          icon: "success",
-          title: "ลบสำเร็จ",
-          text: "ลบข้อมูลสำเร็จ",
-        });
-      } catch (error: any) {
-        console.log(error);
-        Swal.fire({
-          icon: "error",
-          title: "เกิดข้อผิดพลาด",
-          text: error.message,
-        });
-      }
-    }
-  };
+  if (mode.kind !== "list") {
+    return (
+      <PlantKos1Form
+        farmKOS1Id={farmKOS1Id}
+        plant={mode.kind === "edit" ? mode.plant : undefined}
+        onDone={() => switchTo({ kind: "list" })}
+      />
+    );
+  }
+
+  const addButton = (
+    <button type="button" onClick={() => switchTo({ kind: "add" })} className="btn btn-primary">
+      <LuPlus aria-hidden="true" className="size-5" />
+      {plants.length === 0 ? "เพิ่มพืชชนิดแรก" : "เพิ่มชนิดพืช"}
+    </button>
+  );
+
   return (
-    <div className="flex w-full flex-col items-center justify-center font-Anuphan">
-      <div className="flex w-full flex-col items-center justify-start">
-        <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
-          กระบวนการผลิต
-        </h2>
-        <button
-          onClick={() => {
-            setTriggerCreatePlant(() => true);
-          }}
-          className="mt-5 flex items-center justify-center gap-2 rounded-lg bg-super-main-color px-5 py-1 text-xl
-     font-semibold text-white drop-shadow-md transition duration-150 hover:scale-105 active:scale-110"
-        >
-          <IoMdAddCircleOutline />
-          เพิ่มชนิดพืช
-        </button>
-        <ul className="mt-10 flex w-full flex-col  items-center justify-center gap-7 lg:grid lg:grid-cols-2 lg:p-10 xl:grid-cols-3">
-          {docKos1.data?.plantKOS1s.map((plant, index) => {
-            const seasonProd = plant.seasonProd.map((time) => {
-              const date = new Date(time);
-              return date.toLocaleDateString("th-TH", {
-                month: "short",
-              });
-            });
-            const expHarvestDate = new Date(
-              plant.expHarvestDate,
-            ).toLocaleDateString("th-TH", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            });
-            return (
-              <li
-                key={index}
-                className="flex h-60 w-10/12 flex-col items-center gap-1 rounded-lg bg-[#F1E4C3] p-2 drop-shadow-md"
-              >
-                <section className="flex w-full justify-between">
-                  <h1
-                    className="flex h-10 items-center justify-center
-                     rounded-2xl bg-super-main-color px-3  text-lg font-bold text-white"
-                  >
-                    ลำดับที่ {index + 1}
-                  </h1>
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => {
-                        setSelectUpdatePlant(() => {
-                          return {
-                            id: plant.id,
-                            plant: plant.plant,
-                            raiTotal: Number(plant.raiTotal),
-                            annualProdCycles: plant.annualProdCycles.toString(),
-                            seasonProd: plant.seasonProd.map(
-                              (time) => new Date(time),
-                            ),
-                            expYieldAmt: plant.expYieldAmt,
-                            expHarvestDate: new Date(plant.expHarvestDate),
-                          };
-                        });
-                        setTriggerUpdatePlant(() => true);
-                      }}
-                      className="flex flex-col items-center justify-center gap-1"
-                    >
-                      <div className="rounded-lg bg-[#597E52] p-2 text-white">
-                        <AiFillEdit />
-                      </div>
-                      <span className="text-sm font-semibold">แก้ไข</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeletePlant({ plantId: plant.id })}
-                      className="flex flex-col items-center justify-center gap-1"
-                    >
-                      <div className="rounded-lg bg-red-700 p-2 text-white">
-                        <MdDelete />
-                      </div>
-                      <span className="text-sm font-semibold">ลบ</span>
-                    </button>
+    <div className="flex flex-col gap-5">
+      {plants.length === 0 ? (
+        <EmptyState
+          icon={<LuSprout />}
+          title="ยังไม่มีพืชในใบสมัคร"
+          description="เพิ่มพืชที่จะขอรับรองอย่างน้อย 1 ชนิด ใบสมัคร KOS-01 จึงจะครบ"
+          action={addButton}
+        />
+      ) : (
+        <>
+          <GuideBox title="ใบสมัคร KOS-01 ครบแล้ว">
+            <div className="flex flex-col gap-3">
+              <p className="flex items-center gap-1.5">
+                <LuCheckCircle2 aria-hidden="true" className="size-5 text-main-color" />
+                มีพืช {plants.length} ชนิด ถ้ายังมีพืชอื่น กดเพิ่มได้อีก
+              </p>
+              <Link href="/" className="btn btn-secondary btn-sm w-full sm:w-fit">
+                ไปกรอกเอกสารฉบับต่อไป
+              </Link>
+            </div>
+          </GuideBox>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-xl font-bold">พืชที่ขอรับรอง ({plants.length} ชนิด)</h2>
+            {addButton}
+          </div>
+          <ul className="grid gap-4 md:grid-cols-2">
+            {plants.map((plant, index) => (
+              <li key={plant.id} className="card flex flex-col gap-4 p-4 sm:p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm text-super-main-color/70">ชนิดที่ {index + 1}</p>
+                    <h3 className="break-words text-2xl font-bold">{plant.plant}</h3>
                   </div>
-                </section>
-                <section className="flex w-full flex-col items-center justify-center gap-1">
-                  <h3 className="w-40 truncate text-center text-3xl font-semibold text-super-main-color">
-                    {plant.plant}
-                  </h3>
-                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-third-color">
-                    <span>พื้นที่ {plant.raiTotal} ไร่</span>
-                    <span>ผลิต {plant.annualProdCycles} รอบ/ปี</span>
+                  <LuSprout aria-hidden="true" className="size-7 shrink-0 text-main-color" />
+                </div>
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-base">
+                  <div>
+                    <dt className="text-super-main-color/70">พื้นที่ปลูก</dt>
+                    <dd className="text-lg font-semibold">{formatNumber(plant.raiTotal)} ไร่</dd>
                   </div>
-                </section>
-                <section className="mt-5 flex w-full justify-center gap-2">
-                  <div className="flex w-max items-center justify-center gap-2 ">
-                    <div className="rounded-full bg-super-main-color p-1 text-sm text-white">
-                      <FaCalendarAlt />
-                    </div>
-                    <span className="font-semibold text-super-main-color">
-                      {seasonProd[0]} - {seasonProd[1]}
-                    </span>
+                  <div>
+                    <dt className="text-super-main-color/70">ปลูกปีละ</dt>
+                    <dd className="text-lg font-semibold">{plant.annualProdCycles} รอบ</dd>
                   </div>
-                  <div className="flex w-max items-center justify-center gap-2">
-                    <div className="rounded-full bg-super-main-color p-1 text-sm text-white">
-                      <GiWeight />
-                    </div>
-                    <span className="font-semibold text-super-main-color">
-                      {plant.expYieldAmt.toLocaleString()} กก.
-                    </span>
+                  <div>
+                    <dt className="text-super-main-color/70">ช่วงเดือนที่ปลูก</dt>
+                    <dd className="text-lg font-semibold">
+                      {formatThaiMonth(plant.seasonProd[0])} – {formatThaiMonth(plant.seasonProd[1])}
+                    </dd>
                   </div>
-                </section>
-                <div className="mt-2 flex w-max items-center justify-center gap-2">
-                  <div className="rounded-full bg-super-main-color p-1 text-sm text-white">
-                    <TbToolsKitchen />
+                  <div>
+                    <dt className="text-super-main-color/70">ผลผลิตที่คาด</dt>
+                    <dd className="text-lg font-semibold">{formatNumber(plant.expYieldAmt)} กก.</dd>
                   </div>
-                  <span className="font-semibold text-super-main-color">
-                    เก็บเกี่ยว : {expHarvestDate}
-                  </span>
+                  <div className="col-span-2">
+                    <dt className="text-super-main-color/70">คาดว่าจะเก็บเกี่ยว</dt>
+                    <dd className="text-lg font-semibold">{formatThaiDate(plant.expHarvestDate)}</dd>
+                  </div>
+                </dl>
+                <div className="mt-auto flex gap-2 border-t border-third-color/30 pt-4 [&>*]:flex-1">
+                  <button type="button" onClick={() => switchTo({ kind: "edit", plant })} className="btn btn-secondary btn-sm">
+                    <LuPencil aria-hidden="true" className="size-5" />
+                    แก้ไข
+                  </button>
+                  <button type="button" onClick={() => handleDelete(plant)} className="btn btn-danger-soft btn-sm">
+                    <LuTrash2 aria-hidden="true" className="size-5" />
+                    ลบ
+                  </button>
                 </div>
               </li>
-            );
-          })}
-        </ul>
-      </div>
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

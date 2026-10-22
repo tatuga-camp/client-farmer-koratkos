@@ -1,54 +1,78 @@
-import { useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/router";
-import { destroyCookie } from "nookies";
-import React from "react";
-import { TbUserEdit } from "react-icons/tb";
-import { VscSignOut } from "react-icons/vsc";
-import { Farmer } from "../../model";
-import { IoHome } from "react-icons/io5";
+import React, { useEffect, useRef, useState } from "react";
+import { LuMenu, LuX } from "react-icons/lu";
+import { Brand, SidebarNav } from "../sidebars/dashboardSidebar";
 
+/** Phone / tablet top bar with a labelled menu button that opens the navigation drawer. */
 function DashboardNavbar() {
+  const [open, setOpen] = useState(false);
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const useSignOut = () => {
-    destroyCookie(null, "access_token", { path: "/" });
-    queryClient.removeQueries();
-  };
-  return (
-    <nav className="fixed top-0 z-50 flex h-28 w-full items-center justify-between bg-[#F1E4C3] p-5 font-Anuphan lg:hidden ">
-      <Link
-        href="/"
-        className=" flex items-center justify-center gap-1 rounded-2xl bg-super-main-color p-2 text-3xl text-white
-          transition duration-100  active:scale-105 "
-      >
-        <IoHome />
-        <span className="text-sm font-bold">หน้าหลัก</span>
-      </Link>
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openRef = useRef<HTMLButtonElement>(null);
 
-      <section className="flex flex-col items-center justify-center gap-1 text-super-main-color">
-        <Link
-          href="/farmer/setting"
-          className=" rounded-2xl bg-super-main-color p-2 text-3xl text-white
-          transition duration-100  active:scale-105 "
+  useEffect(() => {
+    if (!open) return;
+    const opener = openRef.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKey);
+      opener?.focus();
+    };
+  }, [open]);
+
+  // Close when navigation happens by any route (e.g. browser back).
+  useEffect(() => {
+    const close = () => setOpen(false);
+    router.events.on("routeChangeStart", close);
+    return () => router.events.off("routeChangeStart", close);
+  }, [router.events]);
+
+  return (
+    <>
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-third-color/40 bg-white/95 px-4 backdrop-blur lg:hidden">
+        <Brand />
+        <button
+          ref={openRef}
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          className="btn btn-secondary btn-sm gap-1.5"
         >
-          <TbUserEdit />
-        </Link>
-        <span className="text-sm font-bold">แก้ไขข้อมูล</span>
-      </section>
-      <section className="flex flex-col items-center justify-center gap-1 text-red-700">
-        <Link
-          href="/auth/sign-in"
-          onClick={useSignOut}
-          className=" rounded-2xl bg-red-800 p-2 text-3xl text-white 
-        transition duration-100 hover:bg-red-800 active:scale-105 active:bg-red-700"
-        >
-          <VscSignOut />
-        </Link>
-        <span className="text-sm font-bold">ออกจากระบบ</span>
-      </section>
-    </nav>
+          <LuMenu aria-hidden="true" className="size-6" />
+          เมนู
+        </button>
+      </header>
+
+      {open && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="เมนู" id="mobile-menu">
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden="true"
+            className="absolute inset-0 bg-super-main-color/40 animate-in fade-in"
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute inset-y-0 right-0 flex w-[min(20rem,88vw)] flex-col gap-6 overflow-y-auto bg-white px-4 pb-6 pt-4 shadow-xl animate-in slide-in-from-right">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xl font-bold">เมนู</span>
+              <button ref={closeRef} type="button" onClick={() => setOpen(false)} className="btn btn-ghost btn-sm gap-1.5">
+                <LuX aria-hidden="true" className="size-6" />
+                ปิด
+              </button>
+            </div>
+            <SidebarNav onNavigate={() => setOpen(false)} />
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

@@ -1,95 +1,75 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
+import { useQuery } from "@tanstack/react-query";
 import Head from "next/head";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { parseCookies } from "nookies";
-import { GetFarmerServerSideService } from "../../services/farmer";
-import { Farmer } from "../../model";
-import Image from "next/image";
-import BasicInformation from "../../components/docKos/kos1/forms/basicInformation";
 import { useRouter } from "next/router";
+import React from "react";
+import BasicInformation from "../../components/docKos/kos1/forms/basicInformation";
 import FarmFieldInformation from "../../components/docKos/kos1/forms/farmFieldInformation";
 import ProductionInformation from "../../components/docKos/kos1/forms/productionInformation";
-import PlantKos1 from "../../components/docKos/kos1/forms/cardPlantKos1";
+import { FormStepper, GuideBox, KosPageHeader, Skeleton } from "../../components/ui";
+import { kos01Steps, kosGuide } from "../../data/kosGuides";
+import DashboardLayout from "../../layouts/dashboardLayout";
+import { GetDocKos1Service } from "../../services/kos1";
+
 export type Step =
   | "basicInformation"
   | "farmFieldInformation"
   | "productionInformation"
   | "plantKos1"
   | undefined;
-function Kos1({ farmer }: { farmer: Farmer }) {
+
+const stepIndex: Record<string, number> = {
+  basicInformation: 0,
+  farmFieldInformation: 1,
+  productionInformation: 2,
+};
+
+const stepTips: Record<number, string[]> = {
+  1: [
+    "ถ้าตอนนี้อยู่ที่แปลง กด “ใช้ตำแหน่งปัจจุบัน” ระบบจะใส่พิกัดให้เอง",
+    "จากนั้นกด “ดูแผนที่แปลง” แล้วตรวจว่าหมุดอยู่ตรงแปลงของคุณ",
+  ],
+  2: [
+    "1 ไร่ = 4 งาน ถ้ามีเศษน้อยกว่า 1 งาน ให้ปัดเป็นงานที่ใกล้ที่สุด",
+    "พื้นที่ที่ขอรับรองต้องไม่มากกว่าพื้นที่ทั้งหมด",
+  ],
+};
+
+/** KOS-01 application, steps 1–3 (step 4, plants, lives on /kos01/[id]/plantKos1). */
+function Kos1() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>("basicInformation");
-  useEffect(() => {
-    if (router.isReady) {
-      if (router.query.step === undefined) {
-        router.push({
-          pathname: "/create/kos01",
-          query: { step: "basicInformation" },
-        });
-      }
-      if (router.query.step) {
-        setStep(() => router.query.step as Step);
-      }
-    }
-  }, [router.isReady, router.query.step]);
+  const guide = kosGuide("kos1");
+  const step = (router.query.step as Step) ?? "basicInformation";
+  const current = stepIndex[step as string] ?? 0;
+
+  // Already-started applications prefill step 1 and update instead of creating twice.
+  const docKos1 = useQuery({
+    queryKey: ["docKos1"],
+    queryFn: () => GetDocKos1Service(),
+    retry: false,
+  });
 
   return (
-    <DashboardLayout farmer={farmer}>
+    <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-1</title>
+        <title>KOS-01 ใบสมัคร | Korat KOS</title>
       </Head>
-      <div className="min-h-screen bg-fourth-color pb-10  pt-5 font-Anuphan">
-        <header className="flex flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5">
-            <h1 className="text-xl font-semibold text-white">(KOS-01) </h1>
-            <h2 className="text-balance text-center text-lg font-normal text-white">
-              ใบสมัครขอรับการตรวจ ประเมินมาตรฐานเกษตร อินทรีย์ขั้นพื้นฐาน
-            </h2>
-          </section>
-        </header>
-        <main className="mt-5">
-          {step === "basicInformation" && <BasicInformation />}
-          {step === "farmFieldInformation" && <FarmFieldInformation />}
-          {step === "productionInformation" && (
-            <ProductionInformation farmer={farmer} />
-          )}
-        </main>
-      </div>
+      <KosPageHeader code={guide.code} title="ใบสมัครขอรับการตรวจประเมิน" description={guide.summary} />
+      <FormStepper steps={kos01Steps} current={current} />
+
+      {current === 0 && <GuideBox title="สิ่งที่ต้องเตรียม" items={guide.prepare} />}
+      {stepTips[current] && <GuideBox title="คำแนะนำ" items={stepTips[current]} />}
+
+      {!router.isReady || docKos1.isLoading ? (
+        <Skeleton className="h-96 w-full" />
+      ) : current === 0 ? (
+        <BasicInformation docKos1={docKos1.data ? docKos1 : undefined} />
+      ) : current === 1 ? (
+        <FarmFieldInformation />
+      ) : (
+        <ProductionInformation />
+      )}
     </DashboardLayout>
   );
 }
 
 export default Kos1;
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext,
-) => {
-  try {
-    const cookies = parseCookies(ctx);
-    const accessToken = cookies.access_token;
-    if (accessToken) {
-      const farmer = await GetFarmerServerSideService({
-        access_token: accessToken,
-      });
-      return {
-        props: {
-          farmer,
-        },
-      };
-    } else {
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/auth/sign-in",
-        },
-      };
-    }
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/auth/sign-in",
-      },
-    };
-  }
-};

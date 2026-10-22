@@ -26,7 +26,7 @@ export async function GetFarmerServerSideService({
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -45,7 +45,7 @@ export async function GetFarmerClientSideService(): Promise<Farmer> {
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -71,7 +71,7 @@ export async function GetAllDocKosService(): Promise<ResponseGetAllDocKosService
     });
     return dockos.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -104,7 +104,7 @@ export async function UpdateFarmerService(
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }
@@ -130,7 +130,7 @@ export async function UploadProfileService({
     });
     return farmer.data;
   } catch (error: any) {
-    console.error(error.response.data);
+    console.error(error?.response?.data ?? error);
     throw error?.response?.data;
   }
 }

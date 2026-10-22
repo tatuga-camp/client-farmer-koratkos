@@ -1,74 +1,41 @@
-import React from "react";
-import DashboardLayout from "../../layouts/dashboardLayout";
-import { GetServerSideProps, GetServerSidePropsContext } from "next";
-import { parseCookies } from "nookies";
-import {
-  GetAllDocKosService,
-  GetFarmerServerSideService,
-} from "../../services/farmer";
-import { Farmer } from "../../model";
-import Head from "next/head";
 import { useQuery } from "@tanstack/react-query";
-import Kos2Form from "../../components/docKos/kos2/form/kos2Form";
-import CreateActivity from "../../components/docKos/kos3/createActivity";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import React from "react";
+import ActivityForm from "../../components/docKos/kos3/activityForm";
+import { GuideBox, KosPageHeader, Skeleton } from "../../components/ui";
+import { kosGuide } from "../../data/kosGuides";
+import DashboardLayout from "../../layouts/dashboardLayout";
+import { GetAllDocKosService } from "../../services/farmer";
 
-function Kos02({ farmer }: { farmer: Farmer }) {
+const guide = kosGuide("kos3");
+
+/** Starts the KOS-03 logbook: saving the first activity also creates the document. */
+function CreateKos03Page() {
+  const router = useRouter();
   const docKos = useQuery({
     queryKey: ["docKos"],
     queryFn: () => GetAllDocKosService(),
   });
+
   return (
-    <DashboardLayout farmer={farmer}>
+    <DashboardLayout>
       <Head>
-        <title>กรอกข้อมูล KOS-3</title>
+        <title>KOS-03 บันทึกกิจกรรมในแปลง | Korat KOS</title>
       </Head>
-      <div className="flex min-h-screen w-full flex-col items-center bg-fourth-color pb-10  pt-10 font-Anuphan">
-        <header className="flex w-full flex-col items-center justify-center gap-5">
-          <section className="flex h-40 w-10/12 flex-col items-center justify-center gap-3 rounded-xl bg-super-main-color p-5 lg:h-20 lg:flex-row">
-            <h1 className="text-xl font-semibold text-white">(KOS-03) </h1>
-            <h2 className="text-balance text-center text-lg font-normal text-white">
-              แบบบันทึก กิจกรรมในแปลง ผลิตพืชอินทรีย์
-            </h2>
-          </section>
-        </header>
-        <main>
-          <CreateActivity />
-        </main>
-      </div>
+      <KosPageHeader code={guide.code} title={guide.name} description={guide.summary} />
+      <GuideBox title="สิ่งที่ต้องเตรียม" items={guide.prepare} />
+      {docKos.isLoading ? (
+        <Skeleton className="h-96 w-full" />
+      ) : (
+        <ActivityForm
+          // Reuse the logbook if it already exists, so a second visit here doesn't try to create it again.
+          docKos3Id={docKos.data?.kos3?.id}
+          onSaved={({ docKos3Id }) => router.push(guide.viewHref(docKos3Id))}
+        />
+      )}
     </DashboardLayout>
   );
 }
 
-export default Kos02;
-export const getServerSideProps: GetServerSideProps = async (
-  ctx: GetServerSidePropsContext,
-) => {
-  try {
-    const cookies = parseCookies(ctx);
-    const accessToken = cookies.access_token;
-    if (accessToken) {
-      const farmer = await GetFarmerServerSideService({
-        access_token: accessToken,
-      });
-      return {
-        props: {
-          farmer,
-        },
-      };
-    } else {
-      return {
-        redirect: {
-          permanent: false,
-          destination: "/auth/sign-in",
-        },
-      };
-    }
-  } catch (error) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/auth/sign-in",
-      },
-    };
-  }
-};
+export default CreateKos03Page;

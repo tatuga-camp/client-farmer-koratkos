@@ -1,218 +1,121 @@
-import { Combobox, Transition } from "@headlessui/react";
-import React, { Fragment, useEffect, useState } from "react";
-import { Button, Form, Input, Label, TextField } from "react-aria-components";
-import { FaCheck, FaSave } from "react-icons/fa";
-import { MdOutlineNavigateNext } from "react-icons/md";
-import { RiExpandUpDownLine } from "react-icons/ri";
-import ProviceComBox from "../combox/proviceComBox";
-import AmphureComBox from "../combox/amphureComBox";
-import { Amphure, Farmer, Province, Tambon } from "../../../../model";
-import TambonComBox from "../combox/tambonComBox";
-import Swal from "sweetalert2";
+import { UseQueryResult, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { LuArrowRight, LuSave } from "react-icons/lu";
+import Swal from "sweetalert2";
+import {
+  AddressFields,
+  AddressValue,
+  ErrorSummary,
+  FormActions,
+  FormCard,
+  emptyAddress,
+  validateAddress,
+} from "../../../ui";
 import {
   CreateDocKos1Service,
   ResponseGetAllDocKos1Service,
   UpdateDocKos1Service,
 } from "../../../../services/kos1";
-import { UseQueryResult } from "@tanstack/react-query";
-import Link from "next/link";
-import { IoMdCloseCircle } from "react-icons/io";
+import { showError, showSaved, showSaving } from "../../../../utils/confirm";
+import { useFieldErrors } from "../../../../utils/useFieldErrors";
 import { Step } from "../../../../pages/create/kos01";
-import { ResponseGetAllDocKosService } from "../../../../services/farmer";
-
-export type BasicInformation = {
-  address: string;
-  moo: string;
-  province: Province | null;
-  amphure: Amphure | null;
-  tambon: Tambon | null;
-};
-
-export type TypeSetBasicInformation = React.Dispatch<
-  React.SetStateAction<BasicInformation | undefined>
->;
 
 type BasicInformationProps = {
+  /** Editing a saved application (returns to the KOS-01 overview) rather than creating one. */
   isUpdate?: boolean;
   docKos1?: UseQueryResult<ResponseGetAllDocKos1Service, Error>;
 };
+
+/** KOS-01 step 1: the applicant's home address. */
 function BasicInformation({ isUpdate, docKos1 }: BasicInformationProps) {
   const router = useRouter();
-  const [baicInformation, setBasicInformation] = useState<BasicInformation>();
+  const queryClient = useQueryClient();
+  const [address, setAddress] = useState<AddressValue>(emptyAddress);
+  const [saving, setSaving] = useState(false);
+  const saved = docKos1?.data;
 
+  // Prefill when editing, or when the farmer came back to step 1 of an application already started.
   useEffect(() => {
-    if (docKos1?.isSuccess && isUpdate) {
-      setBasicInformation({
-        address: docKos1.data?.address as string,
-        moo: docKos1.data?.villageNumber as string,
-        province: {
-          name_th: docKos1.data?.province as string,
-        },
-        amphure: {
-          name_th: docKos1.data?.district as string,
-        },
-        tambon: {
-          name_th: docKos1.data?.subdistrict as string,
-        },
-      });
-    }
-  }, [docKos1?.isSuccess]);
-
-  const handleChangeOnBasicInformation = (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    setBasicInformation((prev: any) => {
-      return {
-        ...prev,
-        [e.target.name]: e.target.value,
-      };
+    if (!saved) return;
+    setAddress({
+      address: saved.address ?? "",
+      moo: saved.villageNumber ?? "",
+      province: saved.province ?? "",
+      amphure: saved.district ?? "",
+      tambon: saved.subdistrict ?? "",
     });
-  };
+  }, [saved]);
 
-  const handleSummitBasicInformation = async (e: React.FormEvent) => {
+  const form = useFieldErrors(validateAddress(address));
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!form.validate()) return;
+    const body = {
+      address: address.address.trim(),
+      villageNumber: address.moo.trim(),
+      province: address.province,
+      district: address.amphure,
+      subdistrict: address.tambon,
+    };
     try {
-      e.preventDefault();
-
-      if (isUpdate) {
-        Swal.fire({
-          title: "กำลังอัพเดทข้อมูล",
-          html: "กรุณารอสักครู่",
-          icon: "info",
-          showConfirmButton: false,
-          allowEscapeKey: false,
-          willOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        const update = await UpdateDocKos1Service({
-          address: baicInformation?.address as string,
-          villageNumber: baicInformation?.moo as string,
-          province: baicInformation?.province?.name_th as string,
-          district: baicInformation?.amphure?.name_th as string,
-          subdistrict: baicInformation?.tambon?.name_th as string,
-        });
-        await docKos1?.refetch();
-        router.push({
-          pathname: `/kos01/${update.id}`,
-        });
-        Swal.fire({
-          icon: "success",
-          title: "บันทึกข้อมูลสำเร็จ",
-          showConfirmButton: false,
-          timer: 1500,
-        });
+      setSaving(true);
+      showSaving();
+      if (saved) {
+        await UpdateDocKos1Service(body);
       } else {
-        await CreateDocKos1Service({
-          address: baicInformation?.address as string,
-          villageNumber: baicInformation?.moo as string,
-          subdistrict: baicInformation?.tambon?.name_th as string,
-          district: baicInformation?.amphure?.name_th as string,
-          province: baicInformation?.province?.name_th as string,
-        });
-        router.push({
-          pathname: "/create/kos01",
-          query: { step: "farmFieldInformation" as Step },
-        });
+        await CreateDocKos1Service(body);
       }
-    } catch (error: any) {
-      Swal.fire({
-        icon: "error",
-        title: "เกิดข้อผิดพลาด",
-        text: error.message,
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["docKos1"] }),
+        queryClient.invalidateQueries({ queryKey: ["docKos"] }),
+      ]);
+      if (isUpdate && saved) {
+        showSaved();
+        router.push(`/kos01/${saved.id}`);
+      } else {
+        Swal.close();
+        router.push({ pathname: "/create/kos01", query: { step: "farmFieldInformation" as Step } });
+      }
+    } catch (error) {
+      showError(error);
+    } finally {
+      setSaving(false);
     }
   };
+
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h2 className="w-10/12 rounded-xl bg-third-color py-2 text-center text-xl font-bold text-white lg:w-96">
-        ข้อมูลพื้นฐาน
-      </h2>
-      <div className="flex justify-center">
-        <Form
-          onSubmit={handleSummitBasicInformation}
-          className="mt-5 flex w-11/12 flex-col items-center justify-start gap-2 lg:w-96"
-        >
-          <TextField
-            className="flex w-full items-center justify-center   gap-2"
-            name="address"
-            type="text"
-            isRequired
-          >
-            <Label className="w-40 text-xl font-bold text-super-main-color">
-              ที่อยู่เลขที่ :
-            </Label>
-            <Input
-              onChange={handleChangeOnBasicInformation}
-              value={baicInformation?.address}
-              className="h-10 w-full   p-2 text-xl  ring-1 ring-black"
-            />
-          </TextField>
-          <TextField
-            className="flex w-full items-center justify-center  gap-2"
-            name="moo"
-            type="text"
-            isRequired
-          >
-            <Label className="w-40 text-xl font-bold text-super-main-color">
-              หมู่ที่ :
-            </Label>
-            <Input
-              onChange={handleChangeOnBasicInformation}
-              value={baicInformation?.moo}
-              className="h-10 w-full  p-2 text-xl"
-            />
-          </TextField>
-
-          <ProviceComBox
-            baicInformation={baicInformation as BasicInformation}
-            setBasicInformation={setBasicInformation}
-          />
-
-          <AmphureComBox
-            selectProvinceId={baicInformation?.province?.originalId as number}
-            baicInformation={baicInformation as BasicInformation}
-            setBasicInformation={setBasicInformation}
-          />
-
-          <TambonComBox
-            selectAmphureId={baicInformation?.amphure?.originalId as number}
-            baicInformation={baicInformation as BasicInformation}
-            setBasicInformation={setBasicInformation}
-          />
-
+    <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-5">
+      <ErrorSummary errors={form.errors} show={form.submitted} />
+      <FormCard
+        title="ที่อยู่ผู้สมัคร"
+        description="กรอกที่อยู่ตามทะเบียนบ้านของคุณ ส่วนที่ตั้งแปลงจะกรอกในขั้นถัดไป"
+      >
+        <AddressFields value={address} onChange={setAddress} errors={form.errors} touch={form.touch} />
+      </FormCard>
+      <FormActions>
+        {isUpdate && saved && (
+          <Link href={`/kos01/${saved.id}`} className="btn btn-secondary">
+            ยกเลิก
+          </Link>
+        )}
+        <button type="submit" className="btn btn-primary sm:min-w-44" disabled={saving}>
           {isUpdate ? (
-            <div className="mt-20 flex justify-center gap-2">
-              <Link
-                href={`/kos01/${docKos1?.data?.id}`}
-                className="flex items-center justify-center gap-3 rounded-lg bg-red-600 px-10 py-2 
-          text-xl text-white drop-shadow-md"
-              >
-                <IoMdCloseCircle />
-                ยกเลิก
-              </Link>
-              <Button
-                type="submit"
-                className="flex items-center justify-center gap-3 rounded-lg bg-super-main-color px-10 py-2 
-          text-xl text-white drop-shadow-md"
-              >
-                <FaSave />
-                บันทึก
-              </Button>
-            </div>
+            <>
+              <LuSave aria-hidden="true" className="size-5" />
+              บันทึก
+            </>
           ) : (
-            <Button
-              type="submit"
-              className={`mt-5 flex items-center justify-center gap-2 rounded-xl bg-third-color px-10 py-2 text-xl  font-bold text-white drop-shadow-lg 
-              transition duration-100 hover:bg-super-main-color 
-              active:scale-110 active:ring-2 active:ring-super-main-color`}
-            >
-              ถัดไป <MdOutlineNavigateNext />
-            </Button>
+            <>
+              บันทึกและไปขั้นถัดไป
+              <LuArrowRight aria-hidden="true" className="size-5" />
+            </>
           )}
-        </Form>
-      </div>
-    </div>
+        </button>
+      </FormActions>
+    </form>
   );
 }
 
